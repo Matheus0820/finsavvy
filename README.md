@@ -1,4 +1,6 @@
-<img src="https://github.com/Matheus0820/finsavvy/blob/main/docs/finsavvy_logo.png?raw=true" width="120" alt="FinSavvy Logo">
+<div align="center">
+   <img src="https://github.com/Matheus0820/finsavvy/blob/main/docs/finsavvy_logo.png?raw=true" width="300" alt="FinSavvy Logo">
+</div>
 
 # FinSavvy - Plataforma de Gestão Financeira Pessoal
 
