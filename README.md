@@ -1,4 +1,4 @@
-![FinSavvy Logo](https://github.com/seu-usuario/seu-repositorio/blob/main/assets/logo-finsavvy.png?raw=true)
+![FinSavvy Logo](https://github.com/Matheus0820/finsavvy/blob/main/docs/finsavvy_logo.png)
 # FinSavvy - Plataforma de Gestão Financeira Pessoal
 
 ## 🎯 Objetivo Principal
