@@ -1,4 +1,5 @@
-# example/views.py
+from django.shortcuts import render
+
 from datetime import datetime
 
 from django.http import HttpResponse
@@ -8,7 +9,7 @@ def index(request):
     html = f'''
     <html>
         <body>
-            <h1>Hello from Vercel!</h1>
+            <h1>Bem vindo ao FinSavvy</h1>
             <p>The current time is { now }.</p>
         </body>
     </html>
