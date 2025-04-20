@@ -9,7 +9,8 @@ media
 .env 
 .venv 
 env/ 
-venv/ 
+venv/
+venv_finsavvy/ 
 ENV/ 
 env.bak/ 
 venv.bak/ 
