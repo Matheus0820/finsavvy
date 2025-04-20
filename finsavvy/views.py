@@ -5,13 +5,5 @@ from datetime import datetime
 from django.http import HttpResponse
 
 def dashboard(request):
-    now = datetime.now()
-    html = f'''
-    <html>
-        <body>
-            <h1>Bem vindo ao FinSavvy</h1>
-            <p>The current time is { now }.</p>
-        </body>
-    </html>
-    '''
-    return HttpResponse(html)
+    # now = datetime.now()
+    return render(request, "pages/aviso_em_desenvolvimento.html")
