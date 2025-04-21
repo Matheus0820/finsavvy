@@ -79,7 +79,7 @@
             {% if SOCIALACCOUNT_ENABLED %}
             <hr class="border-secondary my-4">
             <div class="d-grid mb-2">
-                <a href="{ provider_login_url 'google' method='oauth2' }"
+                <a href="{% provider_login_url 'google' method='oauth2' %}"
                     class="btn btn-outline-light btn-lg d-flex align-items-center justify-content-center gap-2">
                     <img src="https://www.svgrepo.com/show/475656/google-color.svg" width="20" height="20"
                         alt="Google icon">
