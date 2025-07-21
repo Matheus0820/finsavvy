@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="pt-br" style="height: 100% !important;">
+
+<head>
+    <meta charset=" utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>FinSavvy</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-LN+7fdVzj6u52u30Kp6M/trliBMCMKTyK833zpbD+pXdCLuTusPj697FH4R/5mcr" crossorigin="anonymous">
+
+    <!-- Bootstrap icon -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
+
+    <!-- Importando fonte Poppins -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@700&display=swap" rel="stylesheet">
+</head>
+
+<body style="height: 100% !important;" class="bg-dark">
+    <div class="d-flex" style="width: 100% !important; height: 100% !important;">
+        <div class="d-flex flex-column flex-shrink-0 bg-info bg-opacity-75"
+            style="width: 4.5rem; height: 100% !important;">
+            <a href="/" class="d-block p-3 link-body-emphasis text-decoration-none" data-bs-toggle="tooltip"
+                data-bs-placement="right" data-bs-original-title="Icon-only"> <svg class="bi pe-none" width="40"
+                    height="32" aria-hidden="true">
+                    <use xlink:href="#bootstrap"></use>
+                </svg> <span class="visually-hidden">Icon-only</span> </a>
+            <ul class="nav nav-pills nav-flush flex-column mb-auto text-center">
+                <li class="nav-item"> <a href="#" class="nav-link active py-3 border-bottom rounded-0"
+                        aria-current="page" data-bs-toggle="tooltip" data-bs-placement="right" aria-label="Home"
+                        data-bs-original-title="Home">
+                        <svg class="bi pe-none" width="24" height="24" role="img" aria-label="Home">
+                            <use xlink:href="#home"></use>
+                        </svg> </a> </li>
+                <li> <a href="#" class="nav-link py-3 border-bottom rounded-0" data-bs-toggle="tooltip"
+                        data-bs-placement="right" aria-label="Dashboard" data-bs-original-title="Dashboard"> <svg
+                            class="bi pe-none" width="24" height="24" role="img" aria-label="Dashboard">
+                            <use xlink:href="#speedometer2"></use>
+                        </svg> </a> </li>
+                <li> <a href="#" class="nav-link py-3 border-bottom rounded-0" data-bs-toggle="tooltip"
+                        data-bs-placement="right" aria-label="Orders" data-bs-original-title="Orders"> <svg
+                            class="bi pe-none" width="24" height="24" role="img" aria-label="Orders">
+                            <use xlink:href="#table"></use>
+                        </svg> </a> </li>
+                <li> <a href="#" class="nav-link py-3 border-bottom rounded-0" data-bs-toggle="tooltip"
+                        data-bs-placement="right" aria-label="Products" data-bs-original-title="Products"> <svg
+                            class="bi pe-none" width="24" height="24" role="img" aria-label="Products">
+                            <use xlink:href="#grid"></use>
+                        </svg> </a> </li>
+                <li> <a href="#" class="nav-link py-3 border-bottom rounded-0" data-bs-toggle="tooltip"
+                        data-bs-placement="right" aria-label="Customers" data-bs-original-title="Customers"> <svg
+                            class="bi pe-none" width="24" height="24" role="img" aria-label="Customers">
+                            <use xlink:href="#people-circle"></use>
+                        </svg> </a> </li>
+            </ul>
+        </div>
+        <div style="height: 80px; width: 100%;">
+            <header class="d-flex justify-content-center py-3" style="width: 100%; padding: 0 !important;">
+                <div style="width: 40px;"></div>
+                <h1 class="m-0 text-center flex-grow-1" style="color: white; font-family: 'Poppins', sans-serif; font-weight: 700; font-size: x-large; line-height: 70px;">
+                    {% block titulo %}
+                        <!-- Renderização do nome da página -->
+                    {% endblock %}
+                </h1>
+                <div class="dropstart">
+                    <a href="#"
+                       class="text-white d-flex align-items-center justify-content-center p-2 link-body-emphasis text-decoration-none dropdown-toggle"
+                       data-bs-toggle="dropdown" aria-expanded="false">
+                        <p style="color: cyan; font-family: 'Poppins', sans-serif; font-weight: 700; font-size: small; margin: 0px 5px 0px 5px;">
+                            Nome do usuário
+                        </p>
+                        <img src="https://github.com/mdo.png" alt="mdo" width="50" height="50" class="rounded-circle">
+                    </a>
+                    <ul class="dropdown-menu text-small shadow dropdown-menu-end">
+                      <li><a class="dropdown-item" href="#">New project...</a></li>
+                      <li><a class="dropdown-item" href="#">Settings</a></li>
+                      <li><a class="dropdown-item" href="#">Profile</a></li>
+                      <li><hr class="dropdown-divider"></li>
+                      <li><a class="dropdown-item" href="#">Sign out</a></li>
+                    </ul>
+                  </div>
+            </header>
+            <hr style="color:black; margin: 0 !important;">
+
+            <!-- Bloco de conteúdo -->
+            <div class="" style="margin: 1rem;" name="conteiner">
+                {% block body %}
+                    <!-- Espaço de renderização de conteúdo -->
+                {% endblock %}
+            
+            </div>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-ndDqU0Gzau9qJ1lfW4pNLlhNTkCfHzAVBReH9diLvGRem5+R9g2FzA8ZGN954O5Q"
+        crossorigin="anonymous"></script>
+</body>
+
+</html>
