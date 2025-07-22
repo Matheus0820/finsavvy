@@ -1,3 +1,4 @@
+{% load static %}
 <!doctype html>
 <html lang="pt-br" style="height: 100% !important;">
 
@@ -20,37 +21,37 @@
         <div class="d-flex flex-column flex-shrink-0 bg-info bg-opacity-75"
             style="width: 4.5rem; height: 100% !important;">
             <a href="/" class="d-block p-3 link-body-emphasis text-decoration-none" data-bs-toggle="tooltip"
-                data-bs-placement="right" data-bs-original-title="Icon-only"> <svg class="bi pe-none" width="40"
-                    height="32" aria-hidden="true">
-                    <use xlink:href="#bootstrap"></use>
-                </svg> <span class="visually-hidden">Icon-only</span> </a>
+                data-bs-placement="right" data-bs-original-title="Icon-only"> 
+                <img class="bi pe-none" width="45"
+                    height="40" aria-hidden="true" src="{% static 'finsavvy/imagens/FinSavvy_logo.png' %}">
+            </a>
+
             <ul class="nav nav-pills nav-flush flex-column mb-auto text-center">
-                <li class="nav-item"> <a href="#" class="nav-link active py-3 border-bottom rounded-0"
-                        aria-current="page" data-bs-toggle="tooltip" data-bs-placement="right" aria-label="Home"
-                        data-bs-original-title="Home">
-                        <svg class="bi pe-none" width="24" height="24" role="img" aria-label="Home">
-                            <use xlink:href="#home"></use>
-                        </svg> </a> </li>
-                <li> <a href="#" class="nav-link py-3 border-bottom rounded-0" data-bs-toggle="tooltip"
-                        data-bs-placement="right" aria-label="Dashboard" data-bs-original-title="Dashboard"> <svg
-                            class="bi pe-none" width="24" height="24" role="img" aria-label="Dashboard">
-                            <use xlink:href="#speedometer2"></use>
-                        </svg> </a> </li>
-                <li> <a href="#" class="nav-link py-3 border-bottom rounded-0" data-bs-toggle="tooltip"
-                        data-bs-placement="right" aria-label="Orders" data-bs-original-title="Orders"> <svg
-                            class="bi pe-none" width="24" height="24" role="img" aria-label="Orders">
-                            <use xlink:href="#table"></use>
-                        </svg> </a> </li>
-                <li> <a href="#" class="nav-link py-3 border-bottom rounded-0" data-bs-toggle="tooltip"
-                        data-bs-placement="right" aria-label="Products" data-bs-original-title="Products"> <svg
-                            class="bi pe-none" width="24" height="24" role="img" aria-label="Products">
-                            <use xlink:href="#grid"></use>
-                        </svg> </a> </li>
-                <li> <a href="#" class="nav-link py-3 border-bottom rounded-0" data-bs-toggle="tooltip"
-                        data-bs-placement="right" aria-label="Customers" data-bs-original-title="Customers"> <svg
-                            class="bi pe-none" width="24" height="24" role="img" aria-label="Customers">
-                            <use xlink:href="#people-circle"></use>
-                        </svg> </a> </li>
+                <li class="nav-item"> 
+                    <a href="#" class="nav-link active py-3 border-bottom rounded-0 text-light"
+                        aria-current="page" data-bs-toggle="tooltip" data-bs-placement="right" aria-label="Dashboard"
+                        data-bs-original-title="Dashboard">
+                        <i class="bi bi-speedometer2" style="font-size: 1.5rem;"></i>
+                    </a> 
+                </li>
+                <li> 
+                    <a href="#" class="nav-link py-3 border-bottom rounded-0 text-light" data-bs-toggle="tooltip"
+                        data-bs-placement="right" aria-label="Gastos dos meses" data-bs-original-title="Gastos dos meses"> 
+                        <i class="bi bi-clipboard2" style="font-size: 1.5rem;"></i>
+                    </a> 
+                </li>
+                <li> 
+                    <a href="#" class="nav-link py-3 border-bottom rounded-0 text-light" data-bs-toggle="tooltip"
+                        data-bs-placement="right" aria-label="Gastos fixos" data-bs-original-title="Gastos fixos"> 
+                        <i class="bi bi-pin-angle" style="font-size: 1.5rem;"></i> 
+                    </a>
+                </li>
+                <li> 
+                    <a href="#" class="nav-link py-3 border-bottom rounded-0 text-light" data-bs-toggle="tooltip"
+                        data-bs-placement="right" aria-label="Relatórios" data-bs-original-title="Relatórios"> 
+                        <i class="bi bi-clipboard2-data" style="font-size: 1.5rem;"></i>
+                    </a>
+                </li>
             </ul>
         </div>
         <div style="height: 80px; width: 100%;">

@@ -6,4 +6,4 @@ from django.http import HttpResponse
 
 def dashboard(request):
     # now = datetime.now()
-    return render(request, "pages/aviso_em_desenvolvimento.html")
+    return render(request, "pages/aviso_em_desenvolvimento.html") # base.html
