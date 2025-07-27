@@ -29,7 +29,7 @@
 
             <ul class="nav nav-pills nav-flush flex-column mb-auto text-center">
                 <li class="nav-item"> 
-                    <a href="#" class="nav-link {% if request.path == '/dashboard' %} active {% endif %} py-3 border-bottom rounded-0 text-light"
+                    <a href="{% url 'dashboard' %}" class="nav-link {% if request.path == '/dashboard' %} active {% endif %} py-3 border-bottom rounded-0 text-light"
                         aria-current="page" data-bs-toggle="tooltip" data-bs-placement="right" aria-label="Dashboard"
                         data-bs-original-title="Dashboard">
                         <i class="bi bi-speedometer2" style="font-size: 1.5rem;"></i>
@@ -42,7 +42,7 @@
                     </a> 
                 </li>
                 <li> 
-                    <a href="#" class="nav-link {% if request.path == '/gastos_fixos' %} active {% endif %} py-3 border-bottom rounded-0 text-light" data-bs-toggle="tooltip"
+                    <a href="{% url 'list_custosFixos' %}" class="nav-link {% if request.path == '/gastos_fixos' %} active {% endif %} py-3 border-bottom rounded-0 text-light" data-bs-toggle="tooltip"
                         data-bs-placement="right" aria-label="Gastos fixos" data-bs-original-title="Gastos fixos"> 
                         <i class="bi bi-pin-angle" style="font-size: 1.5rem;"></i> 
                     </a>
@@ -86,7 +86,7 @@
                   <!-- Modal -->
                 <div class="modal fade" id="modalsair" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="modalsairLabel" aria-hidden="true">
                 <div class="modal-dialog">
-                    <div class="modal-content">
+                    <div class="modal-content text-bg-dark">
                         <div class="modal-header">
                             <h1 class="modal-title fs-5" id="modalsairLabel">Você realmente deseja sair??</h1>
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>

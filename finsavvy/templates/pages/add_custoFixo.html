@@ -1,0 +1,41 @@
+{% extends 'pages/base.html' %}
+
+{% block titulo %}
+Custos Fixos
+{% endblock %}
+
+{% block body %}
+<div class="card text-bg-dark">
+    <h5 class="card-header text-center">
+        <div class="row">
+            <div class="col"></div>
+            <div class="col-6">Novo custo fixo</div>
+            <div class="col">
+                <a type="button" href="#" class="btn btn-sm btn-outline-info" title="Novo Custo Fixo"><i
+                        class="bi bi-plus-circle"></i></a>
+            </div>
+        </div>
+    </h5>
+    <div class="card-body">
+        <form action="{% url 'add_custofixo' %}" method="POST">
+            {% csrf_token %}
+            <div class="row">
+            <div class="col">
+                <label for="nome" class="form-label">Nome do custo fixos</label> <br>
+                {{formCustoFixo.nome}}
+            </div>
+            <div class="col">
+                <label for="valor" class="form-label">Valor</label> <br>
+                <div class="input-group mb-3">
+                    <span class="input-group-text text-bg-dark">R$</span>
+                    {{formCustoFixo.valor}}
+                    <span class="input-group-text text-bg-dark">,00</span>
+                </div>
+            </div>
+        </div>
+
+        <button type="submit" class="btn btn-outline-info" title="Adicionar custo fixo"><i class="bi bi-bookmark-plus"></i> Adicionar</button>
+        </form>
+    </div>
+</div>
+{% endblock  %}

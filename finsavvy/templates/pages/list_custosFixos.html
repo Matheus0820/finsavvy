@@ -1,0 +1,79 @@
+{% extends 'pages/base.html' %}
+
+{% block titulo %}
+Custos Fixos
+{% endblock %}
+
+{% block body %}
+<div class="card text-bg-dark">
+    <h5 class="card-header text-center">
+        <div class="row">
+            <div class="col"></div>
+            <div class="col-6">Lista de Custos Fixos</div>
+            <div class="col">
+                <a type="button" href="{% url 'add_custofixo' %}" class="btn btn-sm btn-outline-info" title="Novo Custo Fixo"><i
+                        class="bi bi-plus-circle"></i></a>
+            </div>
+        </div>
+    </h5>
+    <div class="card-body">
+        {% if custosFixos %}
+        <table class="table table-sm table-dark table-striped">
+            <thead>
+                <tr class="text-center">
+                    <th scope="col">#</th>
+                    <th scope="col">Nome</th>
+                    <th scope="col">Valor</th>
+                    <th scope="col">Ação</th>
+                </tr>
+            </thead>
+            <tbody class="table-group-divider">
+               {% for custo in custosFixos %}
+                <tr>
+                    <th scope="row">{{ forloop.counter }}</th>
+                    <td>{{custo.nome}}</td>
+                    <td>R$ {{custo.valor}}</td>
+                    <td class="text-center">
+                        <a type="button" class="btn btn-sm btn-outline-warning" title="Editar"><i
+                                class="bi bi-pencil"></i></a>
+
+                        <!-- Button trigger modal -->
+                        <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal"
+                            data-bs-target="#ModalRemoveCustoFixo">
+                            <i class="bi bi-trash"></i>
+                        </button>
+
+                        <!-- Modal -->
+                        <div class="modal fade " id="ModalRemoveCustoFixo" tabindex="-1" aria-labelledby="ModalRemoveCustoFixoLabel"
+                            aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+                            <div class="modal-dialog modal-dialog-centered">
+                                <div class="modal-content text-bg-dark">
+                                    <div class="modal-header">
+                                        <h1 class="modal-title fs-5" id="ModalRemoveCustoFixoLabel">Deseja mesmo fazer isso?</h1>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                            aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        Quer remover o custo fixo - Nome do custo fixo -? 
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary"
+                                            data-bs-dismiss="modal">Não</button>
+                                        <a href="#" type="button" class="btn btn-danger">Sim</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <h6 class="text-center text-info">
+            <i class="bi bi-emoji-frown"></i> Não há nenhum custo fixo cadastrado.
+        </h6>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
