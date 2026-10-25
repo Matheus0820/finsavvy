@@ -1,0 +1,6 @@
+User-agent: *
+Disallow: /admin/
+Disallow: /dashboard/
+Disallow: /accounts/
+Allow: /
+Sitemap: https://finsavvyy.vercel.app/sitemap.xml

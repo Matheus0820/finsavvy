@@ -28,29 +28,47 @@
             </a>
 
             <ul class="nav nav-pills nav-flush flex-column mb-auto text-center">
-                <li class="nav-item"> 
+                <li class="nav-item">
                     <a href="{% url 'dashboard' %}" class="nav-link {% if request.path == '/dashboard' %} active {% endif %} py-3 border-bottom rounded-0 text-light"
                         aria-current="page" data-bs-toggle="tooltip" data-bs-placement="right" aria-label="Dashboard"
                         data-bs-original-title="Dashboard">
                         <i class="bi bi-speedometer2" style="font-size: 1.5rem;"></i>
-                    </a> 
-                </li>
-                <li> 
-                    <a href="#" class="nav-link {% if request.path == '/relatorio_gastos' %} active {% endif %} py-3 border-bottom rounded-0 text-light" data-bs-toggle="tooltip"
-                        data-bs-placement="right" aria-label="Relatório de Gastos" data-bs-original-title="Relatório de Gastos"> 
-                        <i class="bi bi-clipboard2" style="font-size: 1.5rem;"></i>
-                    </a> 
-                </li>
-                <li> 
-                    <a href="{% url 'list_custosFixos' %}" class="nav-link {% if request.path == '/gastos_fixos' %} active {% endif %} py-3 border-bottom rounded-0 text-light" data-bs-toggle="tooltip"
-                        data-bs-placement="right" aria-label="Gastos fixos" data-bs-original-title="Gastos fixos"> 
-                        <i class="bi bi-pin-angle" style="font-size: 1.5rem;"></i> 
                     </a>
                 </li>
-                <li> 
-                    <a href="#" class="nav-link {% if request.path == '/relatorios' %} active {% endif %} py-3 border-bottom rounded-0 text-light" data-bs-toggle="tooltip"
-                        data-bs-placement="right" aria-label="Relatórios" data-bs-original-title="Relatórios"> 
-                        <i class="bi bi-clipboard2-data" style="font-size: 1.5rem;"></i>
+                <li>
+                    <a href="{% url 'list_veiculo' %}" class="nav-link py-3 border-bottom rounded-0 text-light" data-bs-toggle="tooltip"
+                        data-bs-placement="right" aria-label="Veículos" data-bs-original-title="Veículos">
+                        <i class="bi bi-truck" style="font-size: 1.5rem;"></i>
+                    </a>
+                </li>
+                <li>
+                    <a href="{% url 'list_custosVariaveis' %}" class="nav-link py-3 border-bottom rounded-0 text-light" data-bs-toggle="tooltip"
+                        data-bs-placement="right" aria-label="Custos Variáveis" data-bs-original-title="Custos Variáveis">
+                        <i class="bi bi-cash-stack" style="font-size: 1.5rem;"></i>
+                    </a>
+                </li>
+                <li>
+                    <a href="{% url 'list_custoCompra' %}" class="nav-link py-3 border-bottom rounded-0 text-light" data-bs-toggle="tooltip"
+                        data-bs-placement="right" aria-label="Custos Compras" data-bs-original-title="Custos Compras">
+                        <i class="bi bi-receipt" style="font-size: 1.5rem;"></i>
+                    </a>
+                </li>
+                <li>
+                    <a href="{% url 'list_custoCombustivel' %}" class="nav-link py-3 border-bottom rounded-0 text-light" data-bs-toggle="tooltip"
+                        data-bs-placement="right" aria-label="Combustível" data-bs-original-title="Combustível">
+                        <i class="bi bi-fuel-pump" style="font-size: 1.5rem;"></i>
+                    </a>
+                </li>
+                <li>
+                    <a href="{% url 'list_manutencao' %}" class="nav-link py-3 border-bottom rounded-0 text-light" data-bs-toggle="tooltip"
+                        data-bs-placement="right" aria-label="Manutenções" data-bs-original-title="Manutenções">
+                        <i class="bi bi-tools" style="font-size: 1.5rem;"></i>
+                    </a>
+                </li>
+                <li>
+                    <a href="{% url 'list_custosFixos' %}" class="nav-link py-3 border-bottom rounded-0 text-light" data-bs-toggle="tooltip"
+                        data-bs-placement="right" aria-label="Gastos fixos" data-bs-original-title="Gastos fixos">
+                        <i class="bi bi-pin-angle" style="font-size: 1.5rem;"></i>
                     </a>
                 </li>
             </ul>
@@ -67,10 +85,13 @@
                     <a href="#"
                        class="text-white d-flex align-items-center justify-content-center p-2 link-body-emphasis text-decoration-none dropdown-toggle"
                        data-bs-toggle="dropdown" aria-expanded="false">
-                        <p style="color: cyan; font-family: 'Poppins', sans-serif; font-weight: 700; font-size: small; margin: 0px 5px 0px 5px;">
+                        <p style="color: #00e0c1; font-family: 'Poppins', sans-serif; font-weight: 700; font-size: small; margin: 0px 5px 0px 5px;">
                             {{ user.username }}
                         </p>
-                        <img src="https://github.com/mdo.png" alt="mdo" width="50" height="50" class="rounded-circle">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="50" height="50" fill="currentColor" class="bi bi-person-circle" viewBox="0 0 16 16">
+  <path d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0"/>
+  <path fill-rule="evenodd" d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8m8-7a7 7 0 0 0-5.468 11.37C3.242 11.226 4.805 10 8 10s4.757 1.225 5.468 2.37A7 7 0 0 0 8 1"/>
+</svg>
                     </a>
                     <ul class="dropdown-menu text-small shadow dropdown-menu-end dropdown-menu-dark">
                       <li><a class="dropdown-item" href="#">Configurações</a></li>

@@ -3,6 +3,7 @@
 {% load allauth account socialaccount %}
 
 <title>FinSavvy</title>
+<link rel="icon" href="{% static 'finsavvy/imagens/FinSavvy_logo.png' %}" type="image/png">
 
 {% block content %}
 <!-- Bootstrap 5.3.5 CSS -->
@@ -15,7 +16,7 @@
 <div class="container mt-4">
     {% for message in messages %}
     <div class="alert alert-{{ message.tags }} alert-dismissible fade show border-0 shadow-sm px-4 py-3" role="alert"
-        style="background-color: #00BFA6; color: #fff; font-family: 'Poppins', sans-serif;">
+        style="background-color: #008f7a; color: #fff; font-family: 'Poppins', sans-serif;">
         {{ message }}
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert" aria-label="Close">
         </button>
@@ -31,7 +32,7 @@
         <div class="card-body px-4 py-5">
 
             <div class="text-center mb-3">
-                <img src="{% static 'imagens/FinSavvy_logo.png' %}" alt="Logo FinSavvy" width="100" height="100"
+                <img src="{% static 'finsavvy/imagens/FinSavvy_logo.png' %}" alt="Logo FinSavvy" width="100" height="100"
                     class="mb-2">
             </div>
 

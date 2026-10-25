@@ -5,5 +5,60 @@ Dashboard
 {% endblock %}
 
 {% block body %}
-
+<div class="row row-cols-1 row-cols-md-3 g-4">
+    <div class="col">
+        <div class="card h-100 bg-dark text-white border-info">
+            <div class="card-body">
+                <h5 class="card-title"><i class="bi bi-truck me-2"></i>Veículos</h5>
+                <p class="card-text">Gerencie sua frota de veículos.</p>
+                <a href="{% url 'list_veiculo' %}" class="btn btn-outline-info">Acessar</a>
+            </div>
+        </div>
+    </div>
+    <div class="col">
+        <div class="card h-100 bg-dark text-white border-info">
+            <div class="card-body">
+                <h5 class="card-title"><i class="bi bi-cash-stack me-2"></i>Custos Variáveis</h5>
+                <p class="card-text">Acompanhe seus gastos variáveis.</p>
+                <a href="{% url 'list_custosVariaveis' %}" class="btn btn-outline-info">Acessar</a>
+            </div>
+        </div>
+    </div>
+    <div class="col">
+        <div class="card h-100 bg-dark text-white border-info">
+            <div class="card-body">
+                <h5 class="card-title"><i class="bi bi-receipt me-2"></i>Custos Compras</h5>
+                <p class="card-text">Gerencie custos de compras.</p>
+                <a href="{% url 'list_custoCompra' %}" class="btn btn-outline-info">Acessar</a>
+            </div>
+        </div>
+    </div>
+    <div class="col">
+        <div class="card h-100 bg-dark text-white border-info">
+            <div class="card-body">
+                <h5 class="card-title"><i class="bi bi-fuel-pump me-2"></i>Combustível</h5>
+                <p class="card-text">Controle abastecimentos.</p>
+                <a href="{% url 'list_custoCombustivel' %}" class="btn btn-outline-info">Acessar</a>
+            </div>
+        </div>
+    </div>
+    <div class="col">
+        <div class="card h-100 bg-dark text-white border-info">
+            <div class="card-body">
+                <h5 class="card-title"><i class="bi bi-tools me-2"></i>Manutenções</h5>
+                <p class="card-text">Registro de manutenções.</p>
+                <a href="{% url 'list_manutencao' %}" class="btn btn-outline-info">Acessar</a>
+            </div>
+        </div>
+    </div>
+    <div class="col">
+        <div class="card h-100 bg-dark text-white border-info">
+            <div class="card-body">
+                <h5 class="card-title"><i class="bi bi-pin-angle me-2"></i>Custos Fixos</h5>
+                <p class="card-text">Acompanhe seus custos fixos.</p>
+                <a href="{% url 'list_custosFixos' %}" class="btn btn-outline-info">Acessar</a>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}
