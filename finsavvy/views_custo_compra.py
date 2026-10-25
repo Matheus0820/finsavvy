@@ -2,7 +2,7 @@
 
 from django.urls import reverse_lazy
 from django.views.generic import ListView, CreateView, UpdateView, DeleteView
-from .new_models import CustoCompra
+from .models import CustoCompra
 
 class CustoCompraListView(ListView):
     model = CustoCompra

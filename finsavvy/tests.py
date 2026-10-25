@@ -1,7 +1,7 @@
 from django.test import TestCase
 from django.contrib.auth import get_user_model
 from django.urls import reverse
-from .models import CustoFixo
+from .models import CustoFixo, Veiculo
 
 User = get_user_model()
 
@@ -53,3 +53,24 @@ class CustoFixoTests(TestCase):
         self.client.login(username='alice', password='testpass')
         response = self.client.post(reverse('remove_custofixo', args=[self.custo2.id]))
         self.assertEqual(response.status_code, 404)
+
+class VeiculoTests(TestCase):
+    def setUp(self):
+        self.user1 = User.objects.create_user(username='alice', password='testpass')
+        self.veiculo1 = Veiculo.objects.create(
+            user=self.user1, marca='Toyota', modelo='Corolla', placa='ABC-1234', tipo_veiculo='CARRO', km_atual=10000
+        )
+
+    def test_list_veiculos(self):
+        self.client.login(username='alice', password='testpass')
+        response = self.client.get(reverse('list_veiculo'))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Corolla')
+
+    def test_add_veiculo(self):
+        self.client.login(username='alice', password='testpass')
+        response = self.client.post(reverse('add_veiculo'), {
+            'marca': 'Honda', 'modelo': 'Civic', 'placa': 'XYZ-5678', 'tipo_veiculo': 'CARRO', 'km_atual': 5000
+        })
+        self.assertRedirects(response, reverse('list_veiculo'))
+        self.assertTrue(Veiculo.objects.filter(placa='XYZ-5678').exists())

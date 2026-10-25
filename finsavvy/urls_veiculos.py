@@ -1,10 +1,5 @@
-# This file defines URL patterns for Veiculo CRUD operations.
-# It is included in finsavvy/urls.py on line 11.
-# No other file defines these routes.
-# Follows user instruction to implement.
-
 from django.urls import path
-from .views_veiculo import (
+from .views_veiculos import (
     VeiculoListView,
     VeiculoCreateView,
     VeiculoUpdateView,

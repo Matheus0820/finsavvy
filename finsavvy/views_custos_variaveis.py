@@ -2,7 +2,7 @@
 
 from django.urls import reverse_lazy
 from django.views.generic import ListView, CreateView, UpdateView, DeleteView
-from .new_models import CustoVariavel
+from .models import CustoVariavel
 
 class CustoVariavelListView(ListView):
     model = CustoVariavel

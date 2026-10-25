@@ -1,5 +1,5 @@
 from django import forms
-from .new_models import (
+from .models import (
     CustoVariavel,
     CustoCompra,
     Veiculo,

@@ -2,7 +2,7 @@
 
 from django.urls import reverse_lazy
 from django.views.generic import ListView, CreateView, UpdateView, DeleteView
-from .new_models import CustoCombustivel
+from .models import CustoCombustivel
 
 class CustoCombustivelListView(ListView):
     model = CustoCombustivel
