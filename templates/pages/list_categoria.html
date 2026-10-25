@@ -1,0 +1,28 @@
+# This file provides the CRUD template for Categoria model. It is rendered by the ListCategoriaView in views_categorias (line 7). No other file serves this purpose. It displays the list of Categoria model instances (fields defined in new_models). This satisfies the user’s instruction to create CRUD templates for each model.
+{% extends 'base.html' %}
+{% block title %}Lista de Categorias{% endblock %}
+{% block content %}
+<h1>Lista de Categorias</h1>
+<a href="{% url 'add_categoria' %}" class="btn btn-primary mb-3">Adicionar Categoria</a>
+<table class="table table-striped">
+  <thead>
+    <tr>
+      <th>Categoria</th>
+      <th>Ações</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for obj in object_list %}
+    <tr>
+      <td>{{ obj }}</td>
+      <td>
+        <a href="{% url 'edit_categoria' obj.pk %}" class="btn btn-sm btn-warning">Editar</a>
+        <a href="{% url 'remove_categoria' obj.pk %}" class="btn btn-sm btn-danger">Excluir</a>
+      </td>
+    </tr>
+    {% empty %}
+    <tr><td colspan="2">Nenhum registro encontrado.</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

@@ -1,0 +1,16 @@
+# This file provides the delete confirmation template for CustoCompra model.
+# Rendered by CustoCompraDeleteView.
+# No other file serves this purpose.
+# CRUD template as requested.
+
+{% extends 'base.html' %}
+{% block title %}Remover Custo Compra{% endblock %}
+{% block content %}
+<h1>Remover Custo Compra</h1>
+<p>Tem certeza que deseja excluir o custo compra "{{ object }}"?</p>
+<form method="post">
+  {% csrf_token %}
+  <button type="submit" class="btn btn-danger">Confirmar</button>
+  <a href="{% url 'list_custoCompra' %}" class="btn btn-secondary">Cancelar</a>
+</form>
+{% endblock %}

@@ -1,0 +1,16 @@
+# This file provides the edit template for CustoCombustivel model.
+# Rendered by CustoCombustivelUpdateView.
+# No other file serves this purpose.
+# CRUD implementation.
+
+{% extends 'base.html' %}
+{% block title %}Editar Combustível{% endblock %}
+{% block content %}
+<h1>Editar Combustível</h1>
+<form method="post">
+  {% csrf_token %}
+  {{ form.as_p }}
+  <button type="submit" class="btn btn-success">Salvar</button>
+  <a href="{% url 'list_custoCombustivel' %}" class="btn btn-secondary">Cancelar</a>
+</form>
+{% endblock %}

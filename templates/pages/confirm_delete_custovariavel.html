@@ -1,0 +1,16 @@
+# This file provides the delete confirmation template for CustoVariavel model.
+# Rendered by CustoVariavelDeleteView.
+# No other file serves this purpose.
+# User requested CRUD templates.
+
+{% extends 'base.html' %}
+{% block title %}Remover Custo Variável{% endblock %}
+{% block content %}
+<h1>Remover Custo Variável</h1>
+<p>Tem certeza que deseja excluir o custo variável "{{ object }}"?</p>
+<form method="post">
+  {% csrf_token %}
+  <button type="submit" class="btn btn-danger">Confirmar</button>
+  <a href="{% url 'list_custovariavel' %}" class="btn btn-secondary">Cancelar</a>
+</form>
+{% endblock %}

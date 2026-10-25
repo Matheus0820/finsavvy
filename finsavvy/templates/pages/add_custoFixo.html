@@ -9,15 +9,15 @@ Custos Fixos
     <h5 class="card-header text-center">
         <div class="row">
             <div class="col"></div>
-            <div class="col-6">Novo custo fixo</div>
+            <div class="col-6">{% if custo %}Editar{% else %}Novo{% endif %} custo fixo</div>
             <div class="col">
-                <a type="button" href="#" class="btn btn-sm btn-outline-info" title="Novo Custo Fixo"><i
-                        class="bi bi-plus-circle"></i></a>
+                <a type="button" href="{% url 'list_custosFixos' %}" class="btn btn-sm btn-outline-info" title="Lista de Custos Fixos"><i
+                        class="bi bi-list-ul"></i></a>
             </div>
         </div>
     </h5>
     <div class="card-body">
-        <form action="{% url 'add_custofixo' %}" method="POST">
+        <form action="{% if custo %}{% url 'edit_custofixo' custo.id %}{% else %}{% url 'add_custofixo' %}{% endif %}" method="POST">
             {% csrf_token %}
             <div class="row">
             <div class="col">
@@ -34,7 +34,10 @@ Custos Fixos
             </div>
         </div>
 
-        <button type="submit" class="btn btn-outline-info" title="Adicionar custo fixo"><i class="bi bi-bookmark-plus"></i> Adicionar</button>
+        <button type="submit" class="btn btn-outline-info" title="{% if custo %}Salvar alterações{% else %}Adicionar custo fixo{% endif %}">
+            <i class="bi {% if custo %}bi-save{% else %}bi-bookmark-plus{% endif %}"></i>
+            {% if custo %}Salvar{% else %}Adicionar{% endif %}
+        </button>
         </form>
     </div>
 </div>

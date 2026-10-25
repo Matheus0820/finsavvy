@@ -1,0 +1,48 @@
+{% extends 'pages/base.html' %}
+
+{% block titulo %}Custos Variáveis{% endblock %}
+
+{% block body %}
+  <div class="card text-bg-dark">
+    <h5 class="card-header text-center">
+      <div class="row">
+        <div class="col"></div>
+        <div class="col-6">Lista de Custos Variáveis</div>
+        <div class="col">
+          <a href="{% url 'add_custoVariavel' %}" class="btn btn-sm btn-outline-info" title="Adicionar Custo Variável"><i class="bi bi-plus-circle"></i></a>
+        </div>
+      </div>
+    </h5>
+    <div class="card-body">
+      {% if custosVariaveis %}
+      <table class="table table-sm table-dark table-striped">
+        <thead>
+          <tr class="text-center">
+            <th>#</th>
+            <th>Nome</th>
+            <th>Valor</th>
+            <th>Categoria</th>
+            <th>Ação</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for custo in custosVariaveis %}
+          <tr>
+            <td>{{ forloop.counter }}</td>
+            <td>{{ custo.nome }}</td>
+            <td>R$ {{ custo.valor }}</td>
+            <td>{{ custo.categoria }}</td>
+            <td class="text-center">
+              <a href="{% url 'edit_custoVariavel' custo.id %}" class="btn btn-sm btn-outline-warning" title="Editar"><i class="bi bi-pencil"></i></a>
+              <a href="{% url 'delete_custoVariavel' custo.id %}" class="btn btn-sm btn-outline-danger" title="Excluir"><i class="bi bi-trash"></i></a>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      {% else %}
+      <h6 class="text-center text-info"><i class="bi bi-emoji-frown"></i> Nenhum custo variável cadastrado.</h6>
+      {% endif %}
+    </div>
+  </div>
+{% endblock %}

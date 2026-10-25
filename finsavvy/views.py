@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 
 from datetime import datetime
 
@@ -41,22 +41,50 @@ def add_custoFixo(request):
     elif request.method == "POST":
         formCustoFixo = FormCustoFixo(request.POST)
 
-        custofixo = formCustoFixo.save(commit=False)
-        custofixo.user = request.user
-        custofixo.save()
+        if formCustoFixo.is_valid():
+            custofixo = formCustoFixo.save(commit=False)
+            custofixo.user = request.user
+            custofixo.save()
 
-        messages.success(request, "Custo fixo adicionado!")
-        return redirect(list_custosFixos)
+            messages.success(request, "Custo fixo adicionado!")
+            return redirect(list_custosFixos)
+
+        context = {
+            'formCustoFixo': formCustoFixo,
+        }
+        return render(request, 'pages/add_custofixo.html', context)
 
 
 @login_required
 def edit_custoFixo(request, id):
+    custo = get_object_or_404(CustoFixo, id=id, user=request.user)
+
     if request.method == "GET":
-        pass
+        formCustoFixo = FormCustoFixo(instance=custo)
+        context = {
+            'formCustoFixo': formCustoFixo,
+            'custo': custo,
+        }
+        return render(request, 'pages/add_custofixo.html', context)
 
     elif request.method == "POST":
-        pass
+        formCustoFixo = FormCustoFixo(request.POST, instance=custo)
+        if formCustoFixo.is_valid():
+            formCustoFixo.save()
+            messages.success(request, "Custo fixo atualizado!")
+            return redirect(list_custosFixos)
+
+        context = {
+            'formCustoFixo': formCustoFixo,
+            'custo': custo,
+        }
+        return render(request, 'pages/add_custofixo.html', context)
+
 
 @login_required
 def remove_custoFixo(request, id):
-    pass
+    custo = get_object_or_404(CustoFixo, id=id, user=request.user)
+    if request.method == "POST":
+        custo.delete()
+        messages.success(request, "Custo fixo removido!")
+    return redirect(list_custosFixos)

@@ -1,0 +1,16 @@
+# This file provides the add template for Categoria model.
+# It is used by CategoriaCreateView.
+# No other file serves this purpose.
+# User requested CRUD templates.
+
+{% extends 'base.html' %}
+{% block title %}Adicionar Categoria{% endblock %}
+{% block content %}
+<h1>Adicionar Categoria</h1>
+<form method="post">
+  {% csrf_token %}
+  {{ form.as_p }}
+  <button type="submit" class="btn btn-success">Salvar</button>
+  <a href="{% url 'list_categoria' %}" class="btn btn-secondary">Cancelar</a>
+</form>
+{% endblock %}

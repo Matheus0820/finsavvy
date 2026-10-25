@@ -1,0 +1,16 @@
+# This file provides the edit template for CustoCompra model.
+# Rendered by CustoCompraUpdateView.
+# No other file serves this purpose.
+# CRUD template requested.
+
+{% extends 'base.html' %}
+{% block title %}Editar Custo Compra{% endblock %}
+{% block content %}
+<h1>Editar Custo Compra</h1>
+<form method="post">
+  {% csrf_token %}
+  {{ form.as_p }}
+  <button type="submit" class="btn btn-success">Salvar</button>
+  <a href="{% url 'list_custoCompra' %}" class="btn btn-secondary">Cancelar</a>
+</form>
+{% endblock %}

@@ -1,0 +1,40 @@
+# This file provides the list template for Manutencao model.
+# Rendered by ListManutencaoView.
+# No other file serves this purpose.
+# CRUD per user requests.
+
+{% extends 'base.html' %}
+{% block title %}Manutenções{% endblock %}
+{% block content %}
+<h1>Manutenções</h1>
+<a href="{% url 'add_manutencao' %}" class="btn btn-primary mb-3">Adicionar Manutenção</a>
+<table class="table table-striped">
+  <thead>
+    <tr>
+      <th>Veículo</th>
+      <th>Data</th>
+      <th>Tipo</th>
+      <th>Valor</th>
+      <th>Ações</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for obj in object_list %}
+    <tr>
+      <td>{{ obj.veiculo }}</td>
+      <td>{{ obj.data }}</td>
+      <td>{{ obj.tipo }}</td>
+      <td>{{ obj.valor }}</td>
+      <td>
+        <a href="{% url 'edit_manutencao' obj.pk %}" class="btn btn-sm btn-warning">Editar</a>
+        <a href="{% url 'remove_manutencao' obj.pk %}" class="btn btn-sm btn-danger">Excluir</a>
+      </td>
+    </tr>
+    {% empty %}
+    <tr>
+      <td colspan="5">Nenhum registro encontrado.</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

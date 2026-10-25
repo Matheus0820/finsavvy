@@ -1,0 +1,36 @@
+# This file provides the list template for CustoCompra model.
+# Rendered by ListCustoCompraView.
+# No other file serves this purpose.
+# CRUD template per user request.
+
+{% extends 'base.html' %}
+{% block title %}Custos Compras{% endblock %}
+{% block content %}
+<h1>Custos Compras</h1>
+<a href="{% url 'add_custoCompra' %}" class="btn btn-primary mb-3">Adicionar Custo Compra</a>
+<table class="table table-striped">
+  <thead>
+    <tr>
+      <th>Descrição</th>
+      <th>Valor</th>
+      <th>Ações</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for obj in object_list %}
+    <tr>
+      <td>{{ obj.descricao }}</td>
+      <td>{{ obj.valor }}</td>
+      <td>
+        <a href="{% url 'edit_custoCompra' obj.pk %}" class="btn btn-sm btn-warning">Editar</a>
+        <a href="{% url 'remove_custoCompra' obj.pk %}" class="btn btn-sm btn-danger">Excluir</a>
+      </td>
+    </tr>
+    {% empty %}
+    <tr>
+      <td colspan="3">Nenhum registro encontrado.</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

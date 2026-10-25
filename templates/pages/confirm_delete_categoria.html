@@ -1,0 +1,16 @@
+# This file provides the delete confirmation template for Categoria model.
+# Rendered by CategoriaDeleteView.
+# No other file serves this purpose.
+# User requested CRUD templates.
+
+{% extends 'base.html' %}
+{% block title %}Remover Categoria{% endblock %}
+{% block content %}
+<h1>Remover Categoria</h1>
+<p>Tem certeza de que deseja excluir a categoria "{{ object }}"?</p>
+<form method="post">
+  {% csrf_token %}
+  <button type="submit" class="btn btn-danger">Confirmar</button>
+  <a href="{% url 'list_categoria' %}" class="btn btn-secondary">Cancelar</a>
+</form>
+{% endblock %}

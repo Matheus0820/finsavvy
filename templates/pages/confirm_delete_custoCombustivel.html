@@ -1,0 +1,16 @@
+# This file provides the delete confirmation template for CustoCombustivel model.
+# Rendered by CustoCombustivelDeleteView.
+# No other file serves this purpose.
+# As per user spec.
+
+{% extends 'base.html' %}
+{% block title %}Remover Combustível{% endblock %}
+{% block content %}
+<h1>Remover Combustível</h1>
+<p>Tem certeza de que deseja excluir o combustível "{{ object }}"?</p>
+<form method="post">
+  {% csrf_token %}
+  <button type="submit" class="btn btn-danger">Confirmar</button>
+  <a href="{% url 'list_custoCombustivel' %}" class="btn btn-secondary">Cancelar</a>
+</form>
+{% endblock %}

@@ -1,0 +1,36 @@
+# This file provides the list template for Veiculo model.
+# Rendered by ListVeiculoView.
+# No other file serves this purpose.
+# CRUD template as per user request.
+
+{% extends 'base.html' %}
+{% block title %}Veículos{% endblock %}
+{% block content %}
+<h1>Veículos</h1>
+<a href="{% url 'add_veiculo' %}" class="btn btn-primary mb-3">Adicionar Veículo</a>
+<table class="table table-striped">
+  <thead>
+    <tr>
+      <th>Marca</th>
+      <th>Modelo</th>
+      <th>Ações</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for obj in object_list %}
+    <tr>
+      <td>{{ obj.marca }}</td>
+      <td>{{ obj.modelo }}</td>
+      <td>
+        <a href="{% url 'edit_veiculo' obj.pk %}" class="btn btn-sm btn-warning">Editar</a>
+        <a href="{% url 'remove_veiculo' obj.pk %}" class="btn btn-sm btn-danger">Excluir</a>
+      </td>
+    </tr>
+    {% empty %}
+    <tr>
+      <td colspan="3">Nenhum registro encontrado.</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

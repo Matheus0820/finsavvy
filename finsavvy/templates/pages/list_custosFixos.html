@@ -34,32 +34,35 @@ Custos Fixos
                     <td>{{custo.nome}}</td>
                     <td>R$ {{custo.valor}}</td>
                     <td class="text-center">
-                        <a type="button" class="btn btn-sm btn-outline-warning" title="Editar"><i
+                        <a href="{% url 'edit_custofixo' custo.id %}" type="button" class="btn btn-sm btn-outline-warning" title="Editar"><i
                                 class="bi bi-pencil"></i></a>
 
                         <!-- Button trigger modal -->
                         <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal"
-                            data-bs-target="#ModalRemoveCustoFixo">
+                            data-bs-target="#ModalRemoveCustoFixo{{ custo.id }}">
                             <i class="bi bi-trash"></i>
                         </button>
 
                         <!-- Modal -->
-                        <div class="modal fade " id="ModalRemoveCustoFixo" tabindex="-1" aria-labelledby="ModalRemoveCustoFixoLabel"
+                        <div class="modal fade " id="ModalRemoveCustoFixo{{ custo.id }}" tabindex="-1" aria-labelledby="ModalRemoveCustoFixoLabel{{ custo.id }}"
                             aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
                             <div class="modal-dialog modal-dialog-centered">
                                 <div class="modal-content text-bg-dark">
                                     <div class="modal-header">
-                                        <h1 class="modal-title fs-5" id="ModalRemoveCustoFixoLabel">Deseja mesmo fazer isso?</h1>
+                                        <h1 class="modal-title fs-5" id="ModalRemoveCustoFixoLabel{{ custo.id }}">Deseja mesmo fazer isso?</h1>
                                         <button type="button" class="btn-close" data-bs-dismiss="modal"
                                             aria-label="Close"></button>
                                     </div>
                                     <div class="modal-body">
-                                        Quer remover o custo fixo - Nome do custo fixo -? 
+                                        Quer remover o custo fixo - {{ custo.nome }} -?
                                     </div>
                                     <div class="modal-footer">
                                         <button type="button" class="btn btn-secondary"
                                             data-bs-dismiss="modal">Não</button>
-                                        <a href="#" type="button" class="btn btn-danger">Sim</a>
+                                        <form method="POST" action="{% url 'remove_custofixo' custo.id %}">
+                                            {% csrf_token %}
+                                            <button type="submit" class="btn btn-danger">Sim</button>
+                                        </form>
                                     </div>
                                 </div>
                             </div>

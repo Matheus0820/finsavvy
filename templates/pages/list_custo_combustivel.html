@@ -1,0 +1,38 @@
+# This file provides the list template for CustoCombustivel model.
+# Rendered by ListCustoCombustivelView.
+# No other file serves this purpose.
+# Generated as part of CRUD implementation.
+
+{% extends 'base.html' %}
+{% block title %}Combustíveis{% endblock %}
+{% block content %}
+<h1>Combustíveis</h1>
+<a href="{% url 'add_custoCombustivel' %}" class="btn btn-primary mb-3">Adicionar Combustível</a>
+<table class="table table-striped">
+  <thead>
+    <tr>
+      <th>Veículo</th>
+      <th>Litros</th>
+      <th>Valor</th>
+      <th>Ações</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for obj in object_list %}
+    <tr>
+      <td>{{ obj.veiculo }}</td>
+      <td>{{ obj.litros }}</td>
+      <td>{{ obj.valor }}</td>
+      <td>
+        <a href="{% url 'edit_custoCombustivel' obj.pk %}" class="btn btn-sm btn-warning">Editar</a>
+        <a href="{% url 'remove_custoCombustivel' obj.pk %}" class="btn btn-sm btn-danger">Excluir</a>
+      </td>
+    </tr>
+    {% empty %}
+    <tr>
+      <td colspan="4">Nenhum registro encontrado.</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

@@ -1,0 +1,36 @@
+# This file provides the list template for CustoVariavel model.
+# Rendered by ListCustoVariavelView.
+# No other file serves this purpose.
+# Provides CRUD views as requested.
+
+{% extends 'base.html' %}
+{% block title %}Custos Variáveis{% endblock %}
+{% block content %}
+<h1>Custos Variáveis</h1>
+<a href="{% url 'add_custovariavel' %}" class="btn btn-primary mb-3">Adicionar Custo Variável</a>
+<table class="table table-striped">
+  <thead>
+    <tr>
+      <th>Descrição</th>
+      <th>Valor</th>
+      <th>Ações</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for obj in object_list %}
+    <tr>
+      <td>{{ obj.descricao }}</td>
+      <td>{{ obj.valor }}</td>
+      <td>
+        <a href="{% url 'edit_custovariavel' obj.pk %}" class="btn btn-sm btn-warning">Editar</a>
+        <a href="{% url 'remove_custovariavel' obj.pk %}" class="btn btn-sm btn-danger">Excluir</a>
+      </td>
+    </tr>
+    {% empty %}
+    <tr>
+      <td colspan="3">Nenhum registro encontrado.</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

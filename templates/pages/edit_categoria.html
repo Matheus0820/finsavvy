@@ -1,0 +1,16 @@
+# This file provides the edit template for Categoria model.
+# Rendered by CategoriaUpdateView.
+# No other file serves this purpose.
+# Implements CRUD templates per user request.
+
+{% extends 'base.html' %}
+{% block title %}Editar Categoria{% endblock %}
+{% block content %}
+<h1>Editar Categoria</h1>
+<form method="post">
+  {% csrf_token %}
+  {{ form.as_p }}
+  <button type="submit" class="btn btn-success">Salvar</button>
+  <a href="{% url 'list_categoria' %}" class="btn btn-secondary">Cancelar</a>
+</form>
+{% endblock %}
