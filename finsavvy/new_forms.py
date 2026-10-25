@@ -7,6 +7,7 @@ from .models import (
     CustoCombustivel,
     Manutencao,
 )
+from .utils.leitor_qrcode import decodificar_imagem_qrcode, extrair_dados_nfce
 
 class FormCategoria(forms.ModelForm):
     class Meta:
@@ -43,14 +44,57 @@ class FormCustoVariavel(forms.ModelForm):
         }
 
 class FormCustoCompra(forms.ModelForm):
+    imagem_qr = forms.FileField(
+        required=False,
+        label="Foto / Imagem do QR-Code (opcional)",
+        widget=forms.FileInput(attrs={'class': 'form-control text-bg-dark border-secondary', 'accept': 'image/*'})
+    )
+
     class Meta:
         model = CustoCompra
         fields = ('nome', 'valor', 'qr_data')
         widgets = {
-            'nome': forms.TextInput(attrs={'class': 'form-control text-bg-dark border-secondary'}),
-            'valor': forms.NumberInput(attrs={'class': 'form-control text-bg-dark border-secondary', 'step': '0.01'}),
-            'qr_data': forms.Textarea(attrs={'class': 'form-control text-bg-dark border-secondary', 'rows': 3, 'placeholder': 'QR/Data de leitura'}),
+            'nome': forms.TextInput(attrs={'class': 'form-control text-bg-dark border-secondary', 'placeholder': 'Ex: Supermercado, Loja de Autopeças...'}),
+            'valor': forms.NumberInput(attrs={'class': 'form-control text-bg-dark border-secondary', 'step': '0.01', 'placeholder': '0.00'}),
+            'qr_data': forms.Textarea(attrs={'class': 'form-control text-bg-dark border-secondary', 'rows': 3, 'placeholder': 'Conteúdo decodificado ou URL do cupom fiscal'}),
         }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['valor'].required = False
+        self.fields['nome'].required = False
+
+    def clean(self):
+        cleaned_data = super().clean()
+        valor = cleaned_data.get('valor')
+        nome = cleaned_data.get('nome')
+        qr_data = cleaned_data.get('qr_data')
+        imagem_qr = cleaned_data.get('imagem_qr')
+
+        if not valor or not nome:
+            texto_qr = None
+            if imagem_qr:
+                texto_qr = decodificar_imagem_qrcode(imagem_qr)
+                if texto_qr:
+                    cleaned_data['qr_data'] = texto_qr
+            elif qr_data:
+                texto_qr = qr_data
+
+            if texto_qr:
+                dados = extrair_dados_nfce(texto_qr)
+                if not valor and dados.get('valor'):
+                    cleaned_data['valor'] = dados['valor']
+                    valor = dados['valor']
+                if not nome and dados.get('nome'):
+                    cleaned_data['nome'] = dados['nome']
+                    nome = dados['nome']
+
+        if not valor:
+            self.add_error('valor', 'Informe o valor da compra ou forneça um cupom fiscal/QR-Code válido.')
+        if not nome:
+            self.add_error('nome', 'Informe o nome do estabelecimento ou produto.')
+
+        return cleaned_data
 
 class FormVeiculo(forms.ModelForm):
     class Meta:

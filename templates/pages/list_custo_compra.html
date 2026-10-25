@@ -33,7 +33,14 @@
                    {% for obj in object_list %}
                     <tr class="border-secondary">
                         <th scope="row" class="ps-3 text-secondary">{{ forloop.counter }}</th>
-                        <td class="text-white fw-medium">{{ obj.nome }}</td>
+                        <td class="text-white fw-medium">
+                            {{ obj.nome }}
+                            {% if obj.qr_data %}
+                                <span class="badge bg-info-subtle text-info ms-1" title="Cupom Fiscal / NFC-e registrado" style="font-size: 0.72rem;">
+                                    <i class="bi bi-qr-code"></i> NFC-e
+                                </span>
+                            {% endif %}
+                        </td>
                         <td class="text-primary fw-semibold">R$ {{ obj.valor|floatformat:2 }}</td>
                         <td class="text-secondary small">{{ obj.data|date:"d/m/Y" }}</td>
                         <td class="text-center pe-3">

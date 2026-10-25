@@ -1,7 +1,8 @@
 from django.test import TestCase
 from django.contrib.auth import get_user_model
 from django.urls import reverse
-from .models import CustoFixo, Veiculo, Categoria, CustoVariavel, CustoCombustivel, Manutencao, Aviso
+from .models import CustoFixo, Veiculo, Categoria, CustoVariavel, CustoCombustivel, Manutencao, Aviso, CustoCompra
+from .utils.leitor_qrcode import extrair_dados_nfce, decodificar_imagem_qrcode
 from .utils.calculos_veiculares import (
     calcular_consumo_medio,
     calcular_custo_por_km,
@@ -441,6 +442,92 @@ class AvisosVeicularesUnitAndIntegrationTests(TestCase):
         })
         self.assertRedirects(post_del, reverse('aviso'))
         self.assertFalse(Aviso.objects.filter(id=aviso_criado.id).exists())
+
+
+class CustoCompraAndQrCodeTests(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(username='gabriel', password='testpass')
+        self.outro_user = User.objects.create_user(username='helena', password='testpass')
+        self.client.login(username='gabriel', password='testpass')
+
+    def test_extrair_dados_nfce_url_com_parametros(self):
+        url = "http://dec.fazenda.df.gov.br/NFCE-decodificador.aspx?chNFe=35231012345678901234567890123456789012345678&vNF=149.90&vICMS=0.00"
+        dados = extrair_dados_nfce(url)
+        self.assertTrue(dados['sucesso'])
+        self.assertEqual(dados['valor'], 149.90)
+        self.assertEqual(dados['chave_acesso'], '35231012345678901234567890123456789012345678')
+
+    def test_extrair_dados_nfce_formato_pipe(self):
+        payload_sefaz = "https://www.sefaz.rs.gov.br/NFCE/NFCE-COM.aspx?p=43231012345678901234567890123456789012345678|2|1|1|79.50|3132"
+        dados = extrair_dados_nfce(payload_sefaz)
+        self.assertTrue(dados['sucesso'])
+        self.assertEqual(dados['valor'], 79.50)
+        self.assertEqual(dados['chave_acesso'], '43231012345678901234567890123456789012345678')
+
+    def test_extrair_dados_nfce_texto_livre_com_moeda(self):
+        texto = "Cupom Fiscal Supermercado Estrela Total R$ 89,45 Obrigado volte sempre!"
+        dados = extrair_dados_nfce(texto)
+        self.assertTrue(dados['sucesso'])
+        self.assertEqual(dados['valor'], 89.45)
+        self.assertTrue(dados['nome'])
+
+    def test_processar_qrcode_view_ajax_sucesso(self):
+        url_payload = "http://fazenda.sp.gov.br/nfce/qrcode?chNFe=35231099999999999999999999999999999999999999&vNF=210.35"
+        response = self.client.post(reverse('processar_qrcode_compra'), {
+            'qr_text': url_payload
+        })
+        self.assertEqual(response.status_code, 200)
+        dados = response.json()
+        self.assertTrue(dados['sucesso'])
+        self.assertEqual(dados['valor'], 210.35)
+        self.assertEqual(dados['chave_acesso'], '35231099999999999999999999999999999999999999')
+
+    def test_processar_qrcode_view_sem_dados(self):
+        response = self.client.post(reverse('processar_qrcode_compra'), {})
+        self.assertEqual(response.status_code, 400)
+        dados = response.json()
+        self.assertFalse(dados['sucesso'])
+
+    def test_add_custo_compra_com_autofill_qr(self):
+        # Envia formulário com qr_data, mas sem preencher 'valor' explicitamente
+        url_qr = "http://dec.fazenda.df.gov.br/NFCE?chNFe=35231012345678901234567890123456789012345678&vNF=98.75"
+        response = self.client.post(reverse('add_custoCompra'), {
+            'nome': 'Auto Peças Modelo',
+            'qr_data': url_qr,
+        })
+        self.assertRedirects(response, reverse('list_custoCompra'))
+        compra = CustoCompra.objects.filter(user=self.user, nome='Auto Peças Modelo').first()
+        self.assertIsNotNone(compra)
+        self.assertEqual(compra.valor, 98.75)
+        self.assertEqual(compra.qr_data, url_qr)
+
+    def test_list_custo_compra_exibe_badge_nfce_e_isolamento_usuario(self):
+        compra_com_qr = CustoCompra.objects.create(
+            user=self.user,
+            nome='Farmácia Central',
+            valor=45.0,
+            qr_data='http://nfce.fazenda.gov.br/qrcode'
+        )
+        compra_sem_qr = CustoCompra.objects.create(
+            user=self.user,
+            nome='Padaria Bairro',
+            valor=18.50,
+            qr_data=''
+        )
+        compra_outro = CustoCompra.objects.create(
+            user=self.outro_user,
+            nome='Compra Secreta Outro',
+            valor=999.0
+        )
+
+        response = self.client.get(reverse('list_custoCompra'))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Farmácia Central')
+        self.assertContains(response, 'Padaria Bairro')
+        self.assertContains(response, 'NFC-e')
+        self.assertContains(response, 'bi-qr-code')
+        self.assertNotContains(response, 'Compra Secreta Outro')
+
 
 
 

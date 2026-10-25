@@ -6,7 +6,7 @@
 <div class="d-flex justify-content-between align-items-center mb-4">
     <div>
         <h2 class="fw-bold text-white mb-1"><i class="bi bi-receipt text-primary me-2"></i>{% if object %}Editar Compra{% else %}Nova Compra{% endif %}</h2>
-        <p class="text-secondary mb-0">Preencha os dados do custo de compra.</p>
+        <p class="text-secondary mb-0">Preencha os dados do custo de compra ou importe via QR-Code de cupom fiscal.</p>
     </div>
     <div>
         <a href="{% url 'list_custoCompra' %}" class="btn btn-outline-secondary btn-sm">
@@ -17,9 +17,35 @@
 
 <div class="row justify-content-center">
     <div class="col-lg-8">
+        <!-- Caixa de Leitura Rápida de QR-Code / NFC-e -->
+        <div class="card bg-dark border-secondary shadow-sm mb-4">
+            <div class="card-header bg-dark border-secondary py-3 d-flex align-items-center justify-content-between">
+                <span class="text-white fw-semibold small">
+                    <i class="bi bi-qr-code-scan text-primary me-2"></i>Importação Automática via Cupom Fiscal (NFC-e / QR-Code)
+                </span>
+                <span class="badge bg-secondary-subtle text-secondary small">Opcional</span>
+            </div>
+            <div class="card-body">
+                <p class="text-secondary small mb-3">
+                    Envie a foto do QR-Code do cupom fiscal ou cole a URL da NFC-e para preenchimento automático do valor e identificação da compra.
+                </p>
+                <div class="row g-2 align-items-center">
+                    <div class="col-md-8">
+                        <input type="file" id="input_qr_ajax" class="form-control text-bg-dark border-secondary form-control-sm" accept="image/*">
+                    </div>
+                    <div class="col-md-4">
+                        <button type="button" id="btn_processar_qr" class="btn btn-outline-primary btn-sm w-100">
+                            <i class="bi bi-magic me-1"></i> Ler QR-Code
+                        </button>
+                    </div>
+                </div>
+                <div id="qr_status_feedback" class="mt-2 small d-none"></div>
+            </div>
+        </div>
+
         <div class="card bg-dark border-secondary shadow-sm">
             <div class="card-body p-4">
-                <form method="POST">
+                <form method="POST" enctype="multipart/form-data" id="form_custo_compra">
                     {% csrf_token %}
 
                     {% if form.errors %}
@@ -29,9 +55,10 @@
                     {% endif %}
 
                     <div class="mb-3">
-                        <label for="{{ form.nome.id_for_label }}" class="form-label text-secondary small fw-semibold">Nome</label>
+                        <label for="{{ form.nome.id_for_label }}" class="form-label text-secondary small fw-semibold">Nome da Compra / Estabelecimento</label>
                         {{ form.nome }}
                     </div>
+
                     <div class="mb-3">
                         <label for="{{ form.valor.id_for_label }}" class="form-label text-secondary small fw-semibold">Valor (R$)</label>
                         <div class="input-group">
@@ -39,8 +66,20 @@
                             {{ form.valor }}
                         </div>
                     </div>
+
+                    <div class="mb-3">
+                        <label for="{{ form.imagem_qr.id_for_label }}" class="form-label text-secondary small fw-semibold">Foto / Arquivo do Cupom Fiscal (opcional)</label>
+                        {{ form.imagem_qr }}
+                        <div class="form-text text-secondary small">Você também pode salvar a imagem diretamente ao registrar a compra.</div>
+                    </div>
+
                     <div class="mb-4">
-                        <label for="{{ form.qr_data.id_for_label }}" class="form-label text-secondary small fw-semibold">QR/Data de leitura</label>
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <label for="{{ form.qr_data.id_for_label }}" class="form-label text-secondary small fw-semibold mb-0">Conteúdo do QR-Code / URL da NFC-e</label>
+                            <button type="button" id="btn_extrair_texto_qr" class="btn btn-link btn-sm text-decoration-none text-primary p-0">
+                                <i class="bi bi-arrow-repeat me-1"></i>Extrair do texto acima
+                            </button>
+                        </div>
                         {{ form.qr_data }}
                     </div>
 
@@ -56,4 +95,86 @@
         </div>
     </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const btnProcessar = document.getElementById('btn_processar_qr');
+    const inputArquivo = document.getElementById('input_qr_ajax');
+    const btnExtrairTexto = document.getElementById('btn_extrair_texto_qr');
+    const inputNome = document.getElementById('id_nome');
+    const inputValor = document.getElementById('id_valor');
+    const inputQrData = document.getElementById('id_qr_data');
+    const feedback = document.getElementById('qr_status_feedback');
+    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]') ? document.querySelector('[name=csrfmiddlewaretoken]').value : '';
+
+    function exibirFeedback(mensagem, tipo) {
+        feedback.className = `mt-2 small alert alert-${tipo} py-1 px-2 border-0`;
+        feedback.innerHTML = mensagem;
+        feedback.classList.remove('d-none');
+    }
+
+    function processarDados(formData) {
+        exibirFeedback('<span class="spinner-border spinner-border-sm me-1"></span> Decodificando QR-Code...', 'info');
+
+        fetch("{% url 'processar_qrcode_compra' %}", {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': csrfToken
+            },
+            body: formData
+        })
+        .then(response => response.json().then(data => ({ status: response.status, body: data })))
+        .then(res => {
+            if (res.status === 200 && (res.body.valor || res.body.chave_acesso || res.body.sucesso)) {
+                if (res.body.valor && !inputValor.value) {
+                    inputValor.value = parseFloat(res.body.valor).toFixed(2);
+                } else if (res.body.valor) {
+                    inputValor.value = parseFloat(res.body.valor).toFixed(2);
+                }
+
+                if (res.body.nome && (!inputNome.value || inputNome.value.trim() === '')) {
+                    inputNome.value = res.body.nome;
+                }
+
+                if (res.body.qr_data && !inputQrData.value) {
+                    inputQrData.value = res.body.qr_data;
+                }
+
+                exibirFeedback('<i class="bi bi-check-circle me-1"></i> ' + (res.body.mensagem || 'Dados extraídos com sucesso!'), 'success');
+            } else {
+                exibirFeedback('<i class="bi bi-exclamation-triangle me-1"></i> ' + (res.body.mensagem || 'Não foi possível extrair os dados.'), 'warning');
+            }
+        })
+        .catch(err => {
+            console.error(err);
+            exibirFeedback('<i class="bi bi-x-circle me-1"></i> Erro ao processar o QR-Code. Tente novamente.', 'danger');
+        });
+    }
+
+    if (btnProcessar && inputArquivo) {
+        btnProcessar.addEventListener('click', function () {
+            if (!inputArquivo.files || inputArquivo.files.length === 0) {
+                exibirFeedback('<i class="bi bi-info-circle me-1"></i> Selecione um arquivo de imagem com QR-Code.', 'warning');
+                return;
+            }
+            const fd = new FormData();
+            fd.append('imagem', inputArquivo.files[0]);
+            processarDados(fd);
+        });
+    }
+
+    if (btnExtrairTexto && inputQrData) {
+        btnExtrairTexto.addEventListener('click', function () {
+            const texto = inputQrData.value.trim();
+            if (!texto) {
+                exibirFeedback('<i class="bi bi-info-circle me-1"></i> Cole o link ou texto da NFC-e no campo de QR/Data.', 'warning');
+                return;
+            }
+            const fd = new FormData();
+            fd.append('qr_text', texto);
+            processarDados(fd);
+        });
+    }
+});
+</script>
 {% endblock %}
