@@ -528,6 +528,41 @@ class CustoCompraAndQrCodeTests(TestCase):
         self.assertContains(response, 'bi-qr-code')
         self.assertNotContains(response, 'Compra Secreta Outro')
 
+    def test_exportar_relatorios_csv(self):
+        # Cria registros variados para testar exportação CSV
+        CustoVariavel.objects.create(
+            user=self.user,
+            nome='Mercado Mensal',
+            valor=350.50,
+        )
+        CustoCompra.objects.create(
+            user=self.user,
+            nome='Ferramentas',
+            valor=120.00,
+        )
+        CustoCompra.objects.create(
+            user=self.outro_user,
+            nome='Item Outro Usuário Não Deve Aparecer',
+            valor=888.88,
+        )
+
+        response = self.client.get(reverse('exportar_relatorios_csv'))
+        self.assertEqual(response.status_code, 200)
+        self.assertIn('text/csv', response['Content-Type'])
+        self.assertIn('attachment; filename="relatorio_despesas_', response['Content-Disposition'])
+
+        conteudo = response.content.decode('utf-8')
+        # Cabeçalho
+        self.assertIn('Data;Tipo;Descrição / Item;Categoria;Valor (R$)', conteudo)
+        # Linhas do usuário logado
+        self.assertIn('Mercado Mensal', conteudo)
+        self.assertIn('350,50', conteudo)
+        self.assertIn('Ferramentas', conteudo)
+        self.assertIn('120,00', conteudo)
+        # Linha do outro usuário isolada
+        self.assertNotIn('Item Outro Usuário Não Deve Aparecer', conteudo)
+
+
 
 
 

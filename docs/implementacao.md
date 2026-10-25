@@ -15,13 +15,13 @@ A proposta segue a arquitetura de **Monolito Modular**: cada funcionalidade é e
 
 | Módulo | Prioridade | Responsável | Estimativa | Status |
 |--------|------------|-------------|------------|--------|
-| **CustoVariavel** | 1 | Eu | 1 dia | 🚧 |
-| **CustoCompra** | 1.5 | Eu | 1 dia | 🚧 |
-| **Veiculo** | 2 | Eu | 1 dia | 🚧 |
-| **CustoCombustivel** | 3 | Eu | 1 dia | 🚧 |
-| **Manutencao** | 4 | Eu | 1 dia | 🚧 |
-| **Relatorio** | 5 | Eu | 2 dias | 🚧 |
-| **Integração & Testes** | 6 | Eu | 1 dia | 🚧 |
+| **CustoVariavel** | 1 | Eu | 1 dia | ✅ |
+| **CustoCompra** | 1.5 | Eu | 1 dia | ✅ |
+| **Veiculo** | 2 | Eu | 1 dia | ✅ |
+| **CustoCombustivel** | 3 | Eu | 1 dia | ✅ |
+| **Manutencao** | 4 | Eu | 1 dia | ✅ |
+| **Relatorio** | 5 | Eu | 2 dias | ✅ |
+| **Integração & Testes** | 6 | Eu | 1 dia | ✅ |
 
 > **Observação**: A ordem reflete dependências (veículo → combustível → manutenção). O relatório depende de todas as anteriores.
 
