@@ -22,7 +22,7 @@ class CustoFixoTests(TestCase):
         self.client.login(username='alice', password='testpass')
         response = self.client.post(reverse('add_custofixo'), {'valor': '70'})
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, 'This field is required', html=True)
+        self.assertContains(response, 'This field is required.', html=True)
         self.assertFalse(CustoFixo.objects.filter(user=self.user1, valor=70).exists())
 
     def test_edit_custo_valid(self):
@@ -43,8 +43,8 @@ class CustoFixoTests(TestCase):
             {'nome': '', 'valor': 'abc'}
         )
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, 'This field is required', html=True)
-        self.assertContains(response, 'Enter a number', html=True)
+        self.assertContains(response, 'This field is required.', html=True)
+        self.assertContains(response, 'Enter a number.', html=True)
         self.custo1.refresh_from_db()
         self.assertEqual(self.custo1.nome, 'Serviço A')
         self.assertEqual(float(self.custo1.valor), 100.0)

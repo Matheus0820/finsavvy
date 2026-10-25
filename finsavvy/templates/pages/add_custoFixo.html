@@ -19,6 +19,12 @@ Custos Fixos
     <div class="card-body">
         <form action="{% if custo %}{% url 'edit_custofixo' custo.id %}{% else %}{% url 'add_custofixo' %}{% endif %}" method="POST">
             {% csrf_token %}
+            {% if formCustoFixo.errors %}
+                <div class="alert alert-danger">
+                {{ formCustoFixo.errors.as_ul }}
+                </div>
+            {% endif %}
+
             <div class="row">
             <div class="col">
                 <label for="nome" class="form-label">Nome do custo fixos</label> <br>
