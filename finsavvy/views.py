@@ -10,12 +10,45 @@ from django.contrib.auth.decorators import login_required
 
 from .models import *
 from .forms import *
+from .utils.alertas_veiculares import gerar_alertas_usuario
 
 def landing_page(request):
     return render(request, "pages/landing_page.html")
 
+@login_required
 def aviso(request):
-    return render(request, "pages/aviso_em_desenvolvimento.html")
+    if request.method == 'POST':
+        action = request.POST.get('action')
+        if action == 'marcar_lido':
+            aviso_id = request.POST.get('aviso_id')
+            Aviso.objects.filter(id=aviso_id, user=request.user).update(lido=True)
+            messages.success(request, "Aviso marcado como lido.")
+        elif action == 'marcar_todos_lidos':
+            Aviso.objects.filter(user=request.user, lido=False).update(lido=True)
+            messages.success(request, "Todos os avisos foram marcados como lidos.")
+        elif action == 'excluir':
+            aviso_id = request.POST.get('aviso_id')
+            Aviso.objects.filter(id=aviso_id, user=request.user).delete()
+            messages.success(request, "Aviso removido com sucesso.")
+        return redirect('aviso')
+
+    # Processa e sincroniza alertas preventivos do usuário autenticado
+    gerar_alertas_usuario(request.user)
+
+    avisos = Aviso.objects.filter(user=request.user).select_related('veiculo').order_by('lido', '-data_criacao')
+    total_avisos = avisos.count()
+    total_nao_lidos = avisos.filter(lido=False).count()
+    total_urgentes = avisos.filter(nivel='URGENTE', lido=False).count()
+    total_alertas = avisos.filter(nivel='ALERTA', lido=False).count()
+
+    context = {
+        'avisos': avisos,
+        'total_avisos': total_avisos,
+        'total_nao_lidos': total_nao_lidos,
+        'total_urgentes': total_urgentes,
+        'total_alertas': total_alertas,
+    }
+    return render(request, "pages/aviso.html", context)
 
 @login_required
 def dashboard(request):

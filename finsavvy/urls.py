@@ -13,6 +13,7 @@ urlpatterns = [
     path('combustiveis/', include('finsavvy.urls_custo_combustivel'), name='combustiveis'),
     path('manutencoes/', include('finsavvy.urls_manutencao'), name='manutencoes'),
     path('dashboard/', dashboard, name='dashboard'),
+    path('relatorios/', include('finsavvy.urls_relatorios')),
     path('custosfixos/', list_custosFixos, name='list_custosFixos'),
     path('add_custofixo/', add_custoFixo, name='add_custofixo'),
     path('edit_custofixo/<int:id>/', edit_custoFixo, name='edit_custofixo'),

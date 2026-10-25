@@ -1,0 +1,507 @@
+{% extends 'pages/base_dashboard.html' %}
+
+{% block title %}FinSavvy - Relatórios e Estatísticas{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+    <div>
+        <h2 class="fw-bold text-white mb-1">
+            <i class="bi bi-bar-chart-line text-info me-2"></i>Relatórios e Estatísticas
+        </h2>
+        <p class="text-secondary mb-0">Consolidação e análise de despesas por competência e categoria.</p>
+    </div>
+    <div class="d-flex gap-2">
+        <span class="badge bg-secondary bg-opacity-25 text-info border border-info border-opacity-25 px-3 py-2 fs-6">
+            <i class="bi bi-calendar3 me-1"></i> Competência: {{ mes_nome_selecionado }}/{{ ano_selecionado }}
+        </span>
+    </div>
+</div>
+
+<!-- Navegação por Abas -->
+<ul class="nav nav-tabs border-secondary mb-4" id="relatoriosTabs" role="tablist">
+    <li class="nav-item" role="presentation">
+        <button class="nav-link active text-white fw-semibold border-secondary bg-dark" id="despesas-tab" data-bs-toggle="tab" data-bs-target="#despesas-pane" type="button" role="tab" aria-controls="despesas-pane" aria-selected="true">
+            <i class="bi bi-wallet2 me-2 text-info"></i>Despesas & Lançamentos
+        </button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link text-white fw-semibold border-secondary bg-dark" id="veiculos-tab" data-bs-toggle="tab" data-bs-target="#veiculos-pane" type="button" role="tab" aria-controls="veiculos-pane" aria-selected="false">
+            <i class="bi bi-speedometer2 me-2 text-warning"></i>Estatísticas Veiculares & Eficiência
+        </button>
+    </li>
+</ul>
+
+<div class="tab-content" id="relatoriosTabsContent">
+    <!-- ABA 1: DESPESAS & LANÇAMENTOS -->
+    <div class="tab-pane fade show active" id="despesas-pane" role="tabpanel" aria-labelledby="despesas-tab" tabindex="0">
+        <!-- Filtros de Competência e Categoria -->
+        <div class="card bg-dark border-secondary shadow-sm mb-4">
+            <div class="card-body">
+                <form method="GET" action="{% url 'relatorios' %}" class="row g-3 align-items-end">
+                    <!-- Mês -->
+                    <div class="col-12 col-md-3">
+                        <label for="id_mes" class="form-label text-secondary small fw-semibold">
+                            <i class="bi bi-calendar-month me-1 text-info"></i>Mês
+                        </label>
+                        <select name="mes" id="id_mes" class="form-select bg-dark text-white border-secondary">
+                            <option value="todos" {% if mes_selecionado == 'todos' %}selected{% endif %}>Todos os Meses</option>
+                            {% for num, nome in meses_disponiveis %}
+                            <option value="{{ num }}" {% if mes_selecionado == num %}selected{% endif %}>{{ nome }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <!-- Ano -->
+                    <div class="col-12 col-md-3">
+                        <label for="id_ano" class="form-label text-secondary small fw-semibold">
+                            <i class="bi bi-calendar me-1 text-info"></i>Ano
+                        </label>
+                        <select name="ano" id="id_ano" class="form-select bg-dark text-white border-secondary">
+                            {% for a in anos_disponiveis %}
+                            <option value="{{ a }}" {% if ano_selecionado == a %}selected{% endif %}>{{ a }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <!-- Categoria -->
+                    <div class="col-12 col-md-3">
+                        <label for="id_categoria" class="form-label text-secondary small fw-semibold">
+                            <i class="bi bi-tags me-1 text-info"></i>Categoria
+                        </label>
+                        <select name="categoria" id="id_categoria" class="form-select bg-dark text-white border-secondary">
+                            <option value="todas" {% if not categoria_selecionada %}selected{% endif %}>Todas as Categorias</option>
+                            {% for cat in categorias %}
+                            <option value="{{ cat.id }}" {% if categoria_selecionada == cat.id %}selected{% endif %}>
+                                {{ cat.nome }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <!-- Ações -->
+                    <div class="col-12 col-md-3 d-flex gap-2">
+                        <button type="submit" class="btn btn-info flex-grow-1 text-dark fw-semibold">
+                            <i class="bi bi-funnel me-1"></i>Filtrar
+                        </button>
+                        <a href="{% url 'relatorios' %}" class="btn btn-outline-secondary" title="Limpar Filtros">
+                            <i class="bi bi-arrow-counterclockwise"></i>
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Cards Resumo / KPIs Gerais -->
+        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-3 mb-4">
+            <!-- Total Geral -->
+            <div class="col">
+                <div class="card bg-dark border-secondary h-100 shadow-sm">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center justify-content-between mb-2">
+                            <span class="text-secondary small fw-semibold text-uppercase">Total Filtrado</span>
+                            <div class="p-2 bg-info bg-opacity-10 text-info rounded-3">
+                                <i class="bi bi-cash-coin fs-5"></i>
+                            </div>
+                        </div>
+                        <h3 class="fw-bold text-white mb-0">R$ {{ total_geral|floatformat:2 }}</h3>
+                        <span class="text-secondary small">{{ quantidade_itens }} lançamento{{ quantidade_itens|pluralize }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Custos Variáveis -->
+            <div class="col">
+                <div class="card bg-dark border-secondary h-100 shadow-sm">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center justify-content-between mb-2">
+                            <span class="text-secondary small fw-semibold text-uppercase">Custos Variáveis</span>
+                            <div class="p-2 bg-success bg-opacity-10 text-success rounded-3">
+                                <i class="bi bi-cash-stack fs-5"></i>
+                            </div>
+                        </div>
+                        <h3 class="fw-bold text-white mb-0">R$ {{ total_custos_variaveis|floatformat:2 }}</h3>
+                        <span class="text-success small">Categorizados</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Custos Fixos -->
+            <div class="col">
+                <div class="card bg-dark border-secondary h-100 shadow-sm">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center justify-content-between mb-2">
+                            <span class="text-secondary small fw-semibold text-uppercase">Custos Fixos</span>
+                            <div class="p-2 bg-warning bg-opacity-10 text-warning rounded-3">
+                                <i class="bi bi-pin-angle fs-5"></i>
+                            </div>
+                        </div>
+                        <h3 class="fw-bold text-white mb-0">R$ {{ total_custos_fixos|floatformat:2 }}</h3>
+                        <span class="text-warning small">Recorrentes mensais</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Despesas Veiculares -->
+            <div class="col">
+                <div class="card bg-dark border-secondary h-100 shadow-sm">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center justify-content-between mb-2">
+                            <span class="text-secondary small fw-semibold text-uppercase">Veículos & Manut.</span>
+                            <div class="p-2 bg-danger bg-opacity-10 text-danger rounded-3">
+                                <i class="bi bi-truck fs-5"></i>
+                            </div>
+                        </div>
+                        <h3 class="fw-bold text-white mb-0">R$ {{ total_veiculos|floatformat:2 }}</h3>
+                        <span class="text-danger small">Combustível + Manutenções</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tabela Consolidada de Gastos -->
+        <div class="card bg-dark border-secondary shadow-sm mb-4">
+            <div class="card-header bg-dark border-secondary d-flex justify-content-between align-items-center py-3">
+                <h5 class="fw-semibold text-white mb-0">
+                    <i class="bi bi-table text-info me-2"></i>Tabela Consolidada de Gastos
+                </h5>
+                <span class="badge bg-secondary">{{ quantidade_itens }} registro{{ quantidade_itens|pluralize }}</span>
+            </div>
+            <div class="card-body p-0">
+                {% if gastos_consolidados %}
+                <div class="table-responsive">
+                    <table class="table table-dark table-hover mb-0 align-middle">
+                        <thead>
+                            <tr class="text-secondary small border-secondary">
+                                <th scope="col" class="ps-3" style="width: 60px;">#</th>
+                                <th scope="col" style="width: 130px;">Data</th>
+                                <th scope="col">Descrição / Lançamento</th>
+                                <th scope="col" style="width: 160px;">Tipo</th>
+                                <th scope="col" style="width: 180px;">Categoria</th>
+                                <th scope="col" class="text-end pe-3" style="width: 150px;">Valor</th>
+                            </tr>
+                        </thead>
+                        <tbody class="table-group-divider border-secondary">
+                            {% for gasto in gastos_consolidados %}
+                            <tr class="border-secondary">
+                                <th scope="row" class="ps-3 text-secondary small">{{ forloop.counter }}</th>
+                                <td class="text-secondary small">
+                                    {% if gasto.data %}
+                                        <i class="bi bi-calendar-event me-1"></i>{{ gasto.data|date:"d/m/Y" }}
+                                    {% else %}
+                                        <span class="badge bg-dark border border-secondary text-secondary">Mensal</span>
+                                    {% endif %}
+                                </td>
+                                <td class="text-white fw-medium">{{ gasto.nome }}</td>
+                                <td>
+                                    <span class="badge bg-secondary bg-opacity-25 text-light border border-secondary">
+                                        {{ gasto.tipo }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <span class="badge" style="background-color: {{ gasto.categoria_cor }}22; color: {{ gasto.categoria_cor }}; border: 1px solid {{ gasto.categoria_cor }}55; font-size: 0.82rem; padding: 0.35em 0.6em;">
+                                        <i class="bi bi-circle-fill me-1" style="font-size: 0.55em; vertical-align: middle;"></i>{{ gasto.categoria_nome }}
+                                    </span>
+                                </td>
+                                <td class="text-end pe-3 fw-semibold text-success">
+                                    R$ {{ gasto.valor|floatformat:2 }}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                        <tfoot class="border-secondary">
+                            <tr class="table-active">
+                                <td colspan="5" class="ps-3 fw-bold text-white text-uppercase small">Total da Competência</td>
+                                <td class="text-end pe-3 fw-bold text-info fs-6">R$ {{ total_geral|floatformat:2 }}</td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+                {% else %}
+                <div class="text-center py-5">
+                    <i class="bi bi-folder-x fs-1 text-secondary mb-3 d-block"></i>
+                    <h6 class="text-white fw-medium">Nenhum gasto encontrado</h6>
+                    <p class="text-secondary small mb-3">Não há lançamentos registrados para os filtros selecionados.</p>
+                    <a href="{% url 'relatorios' %}" class="btn btn-sm btn-outline-info">
+                        <i class="bi bi-arrow-counterclockwise me-1"></i>Limpar Filtros
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- ABA 2: ESTATÍSTICAS VEICULARES & EFICIÊNCIA -->
+    <div class="tab-pane fade" id="veiculos-pane" role="tabpanel" aria-labelledby="veiculos-tab" tabindex="0">
+        <!-- Cards Destaque Veiculares -->
+        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-3 mb-4">
+            <!-- Consumo Médio Geral -->
+            <div class="col">
+                <div class="card bg-dark border-secondary h-100 shadow-sm">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center justify-content-between mb-2">
+                            <span class="text-secondary small fw-semibold text-uppercase">Consumo Médio</span>
+                            <div class="p-2 bg-success bg-opacity-10 text-success rounded-3">
+                                <i class="bi bi-speedometer2 fs-5"></i>
+                            </div>
+                        </div>
+                        <h3 class="fw-bold text-white mb-0">
+                            {% if metricas_veiculares.consumo_medio_frota > 0 %}
+                                {{ metricas_veiculares.consumo_medio_frota }} <span class="fs-6 text-secondary fw-normal">km/L</span>
+                            {% else %}
+                                <span class="text-secondary fs-5">N/D</span>
+                            {% endif %}
+                        </h3>
+                        <span class="text-secondary small">Eficiência global da frota</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Custo por Km -->
+            <div class="col">
+                <div class="card bg-dark border-secondary h-100 shadow-sm">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center justify-content-between mb-2">
+                            <span class="text-secondary small fw-semibold text-uppercase">Custo / Km</span>
+                            <div class="p-2 bg-warning bg-opacity-10 text-warning rounded-3">
+                                <i class="bi bi-coin fs-5"></i>
+                            </div>
+                        </div>
+                        <h3 class="fw-bold text-white mb-0">
+                            {% if metricas_veiculares.custo_km_frota > 0 %}
+                                R$ {{ metricas_veiculares.custo_km_frota }} <span class="fs-6 text-secondary fw-normal">/km</span>
+                            {% else %}
+                                <span class="text-secondary fs-5">N/D</span>
+                            {% endif %}
+                        </h3>
+                        <span class="text-secondary small">Combustível + Manutenções</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Preço Médio por Litro -->
+            <div class="col">
+                <div class="card bg-dark border-secondary h-100 shadow-sm">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center justify-content-between mb-2">
+                            <span class="text-secondary small fw-semibold text-uppercase">Preço Médio Litro</span>
+                            <div class="p-2 bg-info bg-opacity-10 text-info rounded-3">
+                                <i class="bi bi-fuel-pump fs-5"></i>
+                            </div>
+                        </div>
+                        <h3 class="fw-bold text-white mb-0">
+                            {% if metricas_veiculares.preco_medio_litro > 0 %}
+                                R$ {{ metricas_veiculares.preco_medio_litro }} <span class="fs-6 text-secondary fw-normal">/L</span>
+                            {% else %}
+                                <span class="text-secondary fs-5">N/D</span>
+                            {% endif %}
+                        </h3>
+                        <span class="text-secondary small">{{ metricas_veiculares.total_litros }} litros abastecidos</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Gasto Total Veicular -->
+            <div class="col">
+                <div class="card bg-dark border-secondary h-100 shadow-sm">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center justify-content-between mb-2">
+                            <span class="text-secondary small fw-semibold text-uppercase">Total Veículos</span>
+                            <div class="p-2 bg-danger bg-opacity-10 text-danger rounded-3">
+                                <i class="bi bi-truck fs-5"></i>
+                            </div>
+                        </div>
+                        <h3 class="fw-bold text-white mb-0">R$ {{ metricas_veiculares.total_gasto_frota|floatformat:2 }}</h3>
+                        <span class="text-secondary small">{{ metricas_veiculares.total_veiculos }} veículo{{ metricas_veiculares.total_veiculos|pluralize }} monitorado{{ metricas_veiculares.total_veiculos|pluralize }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Gráfico de Evolução do Consumo & Abastecimentos -->
+        <div class="card bg-dark border-secondary shadow-sm mb-4">
+            <div class="card-header bg-dark border-secondary d-flex justify-content-between align-items-center py-3">
+                <h5 class="fw-semibold text-white mb-0">
+                    <i class="bi bi-graph-up text-warning me-2"></i>Evolução de Abastecimentos & Preço Médio
+                </h5>
+                <span class="badge bg-secondary bg-opacity-25 text-warning border border-warning border-opacity-25">Série Temporal</span>
+            </div>
+            <div class="card-body">
+                <div style="height: 300px; position: relative;">
+                    <canvas id="graficoEvolucaoConsumo"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tabela de Eficiência por Veículo -->
+        <div class="card bg-dark border-secondary shadow-sm mb-4">
+            <div class="card-header bg-dark border-secondary d-flex justify-content-between align-items-center py-3">
+                <h5 class="fw-semibold text-white mb-0">
+                    <i class="bi bi-speedometer text-info me-2"></i>Desempenho Individual por Veículo
+                </h5>
+                <span class="badge bg-secondary">{{ metricas_veiculares.total_veiculos }} veículo{{ metricas_veiculares.total_veiculos|pluralize }}</span>
+            </div>
+            <div class="card-body p-0">
+                {% if metricas_veiculares.estatisticas_veiculos %}
+                <div class="table-responsive">
+                    <table class="table table-dark table-hover mb-0 align-middle">
+                        <thead>
+                            <tr class="text-secondary small border-secondary">
+                                <th scope="col" class="ps-3">Veículo</th>
+                                <th scope="col">Tipo</th>
+                                <th scope="col">Km Atual</th>
+                                <th scope="col" class="text-center">Abastecimentos</th>
+                                <th scope="col" class="text-end">Litros</th>
+                                <th scope="col" class="text-end">Consumo Médio</th>
+                                <th scope="col" class="text-end">Custo / Km</th>
+                                <th scope="col" class="text-end pe-3">Gasto Total</th>
+                            </tr>
+                        </thead>
+                        <tbody class="table-group-divider border-secondary">
+                            {% for v in metricas_veiculares.estatisticas_veiculos %}
+                            <tr class="border-secondary">
+                                <td class="ps-3 text-white fw-medium">
+                                    <i class="bi bi-car-front text-info me-2"></i>{{ v.veiculo_nome }}
+                                </td>
+                                <td>
+                                    <span class="badge bg-secondary bg-opacity-25 text-light border border-secondary">
+                                        {{ v.tipo }}
+                                    </span>
+                                </td>
+                                <td class="text-secondary">{{ v.km_atual }} km</td>
+                                <td class="text-center text-white">{{ v.total_abastecimentos }}</td>
+                                <td class="text-end text-secondary">{{ v.total_litros }} L</td>
+                                <td class="text-end fw-semibold {% if v.consumo_medio > 0 %}text-success{% else %}text-secondary{% endif %}">
+                                    {% if v.consumo_medio > 0 %}{{ v.consumo_medio }} km/L{% else %}—{% endif %}
+                                </td>
+                                <td class="text-end fw-semibold {% if v.custo_por_km > 0 %}text-warning{% else %}text-secondary{% endif %}">
+                                    {% if v.custo_por_km > 0 %}R$ {{ v.custo_por_km }}/km{% else %}—{% endif %}
+                                </td>
+                                <td class="text-end pe-3 fw-bold text-white">
+                                    R$ {{ v.total_gasto|floatformat:2 }}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="text-center py-5">
+                    <i class="bi bi-truck fs-1 text-secondary mb-3 d-block"></i>
+                    <h6 class="text-white fw-medium">Nenhum veículo cadastrado</h6>
+                    <p class="text-secondary small mb-3">Cadastre seus veículos para acompanhar médias de consumo e custo por km.</p>
+                    <a href="{% url 'add_veiculo' %}" class="btn btn-sm btn-info text-dark fw-semibold">
+                        <i class="bi bi-plus-circle me-1"></i>Cadastrar Veículo
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<!-- Chart.js CDN -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const dadosGrafico = {{ dados_grafico_veicular_json|safe }};
+    const ctx = document.getElementById('graficoEvolucaoConsumo');
+
+    if (!ctx) return;
+
+    if (!dadosGrafico || !dadosGrafico.labels || dadosGrafico.labels.length === 0) {
+        // Exibe mensagem caso não haja dados
+        const container = ctx.parentElement;
+        container.innerHTML = '<div class="d-flex align-items-center justify-content-center h-100 text-secondary"><i class="bi bi-info-circle me-2"></i>Sem abastecimentos suficientes para compor o gráfico neste período.</div>';
+        return;
+    }
+
+    new Chart(ctx.getContext('2d'), {
+        type: 'line',
+        data: {
+            labels: dadosGrafico.labels,
+            datasets: [
+                {
+                    label: 'Litros Abastecidos (L)',
+                    data: dadosGrafico.litros,
+                    borderColor: '#ffc107',
+                    backgroundColor: 'rgba(255, 193, 7, 0.15)',
+                    tension: 0.3,
+                    fill: true,
+                    yAxisID: 'y'
+                },
+                {
+                    label: 'Preço Médio (R$/L)',
+                    data: dadosGrafico.precos_litro,
+                    borderColor: '#0dcaf0',
+                    backgroundColor: 'rgba(13, 202, 240, 0.15)',
+                    tension: 0.3,
+                    borderDash: [5, 5],
+                    yAxisID: 'y1'
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            interaction: {
+                mode: 'index',
+                intersect: false,
+            },
+            plugins: {
+                legend: {
+                    labels: { color: '#e0e0e0' }
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            let label = context.dataset.label || '';
+                            if (label) {
+                                label += ': ';
+                            }
+                            if (context.datasetIndex === 0) {
+                                label += context.parsed.y + ' L';
+                            } else {
+                                label += 'R$ ' + context.parsed.y.toFixed(2);
+                            }
+                            return label;
+                        }
+                    }
+                }
+            },
+            scales: {
+                x: {
+                    grid: { color: '#2d2d2d' },
+                    ticks: { color: '#a0a0a0' }
+                },
+                y: {
+                    type: 'linear',
+                    display: true,
+                    position: 'left',
+                    title: {
+                        display: true,
+                        text: 'Litros (L)',
+                        color: '#ffc107'
+                    },
+                    grid: { color: '#2d2d2d' },
+                    ticks: { color: '#a0a0a0' }
+                },
+                y1: {
+                    type: 'linear',
+                    display: true,
+                    position: 'right',
+                    title: {
+                        display: true,
+                        text: 'Preço R$/L',
+                        color: '#0dcaf0'
+                    },
+                    grid: { drawOnChartArea: false },
+                    ticks: { color: '#a0a0a0' }
+                }
+            }
+        }
+    });
+});
+</script>
+{% endblock %}

@@ -77,3 +77,33 @@ class Manutencao(models.Model):
     def __str__(self):
         return f"{self.veiculo} – {self.tipo} ({self.data})"
 
+
+class Aviso(models.Model):
+    TIPO_CHOICES = [
+        ('OLEO', 'Troca de Óleo'),
+        ('MANUTENCAO', 'Manutenção Preventiva'),
+        ('REVISAO', 'Revisão Periódica'),
+        ('GERAL', 'Geral'),
+    ]
+    NIVEL_CHOICES = [
+        ('INFO', 'Informativo'),
+        ('ALERTA', 'Atenção'),
+        ('URGENTE', 'Urgente'),
+    ]
+
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='avisos')
+    veiculo = models.ForeignKey(Veiculo, on_delete=models.CASCADE, related_name='avisos', null=True, blank=True)
+    titulo = models.CharField(max_length=255)
+    mensagem = models.TextField()
+    tipo = models.CharField(max_length=20, choices=TIPO_CHOICES, default='MANUTENCAO')
+    nivel = models.CharField(max_length=20, choices=NIVEL_CHOICES, default='ALERTA')
+    lido = models.BooleanField(default=False)
+    data_criacao = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-data_criacao']
+
+    def __str__(self):
+        return f"[{self.get_nivel_display()}] {self.titulo} - {self.user.username}"
+
+
