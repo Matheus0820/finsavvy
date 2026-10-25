@@ -152,6 +152,7 @@ ACCOUNT_AUTHENTICATION_METHOD = 'email'
 ACCOUNT_EMAIL_REQUIRED = True
 ACCOUNT_USERNAME_REQUIRED = False
 ACCOUNT_SIGNUP_FORM_CLASS = 'finsavvy.forms_account.CustomSignupForm'
+SOCIALACCOUNT_ADAPTER = 'finsavvy.adapters.FinsavvySocialAccountAdapter'
 
 # Google OAuth Provider configuration
 SOCIALACCOUNT_PROVIDERS = {
