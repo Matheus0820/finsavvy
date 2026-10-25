@@ -1,5 +1,6 @@
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.urls import reverse_lazy
+from django.shortcuts import redirect
 from django.views.generic import ListView, CreateView, UpdateView, DeleteView
 from .models import Veiculo
 from .forms_veiculos import FormVeiculo
@@ -41,6 +42,9 @@ class VeiculoDeleteView(LoginRequiredMixin, DeleteView):
 
     def get_queryset(self):
         return Veiculo.objects.filter(user=self.request.user)
+
+    def get(self, request, *args, **kwargs):
+        return redirect('list_veiculo')
 
     def form_valid(self, form):
         return super().form_valid(form)
