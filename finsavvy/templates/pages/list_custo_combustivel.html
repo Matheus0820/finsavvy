@@ -1,85 +1,84 @@
-{% extends 'pages/base.html' %}
+{% extends 'pages/base_dashboard.html' %}
 
-{% block titulo %}
-Combustível
-{% endblock %}
+{% block title %}FinSavvy - Combustível{% endblock %}
 
-{% block body %}
-<div class="card text-bg-dark">
-    <h5 class="card-header text-center">
-        <div class="row">
-            <div class="col"></div>
-            <div class="col-6">Lista de Combustível</div>
-            <div class="col">
-                <a type="button" href="{% url 'add_custoCombustivel' %}" class="btn btn-sm btn-outline-info" title="Novo Combustível"><i
-                        class="bi bi-plus-circle"></i></a>
-            </div>
-        </div>
-    </h5>
-    <div class="card-body">
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="fw-bold text-white mb-1"><i class="bi bi-fuel-pump text-danger me-2"></i>Combustível</h2>
+        <p class="text-secondary mb-0">Gerencie os abastecimentos da frota.</p>
+    </div>
+    <div>
+        <a href="{% url 'add_custoCombustivel' %}" class="btn btn-outline-danger">
+            <i class="bi bi-plus-lg me-1"></i> Novo Abastecimento
+        </a>
+    </div>
+</div>
+
+<div class="card bg-dark border-secondary shadow-sm">
+    <div class="card-body p-0">
         {% if object_list %}
-        <table class="table table-sm table-dark table-striped">
-            <thead>
-                <tr class="text-center">
-                    <th scope="col">#</th>
-                    <th scope="col">Veículo</th>
-                    <th scope="col">Litros</th>
-                    <th scope="col">Valor</th>
-                    <th scope="col">Data</th>
-                    <th scope="col">Ação</th>
-                </tr>
-            </thead>
-            <tbody class="table-group-divider">
-               {% for obj in object_list %}
-                <tr>
-                    <th scope="row">{{ forloop.counter }}</th>
-                    <td>{{ obj.veiculo }}</td>
-                    <td>{{ obj.litros }}L</td>
-                    <td>R$ {{ obj.valor }}</td>
-                    <td>{{ obj.data|date:"d/m/Y" }}</td>
-                    <td class="text-center">
-                        <a href="{% url 'edit_custoCombustivel' obj.id %}" type="button" class="btn btn-sm btn-outline-warning" title="Editar"><i
-                                class="bi bi-pencil"></i></a>
+        <div class="table-responsive">
+            <table class="table table-dark table-hover mb-0 align-middle">
+                <thead>
+                    <tr class="text-secondary small border-secondary">
+                        <th scope="col" class="ps-3">#</th>
+                        <th scope="col">Veículo</th>
+                        <th scope="col">Litros</th>
+                        <th scope="col">Valor</th>
+                        <th scope="col">Data</th>
+                        <th scope="col" class="text-center pe-3">Ações</th>
+                    </tr>
+                </thead>
+                <tbody class="table-group-divider border-secondary">
+                   {% for obj in object_list %}
+                    <tr class="border-secondary">
+                        <th scope="row" class="ps-3 text-secondary">{{ forloop.counter }}</th>
+                        <td class="text-white fw-medium">{{ obj.veiculo }}</td>
+                        <td>{{ obj.litros }}L</td>
+                        <td class="text-danger fw-semibold">R$ {{ obj.valor|floatformat:2 }}</td>
+                        <td class="text-secondary small">{{ obj.data|date:"d/m/Y" }}</td>
+                        <td class="text-center pe-3">
+                            <a href="{% url 'edit_custoCombustivel' obj.id %}" class="btn btn-sm btn-outline-warning me-1" title="Editar">
+                                <i class="bi bi-pencil"></i>
+                            </a>
+                            <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#ModalRemoveCustoCombustivel{{ obj.id }}" title="Excluir">
+                                <i class="bi bi-trash"></i>
+                            </button>
 
-                        <!-- Button trigger modal -->
-                        <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal"
-                            data-bs-target="#ModalRemoveCustoCombustivel{{ obj.id }}">
-                            <i class="bi bi-trash"></i>
-                        </button>
-
-                        <!-- Modal -->
-                        <div class="modal fade" id="ModalRemoveCustoCombustivel{{ obj.id }}" tabindex="-1" aria-labelledby="ModalRemoveCustoCombustivelLabel{{ obj.id }}"
-                            aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
-                            <div class="modal-dialog modal-dialog-centered">
-                                <div class="modal-content text-bg-dark">
-                                    <div class="modal-header">
-                                        <h1 class="modal-title fs-5" id="ModalRemoveCustoCombustivelLabel{{ obj.id }}">Deseja mesmo fazer isso?</h1>
-                                        <button type="button" class="btn-close" data-bs-dismiss="modal"
-                                            aria-label="Close"></button>
-                                    </div>
-                                    <div class="modal-body">
-                                        Quer remover o registro de combustível do veículo {{ obj.veiculo }}?
-                                    </div>
-                                    <div class="modal-footer">
-                                        <button type="button" class="btn btn-secondary"
-                                            data-bs-dismiss="modal">Não</button>
-                                        <form method="POST" action="{% url 'delete_custoCombustivel' obj.id %}">
-                                            {% csrf_token %}
-                                            <button type="submit" class="btn btn-danger">Sim</button>
-                                        </form>
+                            <!-- Modal -->
+                            <div class="modal fade" id="ModalRemoveCustoCombustivel{{ obj.id }}" tabindex="-1" aria-labelledby="ModalRemoveCustoCombustivelLabel{{ obj.id }}" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+                                <div class="modal-dialog modal-dialog-centered">
+                                    <div class="modal-content text-bg-dark border-secondary">
+                                        <div class="modal-header border-secondary">
+                                            <h1 class="modal-title fs-5" id="ModalRemoveCustoCombustivelLabel{{ obj.id }}">Confirmar exclusão</h1>
+                                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                                        </div>
+                                        <div class="modal-body text-secondary">
+                                            Deseja realmente remover o registro de combustível do veículo <strong class="text-white">{{ obj.veiculo }}</strong>?
+                                        </div>
+                                        <div class="modal-footer border-secondary">
+                                            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+                                            <form method="POST" action="{% url 'delete_custoCombustivel' obj.id %}">
+                                                {% csrf_token %}
+                                                <button type="submit" class="btn btn-danger">Sim, excluir</button>
+                                            </form>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
         {% else %}
-        <h6 class="text-center text-info">
-            <i class="bi bi-emoji-frown"></i> Não há nenhum registro de combustível cadastrado.
-        </h6>
+        <div class="text-center py-5">
+            <i class="bi bi-fuel-pump fs-1 text-secondary opacity-50 mb-3 d-block"></i>
+            <h6 class="text-secondary">Nenhum registro de combustível cadastrado.</h6>
+            <a href="{% url 'add_custoCombustivel' %}" class="btn btn-sm btn-danger mt-2">Adicionar Abastecimento</a>
+        </div>
         {% endif %}
     </div>
 </div>

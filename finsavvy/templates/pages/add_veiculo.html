@@ -1,38 +1,64 @@
-{% extends 'pages/base.html' %}
-{% block titulo %}{% if veiculo %}Editar Veículo{% else %}Adicionar Veículo{% endif %}{% endblock %}
-{% block body %}
-<div class="card bg-dark text-white p-4">
-    <form method="POST">
-        {% csrf_token %}
-        {% if form.errors %}
-            <div class="alert alert-danger">
-                {{ form.errors.as_ul }}
+{% extends 'pages/base_dashboard.html' %}
+
+{% block title %}FinSavvy - {% if veiculo %}Editar Veículo{% else %}Novo Veículo{% endif %}{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="fw-bold text-white mb-1"><i class="bi bi-truck text-danger me-2"></i>{% if veiculo %}Editar Veículo{% else %}Novo Veículo{% endif %}</h2>
+        <p class="text-secondary mb-0">Preencha os dados do veículo da frota.</p>
+    </div>
+    <div>
+        <a href="{% url 'list_veiculo' %}" class="btn btn-outline-secondary btn-sm">
+            <i class="bi bi-arrow-left me-1"></i> Voltar
+        </a>
+    </div>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card bg-dark border-secondary shadow-sm">
+            <div class="card-body p-4">
+                <form method="POST">
+                    {% csrf_token %}
+
+                    {% if form.errors %}
+                        <div class="alert alert-danger bg-danger text-white border-0 mb-4">
+                            {{ form.errors.as_ul }}
+                        </div>
+                    {% endif %}
+
+                    <div class="mb-3">
+                        <label for="{{ form.marca.id_for_label }}" class="form-label text-secondary small fw-semibold">Marca</label>
+                        {{ form.marca }}
+                    </div>
+                    <div class="mb-3">
+                        <label for="{{ form.modelo.id_for_label }}" class="form-label text-secondary small fw-semibold">Modelo</label>
+                        {{ form.modelo }}
+                    </div>
+                    <div class="mb-3">
+                        <label for="{{ form.placa.id_for_label }}" class="form-label text-secondary small fw-semibold">Placa</label>
+                        {{ form.placa }}
+                    </div>
+                    <div class="mb-3">
+                        <label for="{{ form.tipo_veiculo.id_for_label }}" class="form-label text-secondary small fw-semibold">Tipo</label>
+                        {{ form.tipo_veiculo }}
+                    </div>
+                    <div class="mb-4">
+                        <label for="{{ form.km_atual.id_for_label }}" class="form-label text-secondary small fw-semibold">KM Atual</label>
+                        {{ form.km_atual }}
+                    </div>
+
+                    <div class="d-flex justify-content-end gap-2">
+                        <a href="{% url 'list_veiculo' %}" class="btn btn-outline-secondary">Cancelar</a>
+                        <button type="submit" class="btn btn-danger px-4">
+                            <i class="bi {% if veiculo %}bi-save{% else %}bi-check-lg{% endif %} me-1"></i>
+                            {% if veiculo %}Salvar Alterações{% else %}Adicionar Veículo{% endif %}
+                        </button>
+                    </div>
+                </form>
             </div>
-        {% endif %}
-
-        <div class="mb-3">
-            <label for="{{ form.marca.id_for_label }}" class="form-label">Marca</label>
-            {{ form.marca }}
         </div>
-        <div class="mb-3">
-            <label for="{{ form.modelo.id_for_label }}" class="form-label">Modelo</label>
-            {{ form.modelo }}
-        </div>
-        <div class="mb-3">
-            <label for="{{ form.placa.id_for_label }}" class="form-label">Placa</label>
-            {{ form.placa }}
-        </div>
-        <div class="mb-3">
-            <label for="{{ form.tipo_veiculo.id_for_label }}" class="form-label">Tipo</label>
-            {{ form.tipo_veiculo }}
-        </div>
-        <div class="mb-3">
-            <label for="{{ form.km_atual.id_for_label }}" class="form-label">KM Atual</label>
-            {{ form.km_atual }}
-        </div>
-
-        <button type="submit" class="btn btn-success">Salvar</button>
-        <a href="{% url 'list_veiculo' %}" class="btn btn-secondary">Cancelar</a>
-    </form>
+    </div>
 </div>
 {% endblock %}
