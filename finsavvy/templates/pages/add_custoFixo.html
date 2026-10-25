@@ -1,50 +1,56 @@
-{% extends 'pages/base.html' %}
+{% extends 'pages/base_dashboard.html' %}
 
-{% block titulo %}
-Custos Fixos
-{% endblock %}
+{% block title %}FinSavvy - {% if custo %}Editar Custo Fixo{% else %}Novo Custo Fixo{% endif %}{% endblock %}
 
-{% block body %}
-<div class="card text-bg-dark">
-    <h5 class="card-header text-center">
-        <div class="row">
-            <div class="col"></div>
-            <div class="col-6">{% if custo %}Editar{% else %}Novo{% endif %} custo fixo</div>
-            <div class="col">
-                <a type="button" href="{% url 'list_custosFixos' %}" class="btn btn-sm btn-outline-info" title="Lista de Custos Fixos"><i
-                        class="bi bi-list-ul"></i></a>
-            </div>
-        </div>
-    </h5>
-    <div class="card-body">
-        <form action="{% if custo %}{% url 'edit_custofixo' custo.id %}{% else %}{% url 'add_custofixo' %}{% endif %}" method="POST">
-            {% csrf_token %}
-            {% if formCustoFixo.errors %}
-                <div class="alert alert-danger">
-                {{ formCustoFixo.errors.as_ul }}
-                </div>
-            {% endif %}
-
-            <div class="row">
-            <div class="col">
-                <label for="nome" class="form-label">Nome do custo fixos</label> <br>
-                {{formCustoFixo.nome}}
-            </div>
-            <div class="col">
-                <label for="valor" class="form-label">Valor</label> <br>
-                <div class="input-group mb-3">
-                    <span class="input-group-text text-bg-dark">R$</span>
-                    {{formCustoFixo.valor}}
-                    <span class="input-group-text text-bg-dark">,00</span>
-                </div>
-            </div>
-        </div>
-
-        <button type="submit" class="btn btn-outline-info" title="{% if custo %}Salvar alterações{% else %}Adicionar custo fixo{% endif %}">
-            <i class="bi {% if custo %}bi-save{% else %}bi-bookmark-plus{% endif %}"></i>
-            {% if custo %}Salvar{% else %}Adicionar{% endif %}
-        </button>
-        </form>
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="fw-bold text-white mb-1"><i class="bi bi-pin-angle text-warning me-2"></i>{% if custo %}Editar Custo Fixo{% else %}Novo Custo Fixo{% endif %}</h2>
+        <p class="text-secondary mb-0">Preencha os dados do custo fixo.</p>
+    </div>
+    <div>
+        <a href="{% url 'list_custosFixos' %}" class="btn btn-outline-secondary btn-sm">
+            <i class="bi bi-arrow-left me-1"></i> Voltar
+        </a>
     </div>
 </div>
-{% endblock  %}
+
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card bg-dark border-secondary shadow-sm">
+            <div class="card-body p-4">
+                <form action="{% if custo %}{% url 'edit_custofixo' custo.id %}{% else %}{% url 'add_custofixo' %}{% endif %}" method="POST">
+                    {% csrf_token %}
+
+                    {% if formCustoFixo.errors %}
+                        <div class="alert alert-danger bg-danger text-white border-0 mb-4">
+                            {{ formCustoFixo.errors.as_ul }}
+                        </div>
+                    {% endif %}
+
+                    <div class="mb-3">
+                        <label for="{{ formCustoFixo.nome.id_for_label }}" class="form-label text-secondary small fw-semibold">Nome do Custo Fixo</label>
+                        {{ formCustoFixo.nome }}
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="{{ formCustoFixo.valor.id_for_label }}" class="form-label text-secondary small fw-semibold">Valor (R$)</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-dark border-secondary text-secondary">R$</span>
+                            {{ formCustoFixo.valor }}
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-end gap-2">
+                        <a href="{% url 'list_custosFixos' %}" class="btn btn-outline-secondary">Cancelar</a>
+                        <button type="submit" class="btn btn-warning px-4">
+                            <i class="bi {% if custo %}bi-save{% else %}bi-check-lg{% endif %} me-1"></i>
+                            {% if custo %}Salvar Alterações{% else %}Adicionar Custo Fixo{% endif %}
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

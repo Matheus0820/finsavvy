@@ -1,4 +1,5 @@
 from django.shortcuts import render, redirect, get_object_or_404
+from django.db.models import Sum
 
 from datetime import datetime
 
@@ -18,8 +19,33 @@ def aviso(request):
 
 @login_required
 def dashboard(request):
-    # now = datetime.now()
-    return render(request, "pages/dashboard.html")
+    user = request.user
+    total_custos_fixos = CustoFixo.objects.filter(user=user).aggregate(total=Sum('valor'))['total'] or 0
+    total_custos_variaveis = CustoVariavel.objects.filter(user=user).aggregate(total=Sum('valor'))['total'] or 0
+    total_compras = CustoCompra.objects.filter(user=user).aggregate(total=Sum('valor'))['total'] or 0
+    total_combustivel = CustoCombustivel.objects.filter(user=user).aggregate(total=Sum('valor'))['total'] or 0
+    total_manutencao = Manutencao.objects.filter(user=user).aggregate(total=Sum('valor'))['total'] or 0
+
+    total_geral = total_custos_fixos + total_custos_variaveis + total_compras + total_combustivel + total_manutencao
+    total_veiculos = Veiculo.objects.filter(user=user).count()
+
+    recent_variaveis = CustoVariavel.objects.filter(user=user).order_by('-id')[:5]
+    recent_compras = CustoCompra.objects.filter(user=user).order_by('-id')[:5]
+    recent_manutencoes = Manutencao.objects.filter(user=user).order_by('-id')[:5]
+
+    context = {
+        'total_custos_fixos': total_custos_fixos,
+        'total_custos_variaveis': total_custos_variaveis,
+        'total_compras': total_compras,
+        'total_combustivel': total_combustivel,
+        'total_manutencao': total_manutencao,
+        'total_geral': total_geral,
+        'total_veiculos': total_veiculos,
+        'recent_variaveis': recent_variaveis,
+        'recent_compras': recent_compras,
+        'recent_manutencoes': recent_manutencoes,
+    }
+    return render(request, "pages/dashboard.html", context)
 
 @login_required
 def list_custosFixos(request):
