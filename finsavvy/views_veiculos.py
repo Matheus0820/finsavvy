@@ -8,7 +8,7 @@ from .forms_veiculos import FormVeiculo
 class VeiculoListView(LoginRequiredMixin, ListView):
     model = Veiculo
     template_name = 'pages/list_veiculo.html'
-    context_object_name = 'object_list'
+    context_object_name = 'veiculos'
 
     def get_queryset(self):
         return Veiculo.objects.filter(user=self.request.user)
