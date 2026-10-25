@@ -57,15 +57,15 @@
                 {% csrf_token %}
 
                 <div class="mb-3">
-                    <input type="text" name="username" id="id_username"
+                    <input type="text" name="first_name" id="id_first_name"
                         class="form-control form-control border-info text-dark"
-                        placeholder="{% trans 'Nome de usuário' %}. Ex: finsavvy54" required>
+                        placeholder="{% trans 'Nome' %}" required>
                 </div>
 
                 <div class="mb-3">
                     <input type="email" name="email" id="id_email"
                         class="form-control form-control border-info text-dark"
-                        placeholder="{% trans 'E‑mail' %} (Opicional)">
+                        placeholder="{% trans 'E‑mail' %}" required>
                 </div>
 
                 <div class="mb-3">
