@@ -40,7 +40,10 @@
                         </div>
                     </div>
                     <div class="mb-4">
-                        <label for="{{ form.categoria.id_for_label }}" class="form-label text-secondary small fw-semibold">Categoria</label>
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <label for="{{ form.categoria.id_for_label }}" class="form-label text-secondary small fw-semibold mb-0">Categoria</label>
+                            <a href="{% url 'add_categoria' %}" class="small text-info text-decoration-none"><i class="bi bi-plus-circle me-1"></i>Nova Categoria</a>
+                        </div>
                         {{ form.categoria }}
                     </div>
 

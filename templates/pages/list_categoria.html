@@ -31,7 +31,11 @@
                    {% for obj in object_list %}
                     <tr class="border-secondary">
                         <th scope="row" class="ps-3 text-secondary">{{ forloop.counter }}</th>
-                        <td class="text-white fw-medium">{{ obj.nome }}</td>
+                        <td>
+                            <span class="badge" style="background-color: {{ obj.cor }}22; color: {{ obj.cor }}; border: 1px solid {{ obj.cor }}55; font-size: 0.85rem; padding: 0.4em 0.75em;">
+                                <i class="bi bi-circle-fill me-1" style="font-size: 0.65em; vertical-align: middle;"></i>{{ obj.nome }}
+                            </span>
+                        </td>
                         <td class="text-center pe-3">
                             <a href="{% url 'edit_categoria' obj.id %}" class="btn btn-sm btn-outline-warning me-1" title="Editar">
                                 <i class="bi bi-pencil"></i>

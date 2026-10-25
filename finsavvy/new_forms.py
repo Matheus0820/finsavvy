@@ -1,5 +1,6 @@
 from django import forms
 from .models import (
+    Categoria,
     CustoVariavel,
     CustoCompra,
     Veiculo,
@@ -7,14 +8,38 @@ from .models import (
     Manutencao,
 )
 
+class FormCategoria(forms.ModelForm):
+    class Meta:
+        model = Categoria
+        fields = ('nome', 'cor')
+        widgets = {
+            'nome': forms.TextInput(attrs={
+                'class': 'form-control text-bg-dark border-secondary',
+                'placeholder': 'Ex: Alimentação, Transporte, Lazer...',
+                'autofocus': True,
+            }),
+            'cor': forms.TextInput(attrs={
+                'type': 'color',
+                'class': 'form-control form-control-color',
+                'id': 'exampleColorInput',
+                'title': 'Choose your color',
+            }),
+        }
+
 class FormCustoVariavel(forms.ModelForm):
+    categoria = forms.ModelChoiceField(
+        queryset=Categoria.objects.all().order_by('nome'),
+        required=False,
+        empty_label='Selecione uma categoria (opcional)',
+        widget=forms.Select(attrs={'class': 'form-select text-bg-dark border-secondary'})
+    )
+
     class Meta:
         model = CustoVariavel
         fields = ('nome', 'valor', 'categoria')
         widgets = {
-            'nome': forms.TextInput(attrs={'class': 'form-control text-bg-dark border-secondary'}),
-            'valor': forms.NumberInput(attrs={'class': 'form-control text-bg-dark border-secondary', 'step': '0.01'}),
-            'categoria': forms.Select(attrs={'class': 'form-select text-bg-dark border-secondary'}),
+            'nome': forms.TextInput(attrs={'class': 'form-control text-bg-dark border-secondary', 'placeholder': 'Ex: Almoço, Supermercado...'}),
+            'valor': forms.NumberInput(attrs={'class': 'form-control text-bg-dark border-secondary', 'step': '0.01', 'placeholder': '0.00'}),
         }
 
 class FormCustoCompra(forms.ModelForm):

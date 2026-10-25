@@ -1,11 +1,13 @@
 # views_custos_variaveis.py
 
+from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.db.models import ProtectedError
 from django.shortcuts import redirect
 from django.urls import reverse_lazy
 from django.views.generic import ListView, CreateView, UpdateView, DeleteView
-from .models import CustoVariavel
-from .new_forms import FormCustoVariavel
+from .models import CustoVariavel, Categoria
+from .new_forms import FormCustoVariavel, FormCategoria
 
 class CustoVariavelListView(LoginRequiredMixin, ListView):
     model = CustoVariavel
@@ -49,4 +51,46 @@ class CustoVariavelDeleteView(LoginRequiredMixin, DeleteView):
 
     def get(self, request, *args, **kwargs):
         return redirect('list_custosVariaveis')
+
+
+# ==========================================
+# CRUD de Categorias de Custo Variável
+# ==========================================
+
+class CategoriaListView(LoginRequiredMixin, ListView):
+    model = Categoria
+    template_name = 'pages/list_categoria.html'
+    context_object_name = 'object_list'
+    ordering = ['nome']
+
+
+class CategoriaCreateView(LoginRequiredMixin, CreateView):
+    model = Categoria
+    form_class = FormCategoria
+    template_name = 'pages/add_categoria.html'
+    success_url = reverse_lazy('list_categoria')
+
+
+class CategoriaUpdateView(LoginRequiredMixin, UpdateView):
+    model = Categoria
+    form_class = FormCategoria
+    template_name = 'pages/edit_categoria.html'
+    success_url = reverse_lazy('list_categoria')
+
+
+class CategoriaDeleteView(LoginRequiredMixin, DeleteView):
+    model = Categoria
+    template_name = 'pages/confirm_delete_categoria.html'
+    success_url = reverse_lazy('list_categoria')
+
+    def get(self, request, *args, **kwargs):
+        return redirect('list_categoria')
+
+    def post(self, request, *args, **kwargs):
+        try:
+            return super().post(request, *args, **kwargs)
+        except ProtectedError:
+            messages.error(request, 'Não é possível excluir esta categoria pois ela possui custos variáveis associados.')
+            return redirect('list_categoria')
+
 

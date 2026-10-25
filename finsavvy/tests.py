@@ -1,9 +1,49 @@
 from django.test import TestCase
 from django.contrib.auth import get_user_model
 from django.urls import reverse
-from .models import CustoFixo, Veiculo
+from .models import CustoFixo, Veiculo, Categoria, CustoVariavel
 
 User = get_user_model()
+
+class CategoriaTests(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(username='alice', password='testpass')
+        self.client.login(username='alice', password='testpass')
+
+    def test_add_categoria_with_color(self):
+        response = self.client.post(reverse('add_categoria'), {
+            'nome': 'Alimentação',
+            'cor': '#ff5733'
+        })
+        self.assertRedirects(response, reverse('list_categoria'))
+        cat = Categoria.objects.get(nome='Alimentação')
+        self.assertEqual(cat.cor, '#ff5733')
+
+    def test_list_categoria_renders_badge_with_color(self):
+        cat = Categoria.objects.create(nome='Transporte', cor='#198754')
+        response = self.client.get(reverse('list_categoria'))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, '#198754')
+        self.assertContains(response, 'Transporte')
+
+    def test_edit_categoria_color(self):
+        cat = Categoria.objects.create(nome='Saúde', cor='#0d6efd')
+        response = self.client.post(reverse('edit_categoria', args=[cat.id]), {
+            'nome': 'Saúde & Bem-Estar',
+            'cor': '#631aff'
+        })
+        self.assertRedirects(response, reverse('list_categoria'))
+        cat.refresh_from_db()
+        self.assertEqual(cat.nome, 'Saúde & Bem-Estar')
+        self.assertEqual(cat.cor, '#631aff')
+
+    def test_protected_delete_categoria(self):
+        cat = Categoria.objects.create(nome='Educação', cor='#ffc107')
+        CustoVariavel.objects.create(user=self.user, nome='Curso Python', valor=250.0, categoria=cat)
+        response = self.client.post(reverse('remove_categoria', args=[cat.id]))
+        self.assertRedirects(response, reverse('list_categoria'))
+        self.assertTrue(Categoria.objects.filter(id=cat.id).exists())
+
 
 class CustoFixoTests(TestCase):
     def setUp(self):

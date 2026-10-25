@@ -33,6 +33,11 @@
                         {{ form.nome }}
                     </div>
 
+                    <div class="mb-4">
+                        <label for="exampleColorInput" class="form-label text-secondary small fw-semibold">Color picker</label>
+                        {{ form.cor }}
+                    </div>
+
                     <div class="d-flex justify-content-end gap-2">
                         <a href="{% url 'list_categoria' %}" class="btn btn-outline-secondary">Cancelar</a>
                         <button type="submit" class="btn btn-info px-4">

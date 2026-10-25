@@ -60,7 +60,10 @@
                     </div>
                 </div>
                 <h3 class="fw-bold text-white mb-1">R$ {{ total_custos_variaveis|floatformat:2 }}</h3>
-                <a href="{% url 'list_custosVariaveis' %}" class="text-success small text-decoration-none">Ver detalhes <i class="bi bi-chevron-right small"></i></a>
+                <div class="d-flex justify-content-between align-items-center">
+                    <a href="{% url 'list_custosVariaveis' %}" class="text-success small text-decoration-none">Ver detalhes <i class="bi bi-chevron-right small"></i></a>
+                    <a href="{% url 'list_categoria' %}" class="text-secondary small text-decoration-none" title="Gerenciar Categorias"><i class="bi bi-tags me-1"></i>Categorias</a>
+                </div>
             </div>
         </div>
     </div>

@@ -98,11 +98,29 @@
                         <span>Custos Fixos</span>
                     </a>
                 </li>
+                <!-- Custos Variáveis com Submenu -->
                 <li class="nav-item">
-                    <a href="{% url 'list_custosVariaveis' %}" class="nav-link {% if 'custosvariaveis' in request.path %}active{% endif %} d-flex align-items-center py-2 px-3">
-                        <i class="bi bi-cash-stack fs-5 me-3 text-success"></i>
-                        <span>Custos Variáveis</span>
+                    <a class="nav-link submenu-toggle d-flex align-items-center justify-content-between py-2 px-3 {% if 'custosvariaveis' in request.path %}active{% endif %}" data-bs-toggle="collapse" data-bs-target="#custosVariaveisSubmenu" href="#custosVariaveisSubmenu" role="button" aria-expanded="{% if 'custosvariaveis' in request.path %}true{% else %}false{% endif %}" aria-controls="custosVariaveisSubmenu">
+                        <div class="d-flex align-items-center">
+                            <i class="bi bi-cash-stack fs-5 me-3 text-success"></i>
+                            <span>Custos Variáveis</span>
+                        </div>
+                        <i class="bi bi-chevron-down small"></i>
                     </a>
+                    <div class="collapse {% if 'custosvariaveis' in request.path %}show{% endif %} ps-3 mt-1" id="custosVariaveisSubmenu">
+                        <ul class="nav flex-column border-start border-secondary ms-3 ps-2">
+                            <li class="nav-item">
+                                <a href="{% url 'list_custosVariaveis' %}" class="sub-nav-link {% if request.resolver_match.url_name == 'list_custosVariaveis' or request.resolver_match.url_name == 'add_custoVariavel' or request.resolver_match.url_name == 'edit_custoVariavel' %}active{% endif %}">
+                                    <i class="bi bi-cash-stack me-2 text-success"></i> Custos Variáveis
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="{% url 'list_categoria' %}" class="sub-nav-link {% if 'categoria' in request.resolver_match.url_name %}active{% endif %}">
+                                    <i class="bi bi-tags me-2 text-info"></i> Categorias
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
                 </li>
                 <li class="nav-item">
                     <a href="{% url 'list_custoCompra' %}" class="nav-link {% if 'custoscompras' in request.path %}active{% endif %} d-flex align-items-center py-2 px-3">
@@ -181,9 +199,18 @@
                         </a>
                     </li>
                     <li class="nav-item mb-2">
-                        <a href="{% url 'list_custosVariaveis' %}" class="nav-link {% if 'custosvariaveis' in request.path %}active{% endif %} d-flex align-items-center py-2 px-3">
-                            <i class="bi bi-cash-stack fs-5 me-3 text-success"></i> Custos Variáveis
+                        <a class="nav-link submenu-toggle d-flex align-items-center justify-content-between py-2 px-3 {% if 'custosvariaveis' in request.path %}active{% endif %}" data-bs-toggle="collapse" data-bs-target="#custosVariaveisSubmenuMob" href="#custosVariaveisSubmenuMob" role="button" aria-expanded="{% if 'custosvariaveis' in request.path %}true{% else %}false{% endif %}" aria-controls="custosVariaveisSubmenuMob">
+                            <div class="d-flex align-items-center">
+                                <i class="bi bi-cash-stack fs-5 me-3 text-success"></i> Custos Variáveis
+                            </div>
+                            <i class="bi bi-chevron-down small"></i>
                         </a>
+                        <div class="collapse {% if 'custosvariaveis' in request.path %}show{% endif %} ps-3 mt-1" id="custosVariaveisSubmenuMob">
+                            <ul class="nav flex-column border-start border-secondary ms-3 ps-2">
+                                <li class="nav-item"><a href="{% url 'list_custosVariaveis' %}" class="sub-nav-link {% if request.resolver_match.url_name == 'list_custosVariaveis' or request.resolver_match.url_name == 'add_custoVariavel' or request.resolver_match.url_name == 'edit_custoVariavel' %}active{% endif %}"><i class="bi bi-cash-stack me-2 text-success"></i> Custos Variáveis</a></li>
+                                <li class="nav-item"><a href="{% url 'list_categoria' %}" class="sub-nav-link {% if 'categoria' in request.resolver_match.url_name %}active{% endif %}"><i class="bi bi-tags me-2 text-info"></i> Categorias</a></li>
+                            </ul>
+                        </div>
                     </li>
                     <li class="nav-item mb-2">
                         <a href="{% url 'list_custoCompra' %}" class="nav-link {% if 'custoscompras' in request.path %}active{% endif %} d-flex align-items-center py-2 px-3">
@@ -273,7 +300,7 @@
             {% if messages %}
             <div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 1100;">
                 {% for message in messages %}
-                <div class="toast show align-items-center text-bg-{{ message.tags|default:'info' }} border-0 shadow mb-2" role="alert" aria-live="assertive" aria-atomic="true">
+                <div class="toast show align-items-center {% if message.tags == 'error' %}text-bg-danger{% else %}text-bg-{{ message.tags|default:'info' }}{% endif %} border-0 shadow mb-2" role="alert" aria-live="assertive" aria-atomic="true">
                     <div class="d-flex">
                         <div class="toast-body">
                             {{ message }}
