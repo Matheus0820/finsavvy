@@ -1,16 +1,1 @@
-# This file provides the edit template for Manutencao model.
-# Rendered by ManutencaoUpdateView.
-# No other file serves this purpose.
-# CRUD per user instructions.
-
-{% extends 'base.html' %}
-{% block title %}Editar Manutenção{% endblock %}
-{% block content %}
-<h1>Editar Manutenção</h1>
-<form method="post">
-  {% csrf_token %}
-  {{ form.as_p }}
-  <button type="submit" class="btn btn-success">Salvar</button>
-  <a href="{% url 'list_manutencao' %}" class="btn btn-secondary">Cancelar</a>
-</form>
-{% endblock %}
+{% extends 'pages/add_manutencao.html' %}

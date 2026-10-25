@@ -1,16 +1,77 @@
-# This file provides the add template for Manutencao model.
-# Rendered by ManutencaoCreateView.
-# No other file serves this purpose.
-# CRUD per instructions.
+{% extends 'pages/base_dashboard.html' %}
 
-{% extends 'base.html' %}
-{% block title %}Adicionar Manutenção{% endblock %}
+{% block title %}FinSavvy - {% if object %}Editar Manutenção{% else %}Nova Manutenção{% endif %}{% endblock %}
+
 {% block content %}
-<h1>Adicionar Manutenção</h1>
-<form method="post">
-  {% csrf_token %}
-  {{ form.as_p }}
-  <button type="submit" class="btn btn-success">Salvar</button>
-  <a href="{% url 'list_manutencao' %}" class="btn btn-secondary">Cancelar</a>
-</form>
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="fw-bold text-white mb-1"><i class="bi bi-tools text-warning me-2"></i>{% if object %}Editar Manutenção{% else %}Nova Manutenção{% endif %}</h2>
+        <p class="text-secondary mb-0">Preencha os dados da manutenção veicular.</p>
+    </div>
+    <div>
+        <a href="{% url 'list_manutencao' %}" class="btn btn-outline-secondary btn-sm">
+            <i class="bi bi-arrow-left me-1"></i> Voltar
+        </a>
+    </div>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card bg-dark border-secondary shadow-sm">
+            <div class="card-body p-4">
+                <form method="POST">
+                    {% csrf_token %}
+
+                    {% if form.errors %}
+                        <div class="alert alert-danger bg-danger text-white border-0 mb-4">
+                            {{ form.errors.as_ul }}
+                        </div>
+                    {% endif %}
+
+                    <div class="mb-3">
+                        <label for="{{ form.veiculo.id_for_label }}" class="form-label text-secondary small fw-semibold">Veículo</label>
+                        {{ form.veiculo }}
+                    </div>
+                    <div class="mb-3">
+                        <label for="{{ form.tipo.id_for_label }}" class="form-label text-secondary small fw-semibold">Tipo de Manutenção</label>
+                        {{ form.tipo }}
+                    </div>
+                    <div class="mb-3">
+                        <label for="{{ form.descricao.id_for_label }}" class="form-label text-secondary small fw-semibold">Descrição</label>
+                        {{ form.descricao }}
+                    </div>
+                    <div class="mb-3">
+                        <label for="{{ form.valor.id_for_label }}" class="form-label text-secondary small fw-semibold">Valor (R$)</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-dark border-secondary text-secondary">R$</span>
+                            {{ form.valor }}
+                        </div>
+                    </div>
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-4">
+                            <label for="{{ form.km_atual.id_for_label }}" class="form-label text-secondary small fw-semibold">KM Atual</label>
+                            {{ form.km_atual }}
+                        </div>
+                        <div class="col-md-4">
+                            <label for="{{ form.km_troca_oleo.id_for_label }}" class="form-label text-secondary small fw-semibold">KM Troca de Óleo</label>
+                            {{ form.km_troca_oleo }}
+                        </div>
+                        <div class="col-md-4">
+                            <label for="{{ form.km_proximo_oleo.id_for_label }}" class="form-label text-secondary small fw-semibold">Próxima Troca (KM)</label>
+                            {{ form.km_proximo_oleo }}
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-end gap-2">
+                        <a href="{% url 'list_manutencao' %}" class="btn btn-outline-secondary">Cancelar</a>
+                        <button type="submit" class="btn btn-warning px-4 text-dark fw-semibold">
+                            <i class="bi {% if object %}bi-save{% else %}bi-check-lg{% endif %} me-1"></i>
+                            {% if object %}Salvar Alterações{% else %}Adicionar Manutenção{% endif %}
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}

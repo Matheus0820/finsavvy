@@ -1,40 +1,87 @@
-# This file provides the list template for Manutencao model.
-# Rendered by ListManutencaoView.
-# No other file serves this purpose.
-# CRUD per user requests.
+{% extends 'pages/base_dashboard.html' %}
 
-{% extends 'base.html' %}
-{% block title %}Manutenções{% endblock %}
+{% block title %}FinSavvy - Manutenções{% endblock %}
+
 {% block content %}
-<h1>Manutenções</h1>
-<a href="{% url 'add_manutencao' %}" class="btn btn-primary mb-3">Adicionar Manutenção</a>
-<table class="table table-striped">
-  <thead>
-    <tr>
-      <th>Veículo</th>
-      <th>Data</th>
-      <th>Tipo</th>
-      <th>Valor</th>
-      <th>Ações</th>
-    </tr>
-  </thead>
-  <tbody>
-    {% for obj in object_list %}
-    <tr>
-      <td>{{ obj.veiculo }}</td>
-      <td>{{ obj.data }}</td>
-      <td>{{ obj.tipo }}</td>
-      <td>{{ obj.valor }}</td>
-      <td>
-        <a href="{% url 'edit_manutencao' obj.pk %}" class="btn btn-sm btn-warning">Editar</a>
-        <a href="{% url 'remove_manutencao' obj.pk %}" class="btn btn-sm btn-danger">Excluir</a>
-      </td>
-    </tr>
-    {% empty %}
-    <tr>
-      <td colspan="5">Nenhum registro encontrado.</td>
-    </tr>
-    {% endfor %}
-  </tbody>
-</table>
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="fw-bold text-white mb-1"><i class="bi bi-tools text-warning me-2"></i>Manutenções</h2>
+        <p class="text-secondary mb-0">Gerencie as manutenções e reparos da frota.</p>
+    </div>
+    <div>
+        <a href="{% url 'add_manutencao' %}" class="btn btn-outline-warning">
+            <i class="bi bi-plus-lg me-1"></i> Nova Manutenção
+        </a>
+    </div>
+</div>
+
+<div class="card bg-dark border-secondary shadow-sm">
+    <div class="card-body p-0">
+        {% if object_list %}
+        <div class="table-responsive">
+            <table class="table table-dark table-hover mb-0 align-middle">
+                <thead>
+                    <tr class="text-secondary small border-secondary">
+                        <th scope="col" class="ps-3">#</th>
+                        <th scope="col">Veículo</th>
+                        <th scope="col">Tipo</th>
+                        <th scope="col">Valor</th>
+                        <th scope="col">Data</th>
+                        <th scope="col">KM Atual</th>
+                        <th scope="col" class="text-center pe-3">Ações</th>
+                    </tr>
+                </thead>
+                <tbody class="table-group-divider border-secondary">
+                   {% for obj in object_list %}
+                    <tr class="border-secondary">
+                        <th scope="row" class="ps-3 text-secondary">{{ forloop.counter }}</th>
+                        <td class="text-white fw-medium">{{ obj.veiculo }}</td>
+                        <td>{{ obj.tipo }}</td>
+                        <td class="text-warning fw-semibold">R$ {{ obj.valor|floatformat:2 }}</td>
+                        <td class="text-secondary small">{{ obj.data|date:"d/m/Y" }}</td>
+                        <td>{{ obj.km_atual }} km</td>
+                        <td class="text-center pe-3">
+                            <a href="{% url 'edit_manutencao' obj.id %}" class="btn btn-sm btn-outline-warning me-1" title="Editar">
+                                <i class="bi bi-pencil"></i>
+                            </a>
+                            <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#ModalRemoveManutencao{{ obj.id }}" title="Excluir">
+                                <i class="bi bi-trash"></i>
+                            </button>
+
+                            <!-- Modal -->
+                            <div class="modal fade" id="ModalRemoveManutencao{{ obj.id }}" tabindex="-1" aria-labelledby="ModalRemoveManutencaoLabel{{ obj.id }}" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+                                <div class="modal-dialog modal-dialog-centered">
+                                    <div class="modal-content text-bg-dark border-secondary">
+                                        <div class="modal-header border-secondary">
+                                            <h1 class="modal-title fs-5" id="ModalRemoveManutencaoLabel{{ obj.id }}">Confirmar exclusão</h1>
+                                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                                        </div>
+                                        <div class="modal-body text-secondary">
+                                            Deseja realmente remover a manutenção <strong class="text-white">{{ obj.tipo }} ({{ obj.veiculo }})</strong>?
+                                        </div>
+                                        <div class="modal-footer border-secondary">
+                                            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+                                            <form method="POST" action="{% url 'delete_manutencao' obj.id %}">
+                                                {% csrf_token %}
+                                                <button type="submit" class="btn btn-danger">Sim, excluir</button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="text-center py-5">
+            <i class="bi bi-tools fs-1 text-secondary opacity-50 mb-3 d-block"></i>
+            <h6 class="text-secondary">Nenhuma manutenção cadastrada.</h6>
+            <a href="{% url 'add_manutencao' %}" class="btn btn-sm btn-warning mt-2">Adicionar Manutenção</a>
+        </div>
+        {% endif %}
+    </div>
+</div>
 {% endblock %}

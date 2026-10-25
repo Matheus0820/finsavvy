@@ -38,6 +38,7 @@ class VeiculoUpdateView(LoginRequiredMixin, UpdateView):
 
 class VeiculoDeleteView(LoginRequiredMixin, DeleteView):
     model = Veiculo
+    template_name = 'pages/confirm_delete_veiculo.html'
     success_url = reverse_lazy('list_veiculo')
 
     def get_queryset(self):

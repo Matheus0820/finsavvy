@@ -1,16 +1,59 @@
-# This file provides the add template for CustoCombustivel model.
-# Rendered by CustoCombustivelCreateView.
-# No other file serves this purpose.
-# Part of CRUD implementation.
+{% extends 'pages/base_dashboard.html' %}
 
-{% extends 'base.html' %}
-{% block title %}Adicionar Combustível{% endblock %}
+{% block title %}FinSavvy - {% if object %}Editar Abastecimento{% else %}Novo Abastecimento{% endif %}{% endblock %}
+
 {% block content %}
-<h1>Adicionar Combustível</h1>
-<form method="post">
-  {% csrf_token %}
-  {{ form.as_p }}
-  <button type="submit" class="btn btn-success">Salvar</button>
-  <a href="{% url 'list_custoCombustivel' %}" class="btn btn-secondary">Cancelar</a>
-</form>
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="fw-bold text-white mb-1"><i class="bi bi-fuel-pump text-danger me-2"></i>{% if object %}Editar Abastecimento{% else %}Novo Abastecimento{% endif %}</h2>
+        <p class="text-secondary mb-0">Preencha os dados do abastecimento de combustível.</p>
+    </div>
+    <div>
+        <a href="{% url 'list_custoCombustivel' %}" class="btn btn-outline-secondary btn-sm">
+            <i class="bi bi-arrow-left me-1"></i> Voltar
+        </a>
+    </div>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card bg-dark border-secondary shadow-sm">
+            <div class="card-body p-4">
+                <form method="POST">
+                    {% csrf_token %}
+
+                    {% if form.errors %}
+                        <div class="alert alert-danger bg-danger text-white border-0 mb-4">
+                            {{ form.errors.as_ul }}
+                        </div>
+                    {% endif %}
+
+                    <div class="mb-3">
+                        <label for="{{ form.veiculo.id_for_label }}" class="form-label text-secondary small fw-semibold">Veículo</label>
+                        {{ form.veiculo }}
+                    </div>
+                    <div class="mb-3">
+                        <label for="{{ form.litros.id_for_label }}" class="form-label text-secondary small fw-semibold">Litros</label>
+                        {{ form.litros }}
+                    </div>
+                    <div class="mb-4">
+                        <label for="{{ form.valor.id_for_label }}" class="form-label text-secondary small fw-semibold">Valor (R$)</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-dark border-secondary text-secondary">R$</span>
+                            {{ form.valor }}
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-end gap-2">
+                        <a href="{% url 'list_custoCombustivel' %}" class="btn btn-outline-secondary">Cancelar</a>
+                        <button type="submit" class="btn btn-danger px-4">
+                            <i class="bi {% if object %}bi-save{% else %}bi-check-lg{% endif %} me-1"></i>
+                            {% if object %}Salvar Alterações{% else %}Adicionar Abastecimento{% endif %}
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}

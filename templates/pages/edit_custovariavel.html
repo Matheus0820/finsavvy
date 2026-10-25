@@ -1,16 +1,1 @@
-# This file provides the edit template for CustoVariavel model.
-# Rendered by CustoVariavelUpdateView.
-# No other file serves this purpose.
-# CRUD template as requested.
-
-{% extends 'base.html' %}
-{% block title %}Editar Custo Variável{% endblock %}
-{% block content %}
-<h1>Editar Custo Variável</h1>
-<form method="post">
-  {% csrf_token %}
-  {{ form.as_p }}
-  <button type="submit" class="btn btn-success">Salvar</button>
-  <a href="{% url 'list_custovariavel' %}" class="btn btn-secondary">Cancelar</a>
-</form>
-{% endblock %}
+{% extends 'pages/add_custovariavel.html' %}

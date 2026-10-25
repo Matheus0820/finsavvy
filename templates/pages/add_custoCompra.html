@@ -1,16 +1,59 @@
-# This file provides the add template for CustoCompra model.
-# Rendered by CustoCompraCreateView.
-# No other file serves this purpose.
-# User requested CRUD templates.
+{% extends 'pages/base_dashboard.html' %}
 
-{% extends 'base.html' %}
-{% block title %}Adicionar Custo Compra{% endblock %}
+{% block title %}FinSavvy - {% if object %}Editar Compra{% else %}Nova Compra{% endif %}{% endblock %}
+
 {% block content %}
-<h1>Adicionar Custo Compra</h1>
-<form method="post">
-  {% csrf_token %}
-  {{ form.as_p }}
-  <button type="submit" class="btn btn-success">Salvar</button>
-  <a href="{% url 'list_custoCompra' %}" class="btn btn-secondary">Cancelar</a>
-</form>
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="fw-bold text-white mb-1"><i class="bi bi-receipt text-primary me-2"></i>{% if object %}Editar Compra{% else %}Nova Compra{% endif %}</h2>
+        <p class="text-secondary mb-0">Preencha os dados do custo de compra.</p>
+    </div>
+    <div>
+        <a href="{% url 'list_custoCompra' %}" class="btn btn-outline-secondary btn-sm">
+            <i class="bi bi-arrow-left me-1"></i> Voltar
+        </a>
+    </div>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card bg-dark border-secondary shadow-sm">
+            <div class="card-body p-4">
+                <form method="POST">
+                    {% csrf_token %}
+
+                    {% if form.errors %}
+                        <div class="alert alert-danger bg-danger text-white border-0 mb-4">
+                            {{ form.errors.as_ul }}
+                        </div>
+                    {% endif %}
+
+                    <div class="mb-3">
+                        <label for="{{ form.nome.id_for_label }}" class="form-label text-secondary small fw-semibold">Nome</label>
+                        {{ form.nome }}
+                    </div>
+                    <div class="mb-3">
+                        <label for="{{ form.valor.id_for_label }}" class="form-label text-secondary small fw-semibold">Valor (R$)</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-dark border-secondary text-secondary">R$</span>
+                            {{ form.valor }}
+                        </div>
+                    </div>
+                    <div class="mb-4">
+                        <label for="{{ form.qr_data.id_for_label }}" class="form-label text-secondary small fw-semibold">QR/Data de leitura</label>
+                        {{ form.qr_data }}
+                    </div>
+
+                    <div class="d-flex justify-content-end gap-2">
+                        <a href="{% url 'list_custoCompra' %}" class="btn btn-outline-secondary">Cancelar</a>
+                        <button type="submit" class="btn btn-primary px-4">
+                            <i class="bi {% if object %}bi-save{% else %}bi-check-lg{% endif %} me-1"></i>
+                            {% if object %}Salvar Alterações{% else %}Adicionar Compra{% endif %}
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}

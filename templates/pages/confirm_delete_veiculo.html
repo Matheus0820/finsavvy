@@ -1,0 +1,24 @@
+{% extends 'pages/base_dashboard.html' %}
+
+{% block title %}FinSavvy - Excluir Veículo{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center mt-5">
+    <div class="col-md-6">
+        <div class="card bg-dark border-secondary shadow-sm">
+            <div class="card-body p-4 text-center">
+                <i class="bi bi-exclamation-triangle fs-1 text-warning mb-3 d-block"></i>
+                <h3 class="text-white mb-3">Confirmar Exclusão</h3>
+                <p class="text-secondary mb-4">Deseja realmente remover o veículo <strong class="text-white">{{ object.marca }} {{ object.modelo }}</strong> (Placa: {{ object.placa }})?</p>
+                <form method="POST">
+                    {% csrf_token %}
+                    <div class="d-flex justify-content-center gap-2">
+                        <a href="{% url 'list_veiculo' %}" class="btn btn-outline-secondary px-4">Cancelar</a>
+                        <button type="submit" class="btn btn-danger px-4">Sim, excluir</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
