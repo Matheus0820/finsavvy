@@ -26,6 +26,19 @@
                     class="text-info text-decoration-none">Entrar</a>{% endblocktranslate %}
             </p>
 
+            {% if form.errors %}
+            <div class="alert alert-danger">
+                {% for field in form %}
+                    {% for error in field.errors %}
+                        <p>{{ error }}</p>
+                    {% endfor %}
+                {% endfor %}
+                {% for error in form.non_field_errors %}
+                    <p>{{ error }}</p>
+                {% endfor %}
+            </div>
+            {% endif %}
+
             {% url 'account_signup' as signup_url %}
             <form method="post" action="{{ signup_url }}">
                 {% csrf_token %}
