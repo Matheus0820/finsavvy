@@ -95,10 +95,9 @@ WSGI_APPLICATION = 'api.wsgi.app'
 
 DATABASES = {
     'default': dj_database_url.config(
-# If DATABASE_URL env var missing, fallback to SQLite.
-        default=os.getenv('DATABASE_URL', 'sqlite:///' + str(BASE_DIR / 'db.sqlite3')),
+        default=os.getenv('DATABASE_URL') or os.getenv('POSTGRES_URL') or os.getenv('POSTGRES_PRISMA_URL') or ('sqlite:///' + str(BASE_DIR / 'db.sqlite3')),
         conn_max_age=600,
-        ssl_require=False
+        ssl_require=True if os.getenv('DATABASE_URL') or os.getenv('POSTGRES_URL') else False
     )
 }
 
