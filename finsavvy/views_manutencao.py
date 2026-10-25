@@ -7,7 +7,7 @@ from .models import Manutencao
 class ManutencaoListView(ListView):
     model = Manutencao
     template_name = 'pages/list_manutencao.html'
-    context_object_name = 'manutencoes'
+    context_object_name = 'object_list'
 
 class ManutencaoCreateView(CreateView):
     model = Manutencao

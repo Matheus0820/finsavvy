@@ -144,6 +144,8 @@ USE_TZ = True
 
 # Redirecionamento após login
 LOGIN_REDIRECT_URL = '/dashboard'
+ACCOUNT_LOGIN_REDIRECT_URL = '/dashboard'
+ACCOUNT_LOGOUT_REDIRECT_URL = '/'
 
 
 # Static files (CSS, JavaScript, Images)

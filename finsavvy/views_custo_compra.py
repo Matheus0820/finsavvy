@@ -7,7 +7,7 @@ from .models import CustoCompra
 class CustoCompraListView(ListView):
     model = CustoCompra
     template_name = 'pages/list_custo_compra.html'
-    context_object_name = 'custosCompra'
+    context_object_name = 'object_list'
 
 class CustoCompraCreateView(CreateView):
     model = CustoCompra

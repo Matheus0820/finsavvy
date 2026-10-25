@@ -7,7 +7,7 @@ from .models import CustoCombustivel
 class CustoCombustivelListView(ListView):
     model = CustoCombustivel
     template_name = 'pages/list_custo_combustivel.html'
-    context_object_name = 'custosCombustivel'
+    context_object_name = 'object_list'
 
 class CustoCombustivelCreateView(CreateView):
     model = CustoCombustivel

@@ -13,4 +13,5 @@ urlpatterns = [
     path('add/', ManutencaoCreateView.as_view(), name='add_manutencao'),
     path('edit/<int:pk>/', ManutencaoUpdateView.as_view(), name='edit_manutencao'),
     path('delete/<int:pk>/', ManutencaoDeleteView.as_view(), name='delete_manutencao'),
+    path('remove/<int:pk>/', ManutencaoDeleteView.as_view(), name='remove_manutencao'),
 ]

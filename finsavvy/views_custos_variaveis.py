@@ -7,7 +7,7 @@ from .models import CustoVariavel
 class CustoVariavelListView(ListView):
     model = CustoVariavel
     template_name = 'pages/list_custos_variaveis.html'
-    context_object_name = 'custosVariaveis'
+    context_object_name = 'object_list'
 
 class CustoVariavelCreateView(CreateView):
     model = CustoVariavel
