@@ -10,6 +10,9 @@ from django.contrib.auth.decorators import login_required
 from .models import *
 from .forms import *
 
+def landing_page(request):
+    return render(request, "pages/landing_page.html")
+
 def aviso(request):
     return render(request, "pages/aviso_em_desenvolvimento.html")
 

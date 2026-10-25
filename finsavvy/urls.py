@@ -1,11 +1,12 @@
 # example/urls.py
 from django.urls import path, include
 
-from finsavvy.views import dashboard, aviso, list_custosFixos, add_custoFixo, edit_custoFixo, remove_custoFixo
+from finsavvy.views import landing_page, dashboard, aviso, list_custosFixos, add_custoFixo, edit_custoFixo, remove_custoFixo
 
 
 urlpatterns = [
-    path('', aviso),
+    path('', landing_page, name='landing_page'),
+    path('aviso/', aviso, name='aviso'),
     path('custosvariaveis/', include('finsavvy.urls_custos_variaveis'), name='custos_variaveis'),
     path('custoscompras/', include('finsavvy.urls_custo_compra'), name='custos_compras'),
     path('veiculos/', include('finsavvy.urls_veiculos'), name='veiculos'),
