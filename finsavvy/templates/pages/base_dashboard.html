@@ -408,6 +408,30 @@
     <!-- Bootstrap JS Bundle -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script>
+        // Global Global Spinner on Form Submission & Delete Modals
+        document.addEventListener('DOMContentLoaded', function () {
+            document.querySelectorAll('form').forEach(form => {
+                form.addEventListener('submit', function (e) {
+                    if (this.checkValidity && !this.checkValidity()) {
+                        return;
+                    }
+                    const submitBtn = this.querySelector('button[type="submit"]');
+                    if (submitBtn && !submitBtn.disabled) {
+                        submitBtn.disabled = true;
+                        const originalContent = submitBtn.innerHTML;
+                        submitBtn.innerHTML = `<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Processando...`;
+
+                        // Re-enable after 15s as fallback just in case
+                        setTimeout(() => {
+                            submitBtn.disabled = false;
+                            submitBtn.innerHTML = originalContent;
+                        }, 15000);
+                    }
+                });
+            });
+        });
+    </script>
+    <script>
         // Suporte robusto para alternância de submenu
         document.addEventListener('DOMContentLoaded', function () {
             var toggles = document.querySelectorAll('.submenu-toggle');
