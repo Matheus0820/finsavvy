@@ -26,13 +26,7 @@ class FormVeiculo(forms.ModelForm):
             return float(val)
         val_str = str(val).replace('L', '').strip()
         try:
-            if ',' in val_str:
-                val_str = val_str.replace('.', '').replace(',', '.')
-                return float(val_str)
-            elif '.' in val_str:
-                return float(val_str)
-            else:
-                return float(int(val_str) / 10.0)
+            return float(val_str)
         except ValueError:
             raise forms.ValidationError("Informe um valor válido.")
 
