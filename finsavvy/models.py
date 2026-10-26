@@ -246,3 +246,24 @@ class Aviso(models.Model):
         return f"[{self.get_nivel_display()}] {self.titulo} - {self.user.username}"
 
 
+class FechamentoMes(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='fechamentos_mes')
+    mes = models.PositiveSmallIntegerField()
+    ano = models.PositiveSmallIntegerField()
+    total_receitas = models.FloatField(default=0.0)
+    total_fixo = models.FloatField(default=0.0)
+    total_variavel = models.FloatField(default=0.0)
+    total_compras = models.FloatField(default=0.0)
+    total_veiculos = models.FloatField(default=0.0)
+    sobra_realizada = models.FloatField(default=0.0)
+    data_fechamento = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('user', 'mes', 'ano')
+        ordering = ['-ano', '-mes']
+
+    def __str__(self):
+        return f"Fechamento {self.mes:02d}/{self.ano} - {self.user.username} (Sobra: R$ {self.sobra_realizada:.2f})"
+
+
+

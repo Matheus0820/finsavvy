@@ -1,7 +1,7 @@
 # example/urls.py
 from django.urls import path, include
 
-from finsavvy.views import landing_page, dashboard, aviso, list_custosFixos, add_custoFixo, edit_custoFixo, remove_custoFixo
+from finsavvy.views import landing_page, dashboard, aviso, list_custosFixos, add_custoFixo, edit_custoFixo, remove_custoFixo, FecharMesView, ReabrirMesView
 from finsavvy.views_custo_compra import LerNfceAjaxView
 
 
@@ -15,6 +15,8 @@ urlpatterns = [
     path('combustiveis/', include('finsavvy.urls_custo_combustivel'), name='combustiveis'),
     path('manutencoes/', include('finsavvy.urls_manutencao'), name='manutencoes'),
     path('dashboard/', dashboard, name='dashboard'),
+    path('fechar-mes/', FecharMesView.as_view(), name='fechar_mes'),
+    path('reabrir-mes/', ReabrirMesView.as_view(), name='reabrir_mes'),
     path('relatorios/', include('finsavvy.urls_relatorios')),
     path('custosfixos/', list_custosFixos, name='list_custosFixos'),
     path('add_custofixo/', add_custoFixo, name='add_custofixo'),

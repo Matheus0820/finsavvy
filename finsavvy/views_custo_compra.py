@@ -1,3 +1,4 @@
+from datetime import datetime
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib import messages
 from django.db import transaction
@@ -6,7 +7,7 @@ from django.shortcuts import redirect
 from django.urls import reverse_lazy
 from django.views import View
 from django.views.generic import ListView, CreateView, UpdateView, DeleteView
-from .models import CustoCompra
+from .models import CustoCompra, FechamentoMes
 from .new_forms import FormCustoCompra, ItemCompraFormSet
 from .utils.leitor_qrcode import decodificar_imagem_qrcode, extrair_dados_nfce
 from .utils.leitor_nfce import consultar_nfce
@@ -17,7 +18,33 @@ class CustoCompraListView(LoginRequiredMixin, ListView):
     context_object_name = 'object_list'
 
     def get_queryset(self):
-        return CustoCompra.objects.filter(user=self.request.user)
+        user = self.request.user
+        hoje = datetime.today()
+        try:
+            mes = int(self.request.GET.get('mes') or self.request.GET.get('m', hoje.month))
+        except (ValueError, TypeError):
+            mes = hoje.month
+        try:
+            ano = int(self.request.GET.get('ano') or self.request.GET.get('y', hoje.year))
+        except (ValueError, TypeError):
+            ano = hoje.year
+        return CustoCompra.objects.filter(user=user, data__year=ano, data__month=mes)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        hoje = datetime.today()
+        try:
+            mes = int(self.request.GET.get('mes') or self.request.GET.get('m', hoje.month))
+        except (ValueError, TypeError):
+            mes = hoje.month
+        try:
+            ano = int(self.request.GET.get('ano') or self.request.GET.get('y', hoje.year))
+        except (ValueError, TypeError):
+            ano = hoje.year
+        context['mes_atual'] = mes
+        context['ano_atual'] = ano
+        context['is_mes_fechado'] = FechamentoMes.objects.filter(user=self.request.user, mes=mes, ano=ano).exists()
+        return context
 
 class CustoCompraCreateView(LoginRequiredMixin, CreateView):
     model = CustoCompra
