@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(GATEGUARD_BASH_ROUTINE_DISABLED=1 python manage.py check)",
+      "Bash(python manage.py test --verbosity 2)",
+      "Bash(python:*)",
+      "Bash(git add:*)",
+      "Bash(git checkout:*)",
+      "Bash(git push:*)"
+    ]
+  }
+}
