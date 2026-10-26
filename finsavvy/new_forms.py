@@ -177,6 +177,8 @@ class FormItemCompra(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        if 'descricao' in self.fields:
+            self.fields['descricao'].required = False
         if 'valor_total_item' in self.fields:
             self.fields['valor_total_item'].required = False
         if 'quantidade' in self.fields:
