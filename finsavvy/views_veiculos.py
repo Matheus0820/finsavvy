@@ -3,7 +3,7 @@ from django.urls import reverse_lazy
 from django.shortcuts import redirect
 from django.views.generic import ListView, CreateView, UpdateView, DeleteView
 from .models import Veiculo
-from .forms_veiculos import FormVeiculo
+from .new_forms import FormVeiculo
 
 
 class VeiculoListView(LoginRequiredMixin, ListView):
