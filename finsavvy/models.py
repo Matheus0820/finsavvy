@@ -124,7 +124,9 @@ class ItemCompra(models.Model):
 
     def save(self, *args, **kwargs):
         if not self.valor_total_item or self.valor_total_item == 0.0:
-            self.valor_total_item = round(float(self.quantidade) * float(self.valor_unitario), 2)
+            qtd = float(self.quantidade) if self.quantidade is not None else 1.0
+            val = float(self.valor_unitario) if self.valor_unitario is not None else 0.0
+            self.valor_total_item = round(qtd * val, 2)
         super().save(*args, **kwargs)
 
     def __str__(self):
