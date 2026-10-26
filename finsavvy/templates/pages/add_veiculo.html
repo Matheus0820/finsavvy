@@ -69,3 +69,50 @@
     </div>
 </div>
 {% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const inputTanque = document.getElementById('id_capacidade_tanque');
+        if (inputTanque) {
+            function formatarTanque(str) {
+                if (!str) return '0,0';
+                let apenasDigitos = String(str).replace(/\D/g, '');
+                if (apenasDigitos === '') apenasDigitos = '0';
+                let numero = parseInt(apenasDigitos, 10);
+                // 1 casa decimal (ex: 500 -> 50,0 | 5 -> 0,5 | 123 -> 12,3)
+                let decimal = (numero / 10).toLocaleString('pt-BR', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+                return decimal;
+            }
+
+            if (inputTanque.value && inputTanque.value !== '0,0' && inputTanque.value !== '') {
+                let valClean = String(inputTanque.value).replace('L', '').trim();
+                if (!valClean.includes(',') && !valClean.includes('.')) {
+                    inputTanque.value = formatarTanque(valClean);
+                } else if (valClean.includes('.') && !valClean.includes(',')) {
+                    let num = Math.round(parseFloat(valClean) * 10);
+                    inputTanque.value = (num / 10).toLocaleString('pt-BR', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+                } else {
+                    inputTanque.value = formatarTanque(valClean);
+                }
+            } else {
+                inputTanque.value = '0,0';
+            }
+
+            inputTanque.addEventListener('input', function(e) {
+                this.value = formatarTanque(this.value);
+            });
+
+            const form = inputTanque.closest('form');
+            if (form) {
+                form.addEventListener('submit', function() {
+                    let val = inputTanque.value;
+                    val = val.replace(/\./g, '').replace(',', '.');
+                    inputTanque.value = val;
+                });
+            }
+        }
+    });
+</script>
+{% endblock %}
+
