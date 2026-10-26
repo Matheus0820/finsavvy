@@ -119,7 +119,7 @@
 
             const form = inputTanque.closest('form');
             if (form) {
-                form.addEventListener('submit', function() {
+                form.addEventListener('submit', function(e) {
                     let val = inputTanque.value;
                     val = val.replace(/\./g, '').replace(',', '.');
                     inputTanque.value = val;
