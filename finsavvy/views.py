@@ -98,7 +98,7 @@ def add_custoFixo(request):
             'formCustoFixo': formCustoFixo,
         }
 
-        return render(request, 'pages/add_custoFixo.html', context)
+        return render(request, 'pages/add_custofixo.html', context)
 
     elif request.method == "POST":
         formCustoFixo = FormCustoFixo(request.POST)
@@ -114,7 +114,7 @@ def add_custoFixo(request):
         context = {
             'formCustoFixo': formCustoFixo,
         }
-        return render(request, 'pages/add_custoFixo.html', context)
+        return render(request, 'pages/add_custofixo.html', context)
 
 
 @login_required
@@ -127,7 +127,7 @@ def edit_custoFixo(request, id):
             'formCustoFixo': formCustoFixo,
             'custo': custo,
         }
-        return render(request, 'pages/add_custoFixo.html', context)
+        return render(request, 'pages/add_custofixo.html', context)
 
     elif request.method == "POST":
         formCustoFixo = FormCustoFixo(request.POST, instance=custo)
@@ -140,7 +140,7 @@ def edit_custoFixo(request, id):
             'formCustoFixo': formCustoFixo,
             'custo': custo,
         }
-        return render(request, 'pages/add_custoFixo.html', context)
+        return render(request, 'pages/add_custofixo.html', context)
 
 
 @login_required
