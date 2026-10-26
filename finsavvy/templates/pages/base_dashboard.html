@@ -274,7 +274,8 @@
                         <i class="bi bi-list fs-5"></i>
                     </button>
 
-                    <!-- Seletor Global de Competência (Mês/Ano) -->
+                    <!-- Seletor Global de Competência (Mês/Ano) - Visível apenas no Dashboard -->
+                    {% if request.resolver_match.url_name == 'dashboard' %}
                     <form class="d-flex flex-grow-1 me-4 align-items-center" method="GET" action="{% url 'dashboard' %}" style="max-width: 450px;">
                         <div class="input-group input-group-sm">
                             <span class="input-group-text bg-body-tertiary border-secondary text-info"><i class="bi bi-calendar3"></i></span>
@@ -300,6 +301,7 @@
                             </select>
                         </div>
                     </form>
+                    {% endif %}
 
                     <div class="d-flex align-items-center ms-auto">
                         <!-- Theme Dropdown Selector -->
