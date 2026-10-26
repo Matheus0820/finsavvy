@@ -77,10 +77,9 @@
         if (inputTanque) {
             let valorInicial = inputTanque.value.trim();
             if (!valorInicial || valorInicial === '0' || valorInicial === '0.0' || valorInicial === '0,0') {
-                inputTanque.value = '0,0';
+                inputTanque.value = '';
             } else {
-                let limpo = valorInicial.replace('L', '').trim().replace('.', ',');
-                inputTanque.value = limpo;
+                inputTanque.value = valorInicial.replace('.', ',');
             }
 
             inputTanque.addEventListener('input', function(e) {
@@ -92,20 +91,14 @@
                 this.value = v;
             });
 
-            inputTanque.addEventListener('focus', function() {
-                if (this.value === '0,0') {
-                    try {
-                        this.setSelectionRange(0, this.value.length);
-                    } catch (e) {}
-                }
-            });
-
             const form = inputTanque.closest('form');
             if (form) {
                 form.addEventListener('submit', function(e) {
-                    let val = inputTanque.value;
-                    val = val.replace(/\./g, '').replace(',', '.');
-                    inputTanque.value = val;
+                    let val = inputTanque.value.trim();
+                    if (val) {
+                        val = val.replace(/\./g, '').replace(',', '.');
+                        inputTanque.value = val;
+                    }
                 });
             }
         }
