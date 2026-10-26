@@ -96,6 +96,19 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/locales/bootstrap-datepicker.pt-BR.min.js"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
+        // Máscara para Data de Vigência (mm/aaaa progressiva)
+        const inputVigencia = document.getElementById('datepicker_vigencia');
+        if (inputVigencia) {
+            inputVigencia.addEventListener('input', function(e) {
+                let v = this.value.replace(/\D/g, '');
+                if (v.length > 6) v = v.slice(0, 6);
+                if (v.length > 2) {
+                    v = v.slice(0, 2) + '/' + v.slice(2);
+                }
+                this.value = v;
+            });
+        }
+
         // Inicializar Datepicker pt-BR para Mês/Ano
         if (typeof jQuery !== 'undefined' && jQuery.fn.datepicker) {
             jQuery('#datepicker_vigencia').datepicker({
