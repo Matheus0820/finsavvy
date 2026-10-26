@@ -304,27 +304,27 @@
                     <div class="d-flex align-items-center ms-auto">
                         <!-- Theme Dropdown Selector -->
                         <div class="dropdown me-3" id="bd-theme">
-                            <button class="btn btn-outline-secondary dropdown-toggle d-flex align-items-center py-1 px-2" id="bd-theme-text" type="button" aria-expanded="false" data-bs-toggle="dropdown" data-bs-theming="true" aria-label="Alternar tema">
-                                <i class="bi bi-circle-half theme-icon-active"></i>
-                                <span class="d-none d-lg-inline ms-2" id="bd-theme-text-label">Tema</span>
+                            <button class="btn btn-outline-secondary dropdown-toggle d-flex align-items-center py-1.5 px-2.5 rounded-pill shadow-sm" id="bd-theme-text" type="button" aria-expanded="false" data-bs-toggle="dropdown" aria-label="Alternar tema">
+                                <i class="bi bi-circle-half theme-icon-active fs-6"></i>
+                                <span class="d-none d-lg-inline ms-2 small fw-medium" id="bd-theme-text-label">Tema</span>
                             </button>
-                            <ul class="dropdown-menu dropdown-menu-end shadow" aria-labelledby="bd-theme-text">
+                            <ul class="dropdown-menu dropdown-menu-end shadow border-0 py-2" aria-labelledby="bd-theme-text" style="min-width: 140px;">
                                 <li>
-                                    <button type="button" class="dropdown-item d-flex align-items-center" data-bs-theme-value="light" aria-pressed="false">
-                                        <i class="bi bi-sun-fill me-2 opacity-50 theme-icon"></i>
-                                        Claro
+                                    <button type="button" class="dropdown-item d-flex align-items-center py-2 px-3" data-bs-theme-value="light" aria-pressed="false">
+                                        <i class="bi bi-sun-fill me-2 text-warning theme-icon"></i>
+                                        <span>Claro</span>
                                     </button>
                                 </li>
                                 <li>
-                                    <button type="button" class="dropdown-item d-flex align-items-center" data-bs-theme-value="dark" aria-pressed="false">
-                                        <i class="bi bi-moon-stars-fill me-2 opacity-50 theme-icon"></i>
-                                        Escuro
+                                    <button type="button" class="dropdown-item d-flex align-items-center py-2 px-3" data-bs-theme-value="dark" aria-pressed="false">
+                                        <i class="bi bi-moon-stars-fill me-2 text-info theme-icon"></i>
+                                        <span>Escuro</span>
                                     </button>
                                 </li>
                                 <li>
-                                    <button type="button" class="dropdown-item d-flex align-items-center active" data-bs-theme-value="auto" aria-pressed="true">
-                                        <i class="bi bi-circle-half me-2 opacity-50 theme-icon"></i>
-                                        Automático
+                                    <button type="button" class="dropdown-item d-flex align-items-center py-2 px-3 active" data-bs-theme-value="auto" aria-pressed="true">
+                                        <i class="bi bi-circle-half me-2 text-secondary theme-icon"></i>
+                                        <span>Automático</span>
                                     </button>
                                 </li>
                             </ul>
@@ -437,12 +437,14 @@
             };
 
             const setTheme = theme => {
+                let resolvedTheme = theme;
                 if (theme === 'auto') {
-                    document.documentElement.setAttribute('data-bs-theme', (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'));
-                } else {
-                    document.documentElement.setAttribute('data-bs-theme', theme);
+                    resolvedTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
                 }
-                updateChartTheme(document.documentElement.getAttribute('data-bs-theme'));
+                document.documentElement.setAttribute('data-bs-theme', resolvedTheme);
+                if (typeof window.updateChartTheme === 'function') {
+                    window.updateChartTheme(resolvedTheme);
+                }
             };
 
             setTheme(getPreferredTheme());

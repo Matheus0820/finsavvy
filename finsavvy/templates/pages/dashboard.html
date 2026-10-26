@@ -5,7 +5,7 @@
 {% block content %}
 <div class="d-flex justify-content-between align-items-center mb-4">
     <div>
-        <h2 class="fw-bold text-white mb-1"><i class="bi bi-speedometer2 text-info me-2"></i>Visão Geral</h2>
+        <h2 class="fw-bold text-body mb-1"><i class="bi bi-speedometer2 text-info me-2"></i>Visão Geral</h2>
         <p class="text-secondary mb-0">Resumo financeiro e operacional da sua conta.</p>
     </div>
     <div>
@@ -19,7 +19,7 @@
 <div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-4 mb-4">
     <!-- Total Geral -->
     <div class="col">
-        <div class="card bg-dark border-secondary h-100 shadow-sm">
+        <div class="card bg-body-tertiary border shadow-sm h-100">
             <div class="card-body">
                 <div class="d-flex align-items-center justify-content-between mb-3">
                     <span class="text-secondary small fw-semibold text-uppercase">Total de Gastos</span>
@@ -27,7 +27,7 @@
                         <i class="bi bi-wallet2 fs-5"></i>
                     </div>
                 </div>
-                <h3 class="fw-bold text-white mb-1">R$ {{ total_geral|floatformat:2 }}</h3>
+                <h3 class="fw-bold text-body mb-1">R$ {{ total_geral|floatformat:2 }}</h3>
                 <span class="text-success small"><i class="bi bi-arrow-up-right"></i> Consolidado geral</span>
             </div>
         </div>
@@ -35,7 +35,7 @@
 
     <!-- Custos Fixos -->
     <div class="col">
-        <div class="card bg-dark border-secondary h-100 shadow-sm">
+        <div class="card bg-body-tertiary border shadow-sm h-100">
             <div class="card-body">
                 <div class="d-flex align-items-center justify-content-between mb-3">
                     <span class="text-secondary small fw-semibold text-uppercase">Custos Fixos</span>
@@ -43,7 +43,7 @@
                         <i class="bi bi-pin-angle fs-5"></i>
                     </div>
                 </div>
-                <h3 class="fw-bold text-white mb-1">R$ {{ total_custos_fixos|floatformat:2 }}</h3>
+                <h3 class="fw-bold text-body mb-1">R$ {{ total_custos_fixos|floatformat:2 }}</h3>
                 <a href="{% url 'list_custosFixos' %}" class="text-warning small text-decoration-none">Ver detalhes <i class="bi bi-chevron-right small"></i></a>
             </div>
         </div>
@@ -51,7 +51,7 @@
 
     <!-- Custos Variáveis -->
     <div class="col">
-        <div class="card bg-dark border-secondary h-100 shadow-sm">
+        <div class="card bg-body-tertiary border shadow-sm h-100">
             <div class="card-body">
                 <div class="d-flex align-items-center justify-content-between mb-3">
                     <span class="text-secondary small fw-semibold text-uppercase">Custos Variáveis</span>
@@ -59,7 +59,7 @@
                         <i class="bi bi-cash-stack fs-5"></i>
                     </div>
                 </div>
-                <h3 class="fw-bold text-white mb-1">R$ {{ total_custos_variaveis|floatformat:2 }}</h3>
+                <h3 class="fw-bold text-body mb-1">R$ {{ total_custos_variaveis|floatformat:2 }}</h3>
                 <div class="d-flex justify-content-between align-items-center">
                     <a href="{% url 'list_custosVariaveis' %}" class="text-success small text-decoration-none">Ver detalhes <i class="bi bi-chevron-right small"></i></a>
                     <a href="{% url 'list_categoria' %}" class="text-secondary small text-decoration-none" title="Gerenciar Categorias"><i class="bi bi-tags me-1"></i>Categorias</a>
@@ -70,7 +70,7 @@
 
     <!-- Compras -->
     <div class="col">
-        <div class="card bg-dark border-secondary h-100 shadow-sm">
+        <div class="card bg-body-tertiary border shadow-sm h-100">
             <div class="card-body">
                 <div class="d-flex align-items-center justify-content-between mb-3">
                     <span class="text-secondary small fw-semibold text-uppercase">Compras</span>
@@ -78,7 +78,7 @@
                         <i class="bi bi-receipt fs-5"></i>
                     </div>
                 </div>
-                <h3 class="fw-bold text-white mb-1">R$ {{ total_compras|floatformat:2 }}</h3>
+                <h3 class="fw-bold text-body mb-1">R$ {{ total_compras|floatformat:2 }}</h3>
                 <a href="{% url 'list_custoCompra' %}" class="text-primary small text-decoration-none">Ver detalhes <i class="bi bi-chevron-right small"></i></a>
             </div>
         </div>
@@ -89,7 +89,7 @@
 <div class="row row-cols-1 row-cols-md-3 g-4 mb-4">
     <!-- Combustível -->
     <div class="col">
-        <div class="card bg-dark border-secondary shadow-sm h-100">
+        <div class="card bg-body-tertiary border shadow-sm h-100">
             <div class="card-body">
                 <div class="d-flex align-items-center mb-3">
                     <div class="p-3 bg-danger bg-opacity-10 text-danger rounded-3 me-3">
@@ -97,7 +97,7 @@
                     </div>
                     <div>
                         <span class="text-secondary small fw-semibold text-uppercase">Combustível</span>
-                        <h4 class="fw-bold text-white mb-0">R$ {{ total_combustivel|floatformat:2 }}</h4>
+                        <h4 class="fw-bold text-body mb-0">R$ {{ total_combustivel|floatformat:2 }}</h4>
                     </div>
                 </div>
                 <a href="{% url 'list_custoCombustivel' %}" class="text-danger small text-decoration-none">Ver abastecimentos <i class="bi bi-chevron-right small"></i></a>
@@ -107,7 +107,7 @@
 
     <!-- Manutenções -->
     <div class="col">
-        <div class="card bg-dark border-secondary shadow-sm h-100">
+        <div class="card bg-body-tertiary border shadow-sm h-100">
             <div class="card-body">
                 <div class="d-flex align-items-center mb-3">
                     <div class="p-3 bg-warning bg-opacity-10 text-warning rounded-3 me-3">
@@ -115,7 +115,7 @@
                     </div>
                     <div>
                         <span class="text-secondary small fw-semibold text-uppercase">Manutenções</span>
-                        <h4 class="fw-bold text-white mb-0">R$ {{ total_manutencao|floatformat:2 }}</h4>
+                        <h4 class="fw-bold text-body mb-0">R$ {{ total_manutencao|floatformat:2 }}</h4>
                     </div>
                 </div>
                 <a href="{% url 'list_manutencao' %}" class="text-warning small text-decoration-none">Ver manutenções <i class="bi bi-chevron-right small"></i></a>
@@ -125,7 +125,7 @@
 
     <!-- Veículos -->
     <div class="col">
-        <div class="card bg-dark border-secondary shadow-sm h-100">
+        <div class="card bg-body-tertiary border shadow-sm h-100">
             <div class="card-body">
                 <div class="d-flex align-items-center justify-content-between mb-3">
                     <div class="d-flex align-items-center">
@@ -134,14 +134,14 @@
                         </div>
                         <div>
                             <span class="text-secondary small fw-semibold text-uppercase">Frota de Veículos</span>
-                            <h4 class="fw-bold text-white mb-0">{{ total_veiculos }}</h4>
+                            <h4 class="fw-bold text-body mb-0">{{ total_veiculos }}</h4>
                         </div>
                     </div>
                     <div class="dropdown">
                         <button class="btn btn-sm btn-outline-info dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" title="Opções de Veículos">
                             <i class="bi bi-list"></i> Opções
                         </button>
-                        <ul class="dropdown-menu dropdown-menu-dark dropdown-menu-end shadow">
+                        <ul class="dropdown-menu shadow">
                             <li><a class="dropdown-item" href="{% url 'list_veiculo' %}"><i class="bi bi-truck text-info me-2"></i>Ver Veículos</a></li>
                             <li><a class="dropdown-item" href="{% url 'list_custoCombustivel' %}"><i class="bi bi-fuel-pump text-danger me-2"></i>Abastecimentos</a></li>
                             <li><a class="dropdown-item" href="{% url 'list_manutencao' %}"><i class="bi bi-tools text-warning me-2"></i>Manutenções</a></li>
@@ -159,9 +159,9 @@
 <!-- Charts Section -->
 <div class="row g-4 mb-4">
     <div class="col-lg-8">
-        <div class="card bg-dark border-secondary shadow-sm h-100">
-            <div class="card-header bg-dark border-secondary py-3">
-                <h5 class="card-title text-white mb-0 fs-6"><i class="bi bi-bar-chart-fill text-info me-2"></i>Distribuição de Gastos</h5>
+        <div class="card bg-body-tertiary border shadow-sm h-100">
+            <div class="card-header bg-body-tertiary border-bottom py-3">
+                <h5 class="card-title text-body mb-0 fs-6"><i class="bi bi-bar-chart-fill text-info me-2"></i>Distribuição de Gastos</h5>
             </div>
             <div class="card-body d-flex align-items-center justify-content-center" style="min-height: 300px;">
                 <canvas id="expenseBarChart" style="max-height: 280px;"></canvas>
@@ -169,9 +169,9 @@
         </div>
     </div>
     <div class="col-lg-4">
-        <div class="card bg-dark border-secondary shadow-sm h-100">
-            <div class="card-header bg-dark border-secondary py-3">
-                <h5 class="card-title text-white mb-0 fs-6"><i class="bi bi-pie-chart-fill text-warning me-2"></i>Participação</h5>
+        <div class="card bg-body-tertiary border shadow-sm h-100">
+            <div class="card-header bg-body-tertiary border-bottom py-3">
+                <h5 class="card-title text-body mb-0 fs-6"><i class="bi bi-pie-chart-fill text-warning me-2"></i>Participação</h5>
             </div>
             <div class="card-body d-flex align-items-center justify-content-center" style="min-height: 300px;">
                 <canvas id="expensePieChart" style="max-height: 250px;"></canvas>
@@ -184,16 +184,16 @@
 <div class="row g-4">
     <!-- Custos Variáveis Recentes -->
     <div class="col-lg-6">
-        <div class="card bg-dark border-secondary shadow-sm">
-            <div class="card-header bg-dark border-secondary d-flex justify-content-between align-items-center py-3">
-                <h5 class="card-title text-white mb-0 fs-6"><i class="bi bi-cash-stack text-success me-2"></i>Custos Variáveis Recentes</h5>
+        <div class="card bg-body-tertiary border shadow-sm">
+            <div class="card-header bg-body-tertiary border-bottom d-flex justify-content-between align-items-center py-3">
+                <h5 class="card-title text-body mb-0 fs-6"><i class="bi bi-cash-stack text-success me-2"></i>Custos Variáveis Recentes</h5>
                 <a href="{% url 'list_custosVariaveis' %}" class="text-info small text-decoration-none">Ver todos</a>
             </div>
             <div class="card-body p-0">
                 <div class="table-responsive">
-                    <table class="table table-dark table-hover mb-0 align-middle">
+                    <table class="table table-hover mb-0 align-middle">
                         <thead>
-                            <tr class="text-secondary small border-secondary">
+                            <tr class="text-secondary small border-bottom">
                                 <th class="ps-3">Nome</th>
                                 <th>Data</th>
                                 <th class="text-end pe-3">Valor</th>
@@ -201,8 +201,8 @@
                         </thead>
                         <tbody>
                             {% for item in recent_variaveis %}
-                            <tr class="border-secondary">
-                                <td class="ps-3 text-white fw-medium">{{ item.nome }}</td>
+                            <tr class="border-bottom">
+                                <td class="ps-3 text-body fw-medium">{{ item.nome }}</td>
                                 <td class="text-secondary small">{{ item.data|date:"d/m/Y" }}</td>
                                 <td class="text-end pe-3 text-success fw-semibold">R$ {{ item.valor|floatformat:2 }}</td>
                             </tr>
@@ -220,16 +220,16 @@
 
     <!-- Compras Recentes -->
     <div class="col-lg-6">
-        <div class="card bg-dark border-secondary shadow-sm">
-            <div class="card-header bg-dark border-secondary d-flex justify-content-between align-items-center py-3">
-                <h5 class="card-title text-white mb-0 fs-6"><i class="bi bi-receipt text-primary me-2"></i>Compras Recentes</h5>
+        <div class="card bg-body-tertiary border shadow-sm">
+            <div class="card-header bg-body-tertiary border-bottom d-flex justify-content-between align-items-center py-3">
+                <h5 class="card-title text-body mb-0 fs-6"><i class="bi bi-receipt text-primary me-2"></i>Compras Recentes</h5>
                 <a href="{% url 'list_custoCompra' %}" class="text-info small text-decoration-none">Ver todas</a>
             </div>
             <div class="card-body p-0">
                 <div class="table-responsive">
-                    <table class="table table-dark table-hover mb-0 align-middle">
+                    <table class="table table-hover mb-0 align-middle">
                         <thead>
-                            <tr class="text-secondary small border-secondary">
+                            <tr class="text-secondary small border-bottom">
                                 <th class="ps-3">Nome</th>
                                 <th>Data</th>
                                 <th class="text-end pe-3">Valor</th>
@@ -237,8 +237,8 @@
                         </thead>
                         <tbody>
                             {% for item in recent_compras %}
-                            <tr class="border-secondary">
-                                <td class="ps-3 text-white fw-medium">{{ item.nome }}</td>
+                            <tr class="border-bottom">
+                                <td class="ps-3 text-body fw-medium">{{ item.nome }}</td>
                                 <td class="text-secondary small">{{ item.data|date:"d/m/Y" }}</td>
                                 <td class="text-end pe-3 text-primary fw-semibold">R$ {{ item.valor|floatformat:2 }}</td>
                             </tr>
@@ -270,9 +270,20 @@
     const dataValues = [fixedCost, variableCost, purchaseCost, fuelCost, maintCost];
     const backgroundColors = ['#ffc107', '#198754', '#0d6efd', '#dc3545', '#ffca2c'];
 
+    // Helper to get CSS computed variable or color
+    function getThemeColors() {
+        const isDark = document.documentElement.getAttribute('data-bs-theme') === 'dark';
+        return {
+            textColor: isDark ? '#adb5bd' : '#495057',
+            gridColor: isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.08)'
+        };
+    }
+
+    let colors = getThemeColors();
+
     // Bar Chart
     const ctxBar = document.getElementById('expenseBarChart').getContext('2d');
-    new Chart(ctxBar, {
+    const expenseBarChart = new Chart(ctxBar, {
         type: 'bar',
         data: {
             labels: labels,
@@ -292,12 +303,12 @@
             },
             scales: {
                 y: {
-                    grid: { color: '#2d2d2d' },
-                    ticks: { color: '#a0a0a0' }
+                    grid: { color: colors.gridColor },
+                    ticks: { color: colors.textColor }
                 },
                 x: {
                     grid: { display: false },
-                    ticks: { color: '#a0a0a0' }
+                    ticks: { color: colors.textColor }
                 }
             }
         }
@@ -305,7 +316,7 @@
 
     // Pie Chart
     const ctxPie = document.getElementById('expensePieChart').getContext('2d');
-    new Chart(ctxPie, {
+    const expensePieChart = new Chart(ctxPie, {
         type: 'doughnut',
         data: {
             labels: labels,
@@ -321,10 +332,31 @@
             plugins: {
                 legend: {
                     position: 'bottom',
-                    labels: { color: '#a0a0a0', boxWidth: 12 }
+                    labels: { color: colors.textColor, boxWidth: 12 }
                 }
             }
         }
     });
+
+    // Global update handler for charts when theme changes
+    window.updateChartTheme = function(currentTheme) {
+        const isDark = currentTheme === 'dark';
+        const newColors = {
+            textColor: isDark ? '#adb5bd' : '#495057',
+            gridColor: isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.08)'
+        };
+
+        if (expenseBarChart) {
+            expenseBarChart.options.scales.y.grid.color = newColors.gridColor;
+            expenseBarChart.options.scales.y.ticks.color = newColors.textColor;
+            expenseBarChart.options.scales.x.ticks.color = newColors.textColor;
+            expenseBarChart.update();
+        }
+
+        if (expensePieChart) {
+            expensePieChart.options.plugins.legend.labels.color = newColors.textColor;
+            expensePieChart.update();
+        }
+    };
 </script>
 {% endblock %}
