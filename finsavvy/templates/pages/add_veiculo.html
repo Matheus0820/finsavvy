@@ -75,24 +75,46 @@
     document.addEventListener('DOMContentLoaded', function() {
         const inputTanque = document.getElementById('id_capacidade_tanque');
         if (inputTanque) {
-            // Garantir que vírgulas sejam convertidas para ponto durante a digitação para float válido
+            function formatarTanqueDecimal(valorStr) {
+                let apenasDigitos = String(valorStr).replace(/\D/g, '');
+                if (!apenasDigitos) return '0,0';
+                let numero = parseInt(apenasDigitos, 10) / 10;
+                let formatado = numero.toLocaleString('pt-BR', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+                return formatado;
+            }
+
+            if (!inputTanque.value || inputTanque.value === '0' || inputTanque.value === '0.0' || inputTanque.value === '0,0') {
+                inputTanque.value = '0,0';
+            } else {
+                let valClean = String(inputTanque.value).replace('L', '').trim();
+                if (!valClean.includes(',') && !valClean.includes('.')) {
+                    inputTanque.value = formatarTanqueDecimal(valClean);
+                } else if (valClean.includes('.')) {
+                    let num = Math.round(parseFloat(valClean) * 10);
+                    inputTanque.value = (num / 10).toLocaleString('pt-BR', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+                } else {
+                    inputTanque.value = formatarTanqueDecimal(valClean);
+                }
+            }
+
             inputTanque.addEventListener('input', function() {
-                let v = this.value.replace(',', '.');
-                let limpo = v.replace(/[^\d.]/g, '');
-                const partes = limpo.split('.');
-                if (partes.length > 2) {
-                    limpo = partes[0] + '.' + partes.slice(1).join('');
+                let formatted = formatarTanqueDecimal(this.value);
+                this.value = formatted;
+            });
+
+            inputTanque.addEventListener('focus', function() {
+                if (this.value === '0,0') {
+                    try {
+                        this.setSelectionRange(0, this.value.length);
+                    } catch (e) {}
                 }
-                if (partes.length === 2) {
-                    limpo = partes[0] + '.' + partes[1].substring(0, 1);
-                }
-                this.value = limpo;
             });
 
             const form = inputTanque.closest('form');
             if (form) {
                 form.addEventListener('submit', function(e) {
-                    let val = inputTanque.value.replace(',', '.');
+                    let val = inputTanque.value;
+                    val = val.replace(/\./g, '').replace(',', '.');
                     inputTanque.value = val;
                 });
             }
