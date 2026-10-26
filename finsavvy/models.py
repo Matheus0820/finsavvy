@@ -165,12 +165,34 @@ class Veiculo(models.Model):
 class CustoCombustivel(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='custos_combustivel')
     veiculo = models.ForeignKey(Veiculo, on_delete=models.CASCADE, related_name='combustiveis')
-    data = models.DateField(auto_now_add=True)
-    litros = models.FloatField()
-    valor = models.FloatField(help_text='Valor pago pela quantidade de litros')
+    data = models.DateField(default=timezone.now)
+    valor_abastecido = models.FloatField(help_text='Valor total pago no posto (R$)', default=0.0)
+    valor_por_litro = models.FloatField(help_text='Preço do litro do combustível (R$)', default=0.0)
+
+    @property
+    def litros(self):
+        if self.valor_por_litro and self.valor_por_litro > 0:
+            return round(self.valor_abastecido / self.valor_por_litro, 2)
+        return 0.0
+
+    @property
+    def valor(self):
+        return self.valor_abastecido
+
+    @valor.setter
+    def valor(self, val):
+        self.valor_abastecido = val
+
+    @property
+    def litros_setter_dummy(self):
+        return 0.0
+
+    @litros.setter
+    def litros(self, val):
+        pass
 
     def __str__(self):
-        return f"{self.veiculo} - {self.litros}L"
+        return f"{self.veiculo} - R$ {self.valor_abastecido:.2f} ({self.data})"
 
 class Manutencao(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='manutencoes')

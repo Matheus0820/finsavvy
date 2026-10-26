@@ -29,11 +29,8 @@
                     {% endif %}
 
                     <div class="mb-3">
-                        <label for="datepicker1" class="form-label text-secondary small fw-semibold">Data do Abastecimento</label>
-                        <div class="input-group">
-                            <input type="text" class="form-control text-bg-dark border-secondary" id="datepicker1" name="data" data-bs-toggle="datepicker" autocomplete="off" placeholder="Escolha a data…" value="{% if form.data.value %}{{ form.data.value|date:'d/m/Y' }}{% endif %}">
-                            <span class="input-group-text bg-dark border-secondary text-secondary"><i class="bi bi-calendar"></i></span>
-                        </div>
+                        <label for="{{ form.data.id_for_label }}" class="form-label text-secondary small fw-semibold">Data do Abastecimento</label>
+                        {{ form.data }}
                     </div>
                     <div class="mb-3">
                         <label for="{{ form.veiculo.id_for_label }}" class="form-label text-secondary small fw-semibold">Veículo</label>
@@ -69,31 +66,12 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    function aplicarMascaraMoeda(input) {
-        function formatar(v) {
-            let limpo = v.replace(/\D/g, '');
-            if (!limpo) return '0,00';
-            let num = parseInt(limpo, 10);
-            return (num / 100).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-        }
-
-        input.addEventListener('input', function(e) {
-            let cursorOriginal = input.selectionEnd;
-            let valorFormatado = formatar(input.value);
-            input.value = valorFormatado;
-        });
-
-        // Formata valor inicial se houver
-        if (input.value) {
-            input.value = formatar(input.value);
-        }
-    }
-
     const ids = ['id_valor_abastecido', 'id_valor_por_litro'];
     ids.forEach(function(id) {
         let el = document.getElementById(id);
         if (el) {
-            aplicarMascaraMoeda(el);
+            // Remove readonly/disabled or conflicting handlers if any, and ensure it's a regular text input
+            el.removeAttribute('readonly');
         }
     });
 });

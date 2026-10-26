@@ -250,8 +250,8 @@ class RelatoriosVeicularesIntegrationTests(TestCase):
         self.comb = CustoCombustivel.objects.create(
             user=self.user,
             veiculo=self.carro,
-            litros=50.0,
-            valor=250.0
+            valor_por_litro=5.0,
+            valor_abastecido=250.0
         )
         CustoCombustivel.objects.filter(id=self.comb.id).update(data=date(2025, 5, 10))
 
@@ -277,8 +277,8 @@ class RelatoriosVeicularesIntegrationTests(TestCase):
         self.comb_outro = CustoCombustivel.objects.create(
             user=self.user_outro,
             veiculo=self.carro_outro,
-            litros=100.0,
-            valor=600.0
+            valor_por_litro=6.0,
+            valor_abastecido=600.0
         )
         CustoCombustivel.objects.filter(id=self.comb_outro.id).update(data=date(2025, 5, 10))
 

@@ -69,8 +69,8 @@ def calcular_estatisticas_por_veiculo(veiculo, combustiveis_qs=None, manutencoes
     else:
         manutencoes = manutencoes_qs.filter(veiculo=veiculo)
 
-    total_litros = combustiveis.aggregate(total=Sum('litros'))['total'] or 0.0
-    total_gasto_combustivel = combustiveis.aggregate(total=Sum('valor'))['total'] or 0.0
+    total_litros = sum(c.litros for c in combustiveis)
+    total_gasto_combustivel = combustiveis.aggregate(total=Sum('valor_abastecido'))['total'] or 0.0
     total_gasto_manutencao = manutencoes.aggregate(total=Sum('valor'))['total'] or 0.0
     total_gasto = total_gasto_combustivel + total_gasto_manutencao
     total_abastecimentos = combustiveis.count()
@@ -105,8 +105,8 @@ def calcular_metricas_veiculares_gerais(veiculos_qs, combustiveis_qs, manutencoe
     Consolida métricas globais de todos os veículos informados e prepara dados para gráficos.
     """
     total_veiculos = veiculos_qs.count()
-    total_litros = combustiveis_qs.aggregate(total=Sum('litros'))['total'] or 0.0
-    total_combustivel = combustiveis_qs.aggregate(total=Sum('valor'))['total'] or 0.0
+    total_litros = sum(c.litros for c in combustiveis_qs)
+    total_combustivel = combustiveis_qs.aggregate(total=Sum('valor_abastecido'))['total'] or 0.0
     total_manutencao = manutencoes_qs.aggregate(total=Sum('valor'))['total'] or 0.0
     total_gasto_frota = total_combustivel + total_manutencao
 

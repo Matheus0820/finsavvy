@@ -218,11 +218,12 @@ class FormVeiculo(forms.ModelForm):
 class FormCustoCombustivel(forms.ModelForm):
     class Meta:
         model = CustoCombustivel
-        fields = ('veiculo', 'litros', 'valor')
+        fields = ('veiculo', 'data', 'valor_abastecido', 'valor_por_litro')
         widgets = {
             'veiculo': forms.Select(attrs={'class': 'form-select text-bg-dark border-secondary'}),
-            'litros': forms.NumberInput(attrs={'class': 'form-control text-bg-dark border-secondary', 'step': '0.01'}),
-            'valor': forms.NumberInput(attrs={'class': 'form-control text-bg-dark border-secondary', 'step': '0.01'}),
+            'data': forms.DateInput(format='%Y-%m-%d', attrs={'class': 'form-control text-bg-dark border-secondary', 'type': 'date'}),
+            'valor_abastecido': forms.NumberInput(attrs={'class': 'form-control text-bg-dark border-secondary', 'step': '0.01', 'placeholder': '0.00'}),
+            'valor_por_litro': forms.NumberInput(attrs={'class': 'form-control text-bg-dark border-secondary', 'step': '0.01', 'placeholder': '0.00'}),
         }
 
 class FormManutencao(forms.ModelForm):
