@@ -11,6 +11,7 @@ from .models import (
     Manutencao,
 )
 from .utils.leitor_qrcode import decodificar_imagem_qrcode, extrair_dados_nfce
+from .utils.forms import MonetaryMaskMixin
 
 class FormCategoria(forms.ModelForm):
     class Meta:
@@ -30,7 +31,9 @@ class FormCategoria(forms.ModelForm):
             }),
         }
 
-class FormCustoVariavel(forms.ModelForm):
+class FormCustoVariavel(MonetaryMaskMixin, forms.ModelForm):
+    monetary_fields = ('valor',)
+
     categoria = forms.ModelChoiceField(
         queryset=Categoria.objects.all().order_by('nome'),
         required=False,
@@ -43,10 +46,12 @@ class FormCustoVariavel(forms.ModelForm):
         fields = ('nome', 'valor', 'categoria')
         widgets = {
             'nome': forms.TextInput(attrs={'class': 'form-control text-bg-dark border-secondary', 'placeholder': 'Ex: Almoço, Supermercado...'}),
-            'valor': forms.NumberInput(attrs={'class': 'form-control text-bg-dark border-secondary', 'step': '0.01', 'placeholder': '0.00'}),
+            'valor': forms.TextInput(attrs={'class': 'form-control text-bg-dark border-secondary mascara-dinheiro', 'placeholder': '0,00'}),
         }
 
-class FormCustoCompra(forms.ModelForm):
+class FormCustoCompra(MonetaryMaskMixin, forms.ModelForm):
+    monetary_fields = ('valor_total',)
+
     imagem_qr = forms.FileField(
         required=False,
         label="Foto / Imagem do QR-Code (opcional)",
@@ -65,10 +70,9 @@ class FormCustoCompra(forms.ModelForm):
                 'class': 'form-control text-bg-dark border-secondary',
                 'type': 'date'
             }),
-            'valor_total': forms.NumberInput(attrs={
-                'class': 'form-control text-bg-dark border-secondary',
-                'step': '0.01',
-                'placeholder': '0.00',
+            'valor_total': forms.TextInput(attrs={
+                'class': 'form-control text-bg-dark border-secondary mascara-dinheiro',
+                'placeholder': '0,00',
                 'readonly': 'readonly'
             }),
             'qr_code_url': forms.URLInput(attrs={
@@ -146,7 +150,9 @@ class FormCustoCompra(forms.ModelForm):
         return cleaned_data
 
 
-class FormItemCompra(forms.ModelForm):
+class FormItemCompra(MonetaryMaskMixin, forms.ModelForm):
+    monetary_fields = ('valor_unitario', 'valor_total_item')
+
     class Meta:
         model = ItemCompra
         fields = ('descricao', 'quantidade', 'valor_unitario', 'valor_total_item')
@@ -161,17 +167,14 @@ class FormItemCompra(forms.ModelForm):
                 'min': '0',
                 'placeholder': '1'
             }),
-            'valor_unitario': forms.NumberInput(attrs={
-                'class': 'form-control text-bg-dark border-secondary item-unitario',
-                'step': '0.01',
-                'min': '0',
-                'placeholder': '0.00'
+            'valor_unitario': forms.TextInput(attrs={
+                'class': 'form-control text-bg-dark border-secondary item-unitario mascara-dinheiro',
+                'placeholder': '0,00'
             }),
-            'valor_total_item': forms.NumberInput(attrs={
-                'class': 'form-control text-bg-dark border-secondary item-total',
-                'step': '0.01',
+            'valor_total_item': forms.TextInput(attrs={
+                'class': 'form-control text-bg-dark border-secondary item-total mascara-dinheiro',
                 'readonly': 'readonly',
-                'placeholder': '0.00'
+                'placeholder': '0,00'
             }),
         }
 
@@ -226,15 +229,17 @@ class FormVeiculo(forms.ModelForm):
             'capacidade_tanque': forms.NumberInput(attrs={'class': 'form-control text-bg-dark border-secondary', 'min': '1'}),
         }
 
-class FormCustoCombustivel(forms.ModelForm):
+class FormCustoCombustivel(MonetaryMaskMixin, forms.ModelForm):
+    monetary_fields = ('valor_abastecido', 'valor_por_litro')
+
     class Meta:
         model = CustoCombustivel
         fields = ('veiculo', 'data', 'valor_abastecido', 'valor_por_litro', 'km_atual', 'tanque_cheio')
         widgets = {
             'veiculo': forms.Select(attrs={'class': 'form-select text-bg-dark border-secondary'}),
             'data': forms.DateInput(format='%Y-%m-%d', attrs={'class': 'form-control text-bg-dark border-secondary', 'type': 'date'}),
-            'valor_abastecido': forms.NumberInput(attrs={'class': 'form-control text-bg-dark border-secondary', 'step': '0.01', 'placeholder': '0.00'}),
-            'valor_por_litro': forms.NumberInput(attrs={'class': 'form-control text-bg-dark border-secondary', 'step': '0.01', 'placeholder': '0.00'}),
+            'valor_abastecido': forms.TextInput(attrs={'class': 'form-control text-bg-dark border-secondary mascara-dinheiro', 'placeholder': '0,00'}),
+            'valor_por_litro': forms.TextInput(attrs={'class': 'form-control text-bg-dark border-secondary mascara-dinheiro', 'placeholder': '0,00'}),
             'km_atual': forms.NumberInput(attrs={'class': 'form-control text-bg-dark border-secondary', 'min': '0'}),
             'tanque_cheio': forms.CheckboxInput(attrs={'class': 'form-check-input', 'role': 'switch'}),
         }
@@ -274,7 +279,9 @@ class FormCustoCombustivel(forms.ModelForm):
 
         return cleaned_data
 
-class FormManutencao(forms.ModelForm):
+class FormManutencao(MonetaryMaskMixin, forms.ModelForm):
+    monetary_fields = ('valor',)
+
     class Meta:
         model = Manutencao
         fields = ('veiculo', 'tipo', 'descricao', 'valor', 'km_atual', 'km_proximo_oleo', 'km_troca_oleo')
@@ -282,7 +289,7 @@ class FormManutencao(forms.ModelForm):
             'veiculo': forms.Select(attrs={'class': 'form-select text-bg-dark border-secondary'}),
             'tipo': forms.TextInput(attrs={'class': 'form-control text-bg-dark border-secondary'}),
             'descricao': forms.Textarea(attrs={'class': 'form-control text-bg-dark border-secondary', 'rows': 3}),
-            'valor': forms.NumberInput(attrs={'class': 'form-control text-bg-dark border-secondary', 'step': '0.01'}),
+            'valor': forms.TextInput(attrs={'class': 'form-control text-bg-dark border-secondary mascara-dinheiro', 'placeholder': '0,00'}),
             'km_atual': forms.NumberInput(attrs={'class': 'form-control text-bg-dark border-secondary', 'min': '0'}),
             'km_proximo_oleo': forms.NumberInput(attrs={'class': 'form-control text-bg-dark border-secondary', 'min': '0'}),
             'km_troca_oleo': forms.NumberInput(attrs={'class': 'form-control text-bg-dark border-secondary', 'min': '0'}),

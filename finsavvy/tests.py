@@ -19,6 +19,9 @@ from .utils.alertas_veiculares import (
     gerar_alertas_veiculo,
     gerar_alertas_usuario,
 )
+from .utils.forms import sanitizar_valor_monetario, MonetaryMaskMixin
+from .forms import FormCustoFixo
+from .new_forms import FormCustoVariavel, FormCustoCombustivel
 
 User = get_user_model()
 
@@ -428,6 +431,48 @@ class VeiculoUITests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'Autonomia Estimada')
         self.assertContains(response, 'Custo Tanque Cheio')
+
+
+class MonetaryMaskAndSanitizationTests(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(username='mask_user', password='testpass')
+
+    def test_sanitizar_valor_monetario_formats(self):
+        self.assertEqual(sanitizar_valor_monetario('1.250,50'), 1250.50)
+        self.assertEqual(sanitizar_valor_monetario('R$ 1.250,50'), 1250.50)
+        self.assertEqual(sanitizar_valor_monetario('250,75'), 250.75)
+        self.assertEqual(sanitizar_valor_monetario('100.00'), 100.00)
+        self.assertEqual(sanitizar_valor_monetario(50.2), 50.2)
+        self.assertIsNone(sanitizar_valor_monetario(''))
+        self.assertIsNone(sanitizar_valor_monetario(None))
+
+    def test_form_custofixo_with_masked_value(self):
+        form = FormCustoFixo(data={'nome': 'Internet Fibra', 'valor': '1.250,50', 'dia_vencimento': 10})
+        self.assertTrue(form.is_valid())
+        self.assertEqual(form.cleaned_data['valor'], 1250.50)
+
+    def test_form_custo_combustivel_with_masked_values(self):
+        veiculo = Veiculo.objects.create(
+            user=self.user,
+            marca='Fiat',
+            modelo='Argo',
+            placa='ARG1234',
+            tipo_veiculo='CARRO',
+            km_atual=1000,
+            capacidade_tanque=50
+        )
+        form = FormCustoCombustivel(data={
+            'veiculo': veiculo.id,
+            'data': '2025-05-10',
+            'valor_abastecido': '250,00',
+            'valor_por_litro': '5,00',
+            'km_atual': 1500,
+            'tanque_cheio': True
+        })
+        self.assertTrue(form.is_valid())
+        self.assertEqual(form.cleaned_data['valor_abastecido'], 250.0)
+        self.assertEqual(form.cleaned_data['valor_por_litro'], 5.0)
+
 
 
 
