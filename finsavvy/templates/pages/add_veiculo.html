@@ -75,74 +75,21 @@
     document.addEventListener('DOMContentLoaded', function() {
         const inputTanque = document.getElementById('id_capacidade_tanque');
         if (inputTanque) {
-            function formatarTanque(valorStr) {
-                if (!valorStr) return '0.0';
-                let str = String(valorStr).trim();
-                // Se já estiver no formato correto com ponto e uma casa decimal
-                if (/^\d+\.\d{1}$/.test(str)) {
-                    return str;
-                }
-                // Remover tudo exceto dígitos e ponto
-                let limpo = str.replace(/[^\d.]/g, '');
-                if (!limpo) return '0.0';
-
-                // Se houver mais de um ponto, manter apenas o primeiro
-                const partes = limpo.split('.');
-                if (partes.length > 2) {
-                    limpo = partes[0] + '.' + partes.slice(1).join('');
-                }
-
-                // Se tiver ponto, limitar a 1 casa decimal após o ponto
-                if (limpo.includes('.')) {
-                    const p = limpo.split('.');
-                    const inteiro = p[0] === '' ? '0' : p[0];
-                    const decimal = p[1].substring(0, 1);
-                    return inteiro + '.' + decimal;
-                }
-
-                // Se não tiver ponto, assumir que os últimos dígitos são os decimais (comportamento right-to-left por 10)
-                const apenasDigitos = limpo.replace(/\D/g, '');
-                if (!apenasDigitos) return '0.0';
-                const numero = parseInt(apenasDigitos, 10) / 10;
-                return numero.toFixed(1);
-            }
-
-            function aplicarMascara(input) {
-                const formatado = formatarTanque(input.value);
-                input.value = formatado;
-                if (input === document.activeElement) {
-                    try {
-                        const pos = input.value.length;
-                        input.setSelectionRange(pos, pos);
-                    } catch (e) {}
-                }
-            }
-
-            if (!inputTanque.value || inputTanque.value === '' || inputTanque.value === '0' || inputTanque.value === '50' || inputTanque.value === '0,0') {
-                inputTanque.value = '0.0';
-            } else {
-                aplicarMascara(inputTanque);
+            if (!inputTanque.value || inputTanque.value === '' || inputTanque.value === '0' || inputTanque.value === '50' || inputTanque.value === '0,0' || inputTanque.value === '0.0') {
+                inputTanque.value = '';
             }
 
             inputTanque.addEventListener('input', function() {
-                aplicarMascara(this);
-            });
-
-            inputTanque.addEventListener('focus', function() {
-                if (this.value === '0.0') {
-                    try {
-                        this.setSelectionRange(0, this.value.length);
-                    } catch (e) {}
+                let v = this.value.replace(/[^\d.]/g, '');
+                const parts = v.split('.');
+                if (parts.length > 2) {
+                    v = parts[0] + '.' + parts.slice(1).join('');
                 }
+                if (parts.length === 2 && parts[1].length > 1) {
+                    v = parts[0] + '.' + parts[1].substring(0, 1);
+                }
+                this.value = v;
             });
-
-            const form = inputTanque.closest('form');
-            if (form) {
-                form.addEventListener('submit', function(e) {
-                    let val = inputTanque.value;
-                    inputTanque.value = val;
-                });
-            }
         }
     });
 </script>
