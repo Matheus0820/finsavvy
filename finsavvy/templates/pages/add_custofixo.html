@@ -59,11 +59,22 @@
                         </div>
 
                         <div class="mb-3">
-                            <label for="datepicker_vencimento" class="form-label text-light">Data de Vencimento</label>
+                            <label for="{{ formCustoFixo.dia_vencimento.id_for_label }}" class="form-label text-light">Dia de Vencimento</label>
+                            {{ formCustoFixo.dia_vencimento }}
+                            {% if formCustoFixo.dia_vencimento.errors %}
+                                <div class="text-danger small mt-1">{{ formCustoFixo.dia_vencimento.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="datepicker_vigencia" class="form-label text-light">Data de Vigência (Opcional)</label>
                             <div class="input-group">
                                 <span class="input-group-text bg-secondary text-white border-secondary"><i class="bi bi-calendar-event"></i></span>
-                                <input type="text" class="form-control text-bg-dark border-secondary" id="datepicker_vencimento" name="data_vencimento" data-bs-toggle="datepicker" autocomplete="off" placeholder="dd/mm/aaaa" value="{{ data_vencimento|default:'' }}">
+                                <input type="text" class="form-control text-bg-dark border-secondary" id="datepicker_vigencia" name="data_vigencia" data-bs-toggle="datepicker" autocomplete="off" placeholder="dd/mm/aaaa" value="{{ formCustoFixo.data_vigencia.value|date:'d/m/Y'|default:'' }}">
                             </div>
+                            {% if formCustoFixo.data_vigencia.errors %}
+                                <div class="text-danger small mt-1">{{ formCustoFixo.data_vigencia.errors.0 }}</div>
+                            {% endif %}
                         </div>
 
                         <div class="d-flex justify-content-between align-items-center mt-4">
@@ -86,7 +97,7 @@
     document.addEventListener('DOMContentLoaded', function() {
         // Inicializar Datepicker pt-BR
         if (typeof jQuery !== 'undefined' && jQuery.fn.datepicker) {
-            jQuery('#datepicker_vencimento').datepicker({
+            jQuery('#datepicker_vigencia').datepicker({
                 format: 'dd/mm/yyyy',
                 language: 'pt-BR',
                 autoclose: true,

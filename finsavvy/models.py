@@ -17,6 +17,8 @@ class CustoFixo(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='custos_fixos')
     nome = models.CharField(max_length=255, default="")
     valor = models.FloatField(blank=False, default="")
+    dia_vencimento = models.PositiveSmallIntegerField(default=1, help_text='Dia do mês em que vence (1-31)')
+    data_vigencia = models.DateField(blank=True, null=True, help_text='Data final de vigência opcional')
 
     def __str__(self):
         return self.nome

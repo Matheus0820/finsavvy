@@ -69,9 +69,9 @@ class CustoFixoTests(TestCase):
 
     def test_add_custo_valid(self):
         self.client.login(username='alice', password='testpass')
-        response = self.client.post(reverse('add_custofixo'), {'nome': 'Novo', 'valor': '50.5'})
+        response = self.client.post(reverse('add_custofixo'), {'nome': 'Novo', 'valor': '50.5', 'dia_vencimento': '10'})
         self.assertRedirects(response, reverse('list_custosFixos'))
-        self.assertTrue(CustoFixo.objects.filter(user=self.user1, nome='Novo', valor=50.5).exists())
+        self.assertTrue(CustoFixo.objects.filter(user=self.user1, nome='Novo', valor=50.5, dia_vencimento=10).exists())
 
     def test_add_custo_invalid(self):
         self.client.login(username='alice', password='testpass')
@@ -84,12 +84,13 @@ class CustoFixoTests(TestCase):
         self.client.login(username='alice', password='testpass')
         response = self.client.post(
             reverse('edit_custofixo', args=[self.custo1.id]),
-            {'nome': 'Serviço A Editado', 'valor': '150.0'}
+            {'nome': 'Serviço A Editado', 'valor': '150.0', 'dia_vencimento': '15'}
         )
         self.assertRedirects(response, reverse('list_custosFixos'))
         self.custo1.refresh_from_db()
         self.assertEqual(self.custo1.nome, 'Serviço A Editado')
         self.assertEqual(float(self.custo1.valor), 150.0)
+        self.assertEqual(self.custo1.dia_vencimento, 15)
 
     def test_edit_custo_invalid(self):
         self.client.login(username='alice', password='testpass')
