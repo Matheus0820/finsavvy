@@ -25,12 +25,8 @@ class FormVeiculo(forms.ModelForm):
         if isinstance(val, (int, float)):
             return float(val)
         val_str = str(val).replace('L', '').strip()
-        if '.' in val_str and ',' not in val_str:
-            try:
-                return float(val_str)
-            except ValueError:
-                pass
-        val_str = val_str.replace('.', '').replace(',', '.')
+        if ',' in val_str:
+            val_str = val_str.replace('.', '').replace(',', '.')
         try:
             return float(val_str)
         except ValueError:
