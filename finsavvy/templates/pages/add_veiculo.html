@@ -78,10 +78,30 @@
             function formatarTanque(valorStr) {
                 if (!valorStr) return '0.0';
                 let str = String(valorStr).trim();
+                // Se já estiver no formato correto com ponto e uma casa decimal
                 if (/^\d+\.\d{1}$/.test(str)) {
                     return str;
                 }
-                const apenasDigitos = str.replace(/\D/g, '');
+                // Remover tudo exceto dígitos e ponto
+                let limpo = str.replace(/[^\d.]/g, '');
+                if (!limpo) return '0.0';
+
+                // Se houver mais de um ponto, manter apenas o primeiro
+                const partes = limpo.split('.');
+                if (partes.length > 2) {
+                    limpo = partes[0] + '.' + partes.slice(1).join('');
+                }
+
+                // Se tiver ponto, limitar a 1 casa decimal após o ponto
+                if (limpo.includes('.')) {
+                    const p = limpo.split('.');
+                    const inteiro = p[0] === '' ? '0' : p[0];
+                    const decimal = p[1].substring(0, 1);
+                    return inteiro + '.' + decimal;
+                }
+
+                // Se não tiver ponto, assumir que os últimos dígitos são os decimais (comportamento right-to-left por 10)
+                const apenasDigitos = limpo.replace(/\D/g, '');
                 if (!apenasDigitos) return '0.0';
                 const numero = parseInt(apenasDigitos, 10) / 10;
                 return numero.toFixed(1);
