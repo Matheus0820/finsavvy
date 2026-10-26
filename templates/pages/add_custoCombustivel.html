@@ -29,18 +29,28 @@
                     {% endif %}
 
                     <div class="mb-3">
+                        <label for="datepicker1" class="form-label text-secondary small fw-semibold">Data do Abastecimento</label>
+                        <div class="input-group">
+                            <input type="text" class="form-control text-bg-dark border-secondary" id="datepicker1" name="data" data-bs-toggle="datepicker" autocomplete="off" placeholder="Escolha a data…" value="{% if form.data.value %}{{ form.data.value|date:'d/m/Y' }}{% endif %}">
+                            <span class="input-group-text bg-dark border-secondary text-secondary"><i class="bi bi-calendar"></i></span>
+                        </div>
+                    </div>
+                    <div class="mb-3">
                         <label for="{{ form.veiculo.id_for_label }}" class="form-label text-secondary small fw-semibold">Veículo</label>
                         {{ form.veiculo }}
                     </div>
                     <div class="mb-3">
-                        <label for="{{ form.litros.id_for_label }}" class="form-label text-secondary small fw-semibold">Litros</label>
-                        {{ form.litros }}
-                    </div>
-                    <div class="mb-4">
-                        <label for="{{ form.valor.id_for_label }}" class="form-label text-secondary small fw-semibold">Valor (R$)</label>
+                        <label for="{{ form.valor_abastecido.id_for_label }}" class="form-label text-secondary small fw-semibold">Valor Abastecido (R$)</label>
                         <div class="input-group">
                             <span class="input-group-text bg-dark border-secondary text-secondary">R$</span>
-                            {{ form.valor }}
+                            {{ form.valor_abastecido }}
+                        </div>
+                    </div>
+                    <div class="mb-4">
+                        <label for="{{ form.valor_por_litro.id_for_label }}" class="form-label text-secondary small fw-semibold">Preço por Litro (R$)</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-dark border-secondary text-secondary">R$</span>
+                            {{ form.valor_por_litro }}
                         </div>
                     </div>
 
