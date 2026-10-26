@@ -75,26 +75,30 @@
     document.addEventListener('DOMContentLoaded', function() {
         const inputTanque = document.getElementById('id_capacidade_tanque');
         if (inputTanque) {
-            // Garantir valor inicial se vazio ou zero
+            function formatarTanqueAuto(valorStr) {
+                let apenasDigitos = String(valorStr).replace(/\D/g, '');
+                if (!apenasDigitos) return '0,0';
+                let numero = parseInt(apenasDigitos, 10) / 10;
+                return numero.toLocaleString('pt-BR', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+            }
+
             if (!inputTanque.value || inputTanque.value === '0' || inputTanque.value === '0.0' || inputTanque.value === '0,0') {
                 inputTanque.value = '0,0';
             } else {
                 let valClean = String(inputTanque.value).replace('L', '').trim();
-                valClean = valClean.replace('.', ',');
-                inputTanque.value = valClean;
+                if (!valClean.includes(',') && !valClean.includes('.')) {
+                    inputTanque.value = formatarTanqueAuto(valClean);
+                } else {
+                    let parts = valClean.replace('.', ',').split(',');
+                    let intPart = parts[0] || '0';
+                    let decPart = (parts[1] || '0').substring(0, 1);
+                    inputTanque.value = intPart + ',' + decPart;
+                }
             }
 
-            inputTanque.addEventListener('input', function(e) {
-                let v = this.value.replace(',', '.');
-                let limpo = v.replace(/[^0-9.]/g, '');
-                const partes = limpo.split('.');
-                if (partes.length > 2) {
-                    limpo = partes[0] + '.' + partes.slice(1).join('');
-                }
-                if (partes.length === 2 && partes[1].length > 1) {
-                    limpo = partes[0] + '.' + partes[1].substring(0, 1);
-                }
-                this.value = limpo.replace('.', ',');
+            inputTanque.addEventListener('input', function() {
+                let formatted = formatarTanqueAuto(this.value);
+                this.value = formatted;
             });
 
             inputTanque.addEventListener('focus', function() {
