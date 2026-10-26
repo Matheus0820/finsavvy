@@ -75,30 +75,21 @@
     document.addEventListener('DOMContentLoaded', function() {
         const inputTanque = document.getElementById('id_capacidade_tanque');
         if (inputTanque) {
-            function formatarTanqueAuto(valorStr) {
-                let apenasDigitos = String(valorStr).replace(/\D/g, '');
-                if (!apenasDigitos) return '0,0';
-                let numero = parseInt(apenasDigitos, 10) / 10;
-                return numero.toLocaleString('pt-BR', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
-            }
-
-            if (!inputTanque.value || inputTanque.value === '0' || inputTanque.value === '0.0' || inputTanque.value === '0,0') {
+            let valorInicial = inputTanque.value.trim();
+            if (!valorInicial || valorInicial === '0' || valorInicial === '0.0' || valorInicial === '0,0') {
                 inputTanque.value = '0,0';
             } else {
-                let valClean = String(inputTanque.value).replace('L', '').trim();
-                if (!valClean.includes(',') && !valClean.includes('.')) {
-                    inputTanque.value = formatarTanqueAuto(valClean);
-                } else {
-                    let parts = valClean.replace('.', ',').split(',');
-                    let intPart = parts[0] || '0';
-                    let decPart = (parts[1] || '0').substring(0, 1);
-                    inputTanque.value = intPart + ',' + decPart;
-                }
+                let limpo = valorInicial.replace('L', '').trim().replace('.', ',');
+                inputTanque.value = limpo;
             }
 
-            inputTanque.addEventListener('input', function() {
-                let formatted = formatarTanqueAuto(this.value);
-                this.value = formatted;
+            inputTanque.addEventListener('input', function(e) {
+                let v = this.value.replace(/[^0-9,]/g, '');
+                let partes = v.split(',');
+                if (partes.length > 2) {
+                    v = partes[0] + ',' + partes.slice(1).join('');
+                }
+                this.value = v;
             });
 
             inputTanque.addEventListener('focus', function() {
