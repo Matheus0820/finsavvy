@@ -75,17 +75,17 @@
     document.addEventListener('DOMContentLoaded', function() {
         const inputTanque = document.getElementById('id_capacidade_tanque');
         if (inputTanque) {
-            function formatarTanque(str) {
-                if (!str) return '0,0';
-                let apenasDigitos = String(str).replace(/\D/g, '');
+            function formatarTanque(valorStr) {
+                let apenasDigitos = String(valorStr).replace(/\D/g, '');
                 if (apenasDigitos === '') apenasDigitos = '0';
                 let numero = parseInt(apenasDigitos, 10);
-                // 1 casa decimal (ex: 500 -> 50,0 | 5 -> 0,5 | 123 -> 12,3)
                 let decimal = (numero / 10).toLocaleString('pt-BR', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
                 return decimal;
             }
 
-            if (inputTanque.value && inputTanque.value !== '0,0' && inputTanque.value !== '') {
+            if (!inputTanque.value || inputTanque.value === '' || inputTanque.value === '0') {
+                inputTanque.value = '0,0';
+            } else {
                 let valClean = String(inputTanque.value).replace('L', '').trim();
                 if (!valClean.includes(',') && !valClean.includes('.')) {
                     inputTanque.value = formatarTanque(valClean);
@@ -95,12 +95,11 @@
                 } else {
                     inputTanque.value = formatarTanque(valClean);
                 }
-            } else {
-                inputTanque.value = '0,0';
             }
 
             inputTanque.addEventListener('input', function(e) {
-                this.value = formatarTanque(this.value);
+                let formatted = formatarTanque(this.value);
+                this.value = formatted;
             });
 
             const form = inputTanque.closest('form');
