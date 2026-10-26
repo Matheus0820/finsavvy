@@ -76,30 +76,45 @@
         const inputTanque = document.getElementById('id_capacidade_tanque');
         if (inputTanque) {
             function formatarTanque(valorStr) {
-                let apenasDigitos = String(valorStr).replace(/\D/g, '');
-                if (apenasDigitos === '') apenasDigitos = '0';
-                let numero = parseInt(apenasDigitos, 10);
-                let decimal = (numero / 10).toLocaleString('pt-BR', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
-                return decimal;
+                if (!valorStr) return '0,0';
+                let str = String(valorStr).trim();
+                if (/^\d+,\d{1}$/.test(str)) {
+                    return str;
+                }
+                const apenasDigitos = str.replace(/\D/g, '');
+                if (!apenasDigitos) return '0,0';
+                const numero = parseInt(apenasDigitos, 10) / 10;
+                return numero.toLocaleString('pt-BR', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
             }
 
-            if (!inputTanque.value || inputTanque.value === '' || inputTanque.value === '0') {
-                inputTanque.value = '0,0';
-            } else {
-                let valClean = String(inputTanque.value).replace('L', '').trim();
-                if (!valClean.includes(',') && !valClean.includes('.')) {
-                    inputTanque.value = formatarTanque(valClean);
-                } else if (valClean.includes('.') && !valClean.includes(',')) {
-                    let num = Math.round(parseFloat(valClean) * 10);
-                    inputTanque.value = (num / 10).toLocaleString('pt-BR', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
-                } else {
-                    inputTanque.value = formatarTanque(valClean);
+            function aplicarMascara(input) {
+                const valorAntigo = input.value;
+                const formatado = formatarTanque(valorAntigo);
+                input.value = formatado;
+                if (input === document.activeElement) {
+                    try {
+                        const pos = input.value.length;
+                        input.setSelectionRange(pos, pos);
+                    } catch (e) {}
                 }
             }
 
-            inputTanque.addEventListener('input', function(e) {
-                let formatted = formatarTanque(this.value);
-                this.value = formatted;
+            if (!inputTanque.value || inputTanque.value === '' || inputTanque.value === '0' || inputTanque.value === '50') {
+                inputTanque.value = '0,0';
+            } else {
+                aplicarMascara(inputTanque);
+            }
+
+            inputTanque.addEventListener('input', function() {
+                aplicarMascara(this);
+            });
+
+            inputTanque.addEventListener('focus', function() {
+                if (this.value === '0,0') {
+                    try {
+                        this.setSelectionRange(0, this.value.length);
+                    } catch (e) {}
+                }
             });
 
             const form = inputTanque.closest('form');
