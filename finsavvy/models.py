@@ -1,5 +1,9 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.utils import timezone
+from django.db.models.signals import post_save, post_delete
+from django.dispatch import receiver
+from django.db.models import Sum
 
 # Create your models here.
 class Categoria(models.Model):
@@ -27,15 +31,120 @@ class CustoVariavel(models.Model):
     def __str__(self):
         return f"{self.nome} ({self.valor})"
 
+class CustoCompraQuerySet(models.QuerySet):
+    def _remap_kwargs(self, kwargs):
+        new_kwargs = {}
+        for k, v in kwargs.items():
+            if k == 'nome' or k.startswith('nome__'):
+                new_key = 'estabelecimento' + k[4:]
+                new_kwargs[new_key] = v
+            elif k == 'valor' or k.startswith('valor__'):
+                new_key = 'valor_total' + k[5:]
+                new_kwargs[new_key] = v
+            elif k == 'qr_data' or k.startswith('qr_data__'):
+                new_key = 'qr_code_url' + k[7:]
+                new_kwargs[new_key] = v
+            elif k == 'usuario' or k.startswith('usuario__'):
+                new_key = 'user' + k[7:]
+                new_kwargs[new_key] = v
+            else:
+                new_kwargs[k] = v
+        return new_kwargs
+
+    def filter(self, *args, **kwargs):
+        return super().filter(*args, **self._remap_kwargs(kwargs))
+
+    def exclude(self, *args, **kwargs):
+        return super().exclude(*args, **self._remap_kwargs(kwargs))
+
+    def get(self, *args, **kwargs):
+        return super().get(*args, **self._remap_kwargs(kwargs))
+
+
+class CustoCompraManager(models.Manager.from_queryset(CustoCompraQuerySet)):
+    def create(self, **kwargs):
+        remapped = self.get_queryset()._remap_kwargs(kwargs)
+        return super().create(**remapped)
+
+
 class CustoCompra(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='custos_compras')
-    nome = models.CharField(max_length=255)
-    valor = models.FloatField()
-    data = models.DateField(auto_now_add=True)
-    qr_data = models.TextField(blank=True, null=True)
+    estabelecimento = models.CharField(max_length=255)
+    data = models.DateField(default=timezone.now)
+    valor_total = models.FloatField(default=0.0)
+    qr_code_url = models.URLField(max_length=500, blank=True, null=True)
+
+    objects = CustoCompraManager()
+
+    class Meta:
+        ordering = ['-data', '-id']
+
+    @property
+    def usuario(self):
+        return self.user
+
+    @usuario.setter
+    def usuario(self, val):
+        self.user = val
+
+    @property
+    def nome(self):
+        return self.estabelecimento
+
+    @nome.setter
+    def nome(self, val):
+        self.estabelecimento = val
+
+    @property
+    def valor(self):
+        return self.valor_total
+
+    @valor.setter
+    def valor(self, val):
+        self.valor_total = val
+
+    @property
+    def qr_data(self):
+        return self.qr_code_url
+
+    @qr_data.setter
+    def qr_data(self, val):
+        self.qr_code_url = val
 
     def __str__(self):
-        return f"Compra: {self.nome} ({self.valor})"
+        return f"{self.estabelecimento} - R$ {self.valor_total:.2f} ({self.data})"
+
+
+class ItemCompra(models.Model):
+    compra = models.ForeignKey(CustoCompra, on_delete=models.CASCADE, related_name='itens')
+    descricao = models.CharField(max_length=255)
+    quantidade = models.FloatField(default=1.0)
+    valor_unitario = models.FloatField(default=0.0)
+    valor_total_item = models.FloatField(default=0.0)
+
+    def save(self, *args, **kwargs):
+        if not self.valor_total_item or self.valor_total_item == 0.0:
+            self.valor_total_item = round(float(self.quantidade) * float(self.valor_unitario), 2)
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return f"{self.descricao} ({self.quantidade} x R$ {self.valor_unitario:.2f})"
+
+
+@receiver(post_save, sender=ItemCompra)
+def atualizar_valor_total_compra_save(sender, instance, **kwargs):
+    compra = instance.compra
+    total = compra.itens.aggregate(total=Sum('valor_total_item'))['total'] or 0.0
+    compra.valor_total = round(float(total), 2)
+    compra.save(update_fields=['valor_total'])
+
+
+@receiver(post_delete, sender=ItemCompra)
+def atualizar_valor_total_compra_delete(sender, instance, **kwargs):
+    compra = instance.compra
+    total = compra.itens.aggregate(total=Sum('valor_total_item'))['total'] or 0.0
+    compra.valor_total = round(float(total), 2)
+    compra.save(update_fields=['valor_total'])
 
 class Veiculo(models.Model):
     TIPO_VEICULO = [

@@ -1,8 +1,10 @@
+from unittest.mock import patch, MagicMock
 from django.test import TestCase
 from django.contrib.auth import get_user_model
 from django.urls import reverse
-from .models import CustoFixo, Veiculo, Categoria, CustoVariavel, CustoCombustivel, Manutencao, Aviso, CustoCompra
+from .models import CustoFixo, Veiculo, Categoria, CustoVariavel, CustoCombustivel, Manutencao, Aviso, CustoCompra, ItemCompra
 from .utils.leitor_qrcode import extrair_dados_nfce, decodificar_imagem_qrcode
+from .utils.leitor_nfce import parsear_html_nfce, consultar_nfce
 from .utils.calculos_veiculares import (
     calcular_consumo_medio,
     calcular_custo_por_km,
@@ -561,6 +563,241 @@ class CustoCompraAndQrCodeTests(TestCase):
         self.assertIn('120,00', conteudo)
         # Linha do outro usuário isolada
         self.assertNotIn('Item Outro Usuário Não Deve Aparecer', conteudo)
+
+
+class CustoCompraMestreDetalheSignalsTests(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(username='carlos', password='testpass')
+
+    def test_criacao_itens_recalcula_valor_total_da_compra_automaticamente(self):
+        compra = CustoCompra.objects.create(
+            user=self.user,
+            estabelecimento='Supermercado Central',
+            valor_total=0.0
+        )
+        self.assertEqual(compra.valor_total, 0.0)
+
+        # Primeiro item: 2 x 15.50 = 31.00
+        item1 = ItemCompra.objects.create(
+            compra=compra,
+            descricao='Arroz 5kg',
+            quantidade=2.0,
+            valor_unitario=15.50
+        )
+        self.assertEqual(item1.valor_total_item, 31.00)
+
+        compra.refresh_from_db()
+        self.assertEqual(compra.valor_total, 31.00)
+
+        # Segundo item: 3 x 4.25 = 12.75 -> Total deve ir para 43.75
+        item2 = ItemCompra.objects.create(
+            compra=compra,
+            descricao='Feijão Carioca 1kg',
+            quantidade=3.0,
+            valor_unitario=4.25
+        )
+        self.assertEqual(item2.valor_total_item, 12.75)
+
+        compra.refresh_from_db()
+        self.assertEqual(compra.valor_total, 43.75)
+
+    def test_exclusao_de_item_recalcula_valor_total_via_signal(self):
+        compra = CustoCompra.objects.create(
+            user=self.user,
+            estabelecimento='Açougue Boi Gordo'
+        )
+        item1 = ItemCompra.objects.create(
+            compra=compra,
+            descricao='Picanha',
+            quantidade=1.5,
+            valor_unitario=60.00  # 90.00
+        )
+        item2 = ItemCompra.objects.create(
+            compra=compra,
+            descricao='Carvão',
+            quantidade=1.0,
+            valor_unitario=25.00  # 25.00
+        )
+
+        compra.refresh_from_db()
+        self.assertEqual(compra.valor_total, 115.00)
+
+        # Deletando item2 via signal post_delete
+        item2.delete()
+        compra.refresh_from_db()
+        self.assertEqual(compra.valor_total, 90.00)
+
+        # Deletando item1
+        item1.delete()
+        compra.refresh_from_db()
+        self.assertEqual(compra.valor_total, 0.0)
+
+    def test_exclusao_em_cascata_da_compra_remove_itens(self):
+        compra = CustoCompra.objects.create(
+            user=self.user,
+            estabelecimento='Farmácia Popular'
+        )
+        ItemCompra.objects.create(
+            compra=compra,
+            descricao='Remédio A',
+            quantidade=1,
+            valor_unitario=35.00
+        )
+        ItemCompra.objects.create(
+            compra=compra,
+            descricao='Remédio B',
+            quantidade=2,
+            valor_unitario=10.00
+        )
+
+        self.assertEqual(ItemCompra.objects.filter(compra=compra).count(), 2)
+
+        # Excluir a compra mestre deve apagar os itens associados
+        compra.delete()
+        self.assertEqual(ItemCompra.objects.filter(compra_id=compra.id).count(), 0)
+
+
+class LeitorNfceScrapingTests(TestCase):
+    """
+    Testes unitários para o motor de Web Scraping de NFC-e (finsavvy/utils/leitor_nfce.py),
+    validando parsing de múltiplos layouts estaduais (SP, RS, PR) e tolerância a falhas
+    com mocks de requisições HTTP (sem conexão real com a internet).
+    """
+
+    def setUp(self):
+        self.html_layout_sp = """
+        <!DOCTYPE html>
+        <html>
+        <head><title>Consulta Danfe NFC-e</title></head>
+        <body>
+            <div class="txtTopo">SUPERMERCADOS PAULISTA LTDA</div>
+            <div class="linhaTexto">Emissão: 24/10/2026 18:45:00</div>
+            <span class="chave">35261012345678000195650010000001231000004567</span>
+            <table id="tabResult">
+                <tr>
+                    <td>
+                        <span class="txtTit">ARROZ TIPO 1 5KG</span>
+                        <span class="RCurva"><span class="txtR">Qtd.:</span><span class="Rqtd">2.0</span></span>
+                        <span class="RCurva"><span class="txtR">Vl. Unit.:</span><span class="RvlUnit">25,50</span></span>
+                        <span class="valor">51,00</span>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <span class="txtTit">FEIJAO CARIOCA 1KG</span>
+                        <span class="RCurva"><span class="txtR">Qtd.:</span><span class="Rqtd">3.0</span></span>
+                        <span class="RCurva"><span class="txtR">Vl. Unit.:</span><span class="RvlUnit">8,00</span></span>
+                        <span class="valor">24,00</span>
+                    </td>
+                </tr>
+            </table>
+            <div id="totalNota" class="totalNFe">
+                <span class="txtMax">75,00</span>
+            </div>
+        </body>
+        </html>
+        """
+
+        self.html_layout_rs = """
+        <html>
+        <body>
+            <div class="NFRec">HIPERMERCADO GAUCHO S/A</div>
+            <div>Data: 20/10/2026 10:15:30</div>
+            <div class="chave-acesso">43261099999999000199650010000009991000009999</div>
+            <table class="tabelaItens">
+                <tr>
+                    <td><span class="txtTit2">LEITE INTEGRAL 1L</span></td>
+                    <td><span class="Rqtd">4</span></td>
+                    <td><span class="RvlUnit">4,50</span></td>
+                    <td><span class="valor">18,00</span></td>
+                </tr>
+            </table>
+            <div class="valor-total-nota">18,00</div>
+        </body>
+        </html>
+        """
+
+    def test_parsear_html_layout_sp(self):
+        dados = parsear_html_nfce(self.html_layout_sp)
+        self.assertTrue(dados['sucesso'])
+        self.assertEqual(dados['estabelecimento'], 'SUPERMERCADOS PAULISTA LTDA')
+        self.assertEqual(dados['chave_acesso'], '35261012345678000195650010000001231000004567')
+        self.assertEqual(dados['valor_total'], 75.00)
+        self.assertEqual(len(dados['itens']), 2)
+
+        item1 = dados['itens'][0]
+        self.assertEqual(item1['descricao'], 'ARROZ TIPO 1 5KG')
+        self.assertEqual(item1['quantidade'], 2.0)
+        self.assertEqual(item1['valor_unitario'], 25.50)
+        self.assertEqual(item1['valor_total'], 51.00)
+
+        item2 = dados['itens'][1]
+        self.assertEqual(item2['descricao'], 'FEIJAO CARIOCA 1KG')
+        self.assertEqual(item2['quantidade'], 3.0)
+        self.assertEqual(item2['valor_unitario'], 8.00)
+        self.assertEqual(item2['valor_total'], 24.00)
+
+    def test_parsear_html_layout_rs(self):
+        dados = parsear_html_nfce(self.html_layout_rs)
+        self.assertTrue(dados['sucesso'])
+        self.assertEqual(dados['estabelecimento'], 'HIPERMERCADO GAUCHO S/A')
+        self.assertEqual(dados['chave_acesso'], '43261099999999000199650010000009991000009999')
+        self.assertEqual(dados['valor_total'], 18.00)
+        self.assertEqual(len(dados['itens']), 1)
+        self.assertEqual(dados['itens'][0]['descricao'], 'LEITE INTEGRAL 1L')
+        self.assertEqual(dados['itens'][0]['quantidade'], 4.0)
+        self.assertEqual(dados['itens'][0]['valor_unitario'], 4.50)
+        self.assertEqual(dados['itens'][0]['valor_total'], 18.00)
+
+    @patch('finsavvy.utils.leitor_nfce.requests.get')
+    def test_consultar_nfce_com_mock_sucesso(self, mock_get):
+        mock_response = MagicMock()
+        mock_response.status_code = 200
+        mock_response.text = self.html_layout_sp
+        mock_response.content = self.html_layout_sp.encode('utf-8')
+        mock_response.encoding = 'utf-8'
+        mock_get.return_value = mock_response
+
+        url_teste = "https://www.fazenda.sp.gov.br/nfce/qrcode?p=35261012345678000195650010000001231000004567|2|1|1|75.00"
+        resultado = consultar_nfce(url_teste)
+
+        self.assertTrue(resultado['sucesso'])
+        self.assertEqual(resultado['estabelecimento'], 'SUPERMERCADOS PAULISTA LTDA')
+        self.assertEqual(resultado['valor_total'], 75.00)
+        self.assertEqual(len(resultado['itens']), 2)
+        mock_get.assert_called_once()
+
+    @patch('finsavvy.utils.leitor_nfce.requests.get')
+    def test_consultar_nfce_com_mock_timeout_faz_fallback_url(self, mock_get):
+        from requests.exceptions import Timeout
+        mock_get.side_effect = Timeout("Conexão expirou")
+
+        url_com_dados = "https://dfe.sefaz.gov.br/nfce?chNFe=35261012345678000195650010000001231000004567&vNF=142.80"
+        resultado = consultar_nfce(url_com_dados)
+
+        self.assertTrue(resultado['sucesso'])
+        self.assertEqual(resultado['valor_total'], 142.80)
+        self.assertEqual(resultado['chave_acesso'], '35261012345678000195650010000001231000004567')
+        self.assertIn("Timeout", resultado['mensagem'])
+        self.assertEqual(len(resultado['itens']), 0)
+
+    @patch('finsavvy.utils.leitor_nfce.requests.get')
+    def test_consultar_nfce_com_mock_erro_conexao(self, mock_get):
+        from requests.exceptions import ConnectionError
+        mock_get.side_effect = ConnectionError("Servidor indisponível")
+
+        url = "https://sefaz.invalida.gov.br/nfce"
+        resultado = consultar_nfce(url)
+
+        self.assertFalse(resultado['sucesso'])
+        self.assertIn("Falha na conexão", resultado['mensagem'])
+
+    def test_consultar_nfce_identificador_sem_url(self):
+        resultado = consultar_nfce("chave_sem_protocolo_http")
+        self.assertFalse(resultado['sucesso'])
+        self.assertIn("não é uma URL válida", resultado['mensagem'])
+
+
 
 
 

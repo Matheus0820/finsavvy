@@ -90,7 +90,7 @@ def obter_dados_relatorio(user, ano_param=None, mes_param=None, categoria_param=
 
     # Agregações de Totais
     total_custos_variaveis = cv_qs.aggregate(total=Sum('valor'))['total'] or 0.0
-    total_compras = cc_qs.aggregate(total=Sum('valor'))['total'] or 0.0
+    total_compras = cc_qs.aggregate(total=Sum('valor_total'))['total'] or 0.0
     total_combustivel = comb_qs.aggregate(total=Sum('valor'))['total'] or 0.0
     total_manutencao = manut_qs.aggregate(total=Sum('valor'))['total'] or 0.0
     total_custos_fixos = cf_qs.aggregate(total=Sum('valor'))['total'] or 0.0

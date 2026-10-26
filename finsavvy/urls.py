@@ -2,6 +2,7 @@
 from django.urls import path, include
 
 from finsavvy.views import landing_page, dashboard, aviso, list_custosFixos, add_custoFixo, edit_custoFixo, remove_custoFixo
+from finsavvy.views_custo_compra import LerNfceAjaxView
 
 
 urlpatterns = [
@@ -9,6 +10,7 @@ urlpatterns = [
     path('aviso/', aviso, name='aviso'),
     path('custosvariaveis/', include('finsavvy.urls_custos_variaveis'), name='custos_variaveis'),
     path('custoscompras/', include('finsavvy.urls_custo_compra'), name='custos_compras'),
+    path('api/ler-nfce/', LerNfceAjaxView.as_view(), name='api_ler_nfce'),
     path('veiculos/', include('finsavvy.urls_veiculos'), name='veiculos'),
     path('combustiveis/', include('finsavvy.urls_custo_combustivel'), name='combustiveis'),
     path('manutencoes/', include('finsavvy.urls_manutencao'), name='manutencoes'),

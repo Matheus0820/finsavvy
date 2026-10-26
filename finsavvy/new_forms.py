@@ -1,8 +1,11 @@
 from django import forms
+from django.forms import inlineformset_factory
+from django.utils import timezone
 from .models import (
     Categoria,
     CustoVariavel,
     CustoCompra,
+    ItemCompra,
     Veiculo,
     CustoCombustivel,
     Manutencao,
@@ -52,49 +55,153 @@ class FormCustoCompra(forms.ModelForm):
 
     class Meta:
         model = CustoCompra
-        fields = ('nome', 'valor', 'qr_data')
+        fields = ('estabelecimento', 'data', 'valor_total', 'qr_code_url')
         widgets = {
-            'nome': forms.TextInput(attrs={'class': 'form-control text-bg-dark border-secondary', 'placeholder': 'Ex: Supermercado, Loja de Autopeças...'}),
-            'valor': forms.NumberInput(attrs={'class': 'form-control text-bg-dark border-secondary', 'step': '0.01', 'placeholder': '0.00'}),
-            'qr_data': forms.Textarea(attrs={'class': 'form-control text-bg-dark border-secondary', 'rows': 3, 'placeholder': 'Conteúdo decodificado ou URL do cupom fiscal'}),
+            'estabelecimento': forms.TextInput(attrs={
+                'class': 'form-control text-bg-dark border-secondary',
+                'placeholder': 'Ex: Supermercado Araújo, Posto Central...'
+            }),
+            'data': forms.DateInput(attrs={
+                'class': 'form-control text-bg-dark border-secondary',
+                'type': 'date'
+            }),
+            'valor_total': forms.NumberInput(attrs={
+                'class': 'form-control text-bg-dark border-secondary',
+                'step': '0.01',
+                'placeholder': '0.00',
+                'readonly': 'readonly'
+            }),
+            'qr_code_url': forms.URLInput(attrs={
+                'class': 'form-control text-bg-dark border-secondary',
+                'placeholder': 'URL da NFC-e consultada (opcional)'
+            }),
         }
 
     def __init__(self, *args, **kwargs):
+        # Suporte a dados passados com nomes legados ('nome', 'qr_data', 'valor')
+        if args and args[0] is not None:
+            data = args[0]
+            if hasattr(data, 'copy'):
+                data = data.copy()
+            else:
+                data = dict(data)
+            if 'nome' in data and not data.get('estabelecimento'):
+                data['estabelecimento'] = data['nome']
+            if 'qr_data' in data and not data.get('qr_code_url'):
+                data['qr_code_url'] = data['qr_data']
+            if 'valor' in data and not data.get('valor_total'):
+                data['valor_total'] = data['valor']
+            args = (data,) + args[1:]
+        elif 'data' in kwargs and kwargs['data'] is not None:
+            data = kwargs['data']
+            if hasattr(data, 'copy'):
+                data = data.copy()
+            else:
+                data = dict(data)
+            if 'nome' in data and not data.get('estabelecimento'):
+                data['estabelecimento'] = data['nome']
+            if 'qr_data' in data and not data.get('qr_code_url'):
+                data['qr_code_url'] = data['qr_data']
+            if 'valor' in data and not data.get('valor_total'):
+                data['valor_total'] = data['valor']
+            kwargs['data'] = data
+
         super().__init__(*args, **kwargs)
-        self.fields['valor'].required = False
-        self.fields['nome'].required = False
+        self.fields['estabelecimento'].required = False
+        self.fields['valor_total'].required = False
+        self.fields['qr_code_url'].required = False
+        if 'data' in self.fields:
+            self.fields['data'].required = False
 
     def clean(self):
         cleaned_data = super().clean()
-        valor = cleaned_data.get('valor')
-        nome = cleaned_data.get('nome')
-        qr_data = cleaned_data.get('qr_data')
+        if not cleaned_data.get('data'):
+            cleaned_data['data'] = timezone.now().date()
+        estabelecimento = cleaned_data.get('estabelecimento')
+        valor_total = cleaned_data.get('valor_total')
+        qr_code_url = cleaned_data.get('qr_code_url')
         imagem_qr = cleaned_data.get('imagem_qr')
 
-        if not valor or not nome:
+        if not estabelecimento or not valor_total:
             texto_qr = None
             if imagem_qr:
                 texto_qr = decodificar_imagem_qrcode(imagem_qr)
                 if texto_qr:
-                    cleaned_data['qr_data'] = texto_qr
-            elif qr_data:
-                texto_qr = qr_data
+                    cleaned_data['qr_code_url'] = texto_qr
+            elif qr_code_url:
+                texto_qr = qr_code_url
 
             if texto_qr:
                 dados = extrair_dados_nfce(texto_qr)
-                if not valor and dados.get('valor'):
-                    cleaned_data['valor'] = dados['valor']
-                    valor = dados['valor']
-                if not nome and dados.get('nome'):
-                    cleaned_data['nome'] = dados['nome']
-                    nome = dados['nome']
+                if not valor_total and dados.get('valor'):
+                    cleaned_data['valor_total'] = dados['valor']
+                    valor_total = dados['valor']
+                if not estabelecimento and dados.get('nome'):
+                    cleaned_data['estabelecimento'] = dados['nome']
+                    estabelecimento = dados['nome']
 
-        if not valor:
-            self.add_error('valor', 'Informe o valor da compra ou forneça um cupom fiscal/QR-Code válido.')
-        if not nome:
-            self.add_error('nome', 'Informe o nome do estabelecimento ou produto.')
+        if not estabelecimento:
+            self.add_error('estabelecimento', 'Informe o nome do estabelecimento ou produto.')
 
         return cleaned_data
+
+
+class FormItemCompra(forms.ModelForm):
+    class Meta:
+        model = ItemCompra
+        fields = ('descricao', 'quantidade', 'valor_unitario', 'valor_total_item')
+        widgets = {
+            'descricao': forms.TextInput(attrs={
+                'class': 'form-control text-bg-dark border-secondary item-descricao',
+                'placeholder': 'Ex: Arroz 5kg, Detergente...'
+            }),
+            'quantidade': forms.NumberInput(attrs={
+                'class': 'form-control text-bg-dark border-secondary item-qtd',
+                'step': '0.001',
+                'min': '0',
+                'placeholder': '1'
+            }),
+            'valor_unitario': forms.NumberInput(attrs={
+                'class': 'form-control text-bg-dark border-secondary item-unitario',
+                'step': '0.01',
+                'min': '0',
+                'placeholder': '0.00'
+            }),
+            'valor_total_item': forms.NumberInput(attrs={
+                'class': 'form-control text-bg-dark border-secondary item-total',
+                'step': '0.01',
+                'readonly': 'readonly',
+                'placeholder': '0.00'
+            }),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if 'valor_total_item' in self.fields:
+            self.fields['valor_total_item'].required = False
+        if 'quantidade' in self.fields:
+            self.fields['quantidade'].required = False
+        if 'valor_unitario' in self.fields:
+            self.fields['valor_unitario'].required = False
+
+    def clean(self):
+        cleaned_data = super().clean()
+        qtd = cleaned_data.get('quantidade') or 1.0
+        unit = cleaned_data.get('valor_unitario') or 0.0
+        tot = cleaned_data.get('valor_total_item')
+        if not tot and qtd and unit:
+            cleaned_data['valor_total_item'] = round(float(qtd) * float(unit), 2)
+        return cleaned_data
+
+
+ItemCompraFormSet = inlineformset_factory(
+    CustoCompra,
+    ItemCompra,
+    form=FormItemCompra,
+    fields=('descricao', 'quantidade', 'valor_unitario', 'valor_total_item'),
+    extra=1,
+    can_delete=True
+)
 
 class FormVeiculo(forms.ModelForm):
     class Meta:

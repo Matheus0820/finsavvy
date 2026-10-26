@@ -7,6 +7,7 @@ from .views_custo_compra import (
     CustoCompraUpdateView,
     CustoCompraDeleteView,
     ProcessarQrCodeView,
+    LerNfceAjaxView,
 )
 
 urlpatterns = [
@@ -15,4 +16,5 @@ urlpatterns = [
     path('edit/<int:pk>/', CustoCompraUpdateView.as_view(), name='edit_custoCompra'),
     path('delete/<int:pk>/', CustoCompraDeleteView.as_view(), name='delete_custoCompra'),
     path('processar-qrcode/', ProcessarQrCodeView.as_view(), name='processar_qrcode_compra'),
+    path('ler-nfce/', LerNfceAjaxView.as_view(), name='ler_nfce_ajax'),
 ]

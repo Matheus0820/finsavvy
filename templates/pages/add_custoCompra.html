@@ -15,108 +15,489 @@
     </div>
 </div>
 
-<div class="row justify-content-center">
-    <div class="col-lg-8">
-        <!-- Caixa de Leitura Rápida de QR-Code / NFC-e -->
-        <div class="card bg-dark border-secondary shadow-sm mb-4">
-            <div class="card-header bg-dark border-secondary py-3 d-flex align-items-center justify-content-between">
-                <span class="text-white fw-semibold small">
-                    <i class="bi bi-qr-code-scan text-primary me-2"></i>Importação Automática via Cupom Fiscal (NFC-e / QR-Code)
-                </span>
-                <span class="badge bg-secondary-subtle text-secondary small">Opcional</span>
+<!-- Card de Importação Inteligente de NFC-e / QR-Code -->
+<div class="card bg-dark border-secondary shadow-sm mb-4" style="border-radius: 12px; border-color: #2d2d2d !important;">
+    <div class="card-header bg-dark border-secondary py-3 d-flex align-items-center justify-content-between">
+        <span class="text-white fw-semibold small d-flex align-items-center">
+            <i class="bi bi-qr-code-scan me-2" style="color: #00e0c1; font-size: 1.1rem;"></i>
+            Importação Inteligente via Cupom Fiscal (NFC-e / QR-Code)
+        </span>
+        <span class="badge bg-secondary-subtle text-info small">SEFAZ Auto-Scraping</span>
+    </div>
+    <div class="card-body p-4">
+        <p class="text-secondary small mb-3">
+            Capture o QR-Code do cupom fiscal com a câmera do dispositivo, envie uma foto ou cole a URL/chave da NFC-e.
+            Os dados do estabelecimento, data, valor total e todos os itens serão extraídos e preenchidos automaticamente.
+        </p>
+
+        <div class="row g-3 align-items-center">
+            <div class="col-md-4">
+                <button type="button" class="btn btn-outline-info w-100 py-2 d-flex align-items-center justify-content-center gap-2" id="btn-abrir-camera">
+                    <i class="bi bi-camera-video"></i>
+                    <span>Escanear com Câmera</span>
+                </button>
             </div>
-            <div class="card-body">
-                <p class="text-secondary small mb-3">
-                    Envie a foto do QR-Code do cupom fiscal ou cole a URL da NFC-e para preenchimento automático do valor e identificação da compra.
-                </p>
-                <div class="row g-2 align-items-center">
-                    <div class="col-md-8">
-                        <input type="file" id="input_qr_ajax" class="form-control text-bg-dark border-secondary form-control-sm" accept="image/*">
-                    </div>
-                    <div class="col-md-4">
-                        <button type="button" id="btn_processar_qr" class="btn btn-outline-primary btn-sm w-100">
-                            <i class="bi bi-magic me-1"></i> Ler QR-Code
-                        </button>
-                    </div>
+            <div class="col-md-5">
+                <div class="input-group">
+                    <input type="file" id="input_qr_arquivo" class="form-control text-bg-dark border-secondary form-control-sm" accept="image/*">
+                    <button type="button" id="btn_processar_arquivo" class="btn btn-outline-secondary btn-sm" title="Processar imagem enviada">
+                        <i class="bi bi-upload me-1"></i> Ler Foto
+                    </button>
                 </div>
-                <div id="qr_status_feedback" class="mt-2 small d-none"></div>
+            </div>
+            <div class="col-md-3">
+                <button type="button" id="btn_processar_url_manual" class="btn btn-outline-primary btn-sm w-100 py-2">
+                    <i class="bi bi-magic me-1"></i> Consultar URL SEFAZ
+                </button>
             </div>
         </div>
 
-        <div class="card bg-dark border-secondary shadow-sm">
-            <div class="card-body p-4">
-                <form method="POST" enctype="multipart/form-data" id="form_custo_compra">
-                    {% csrf_token %}
+        <!-- Feedback de status AJAX -->
+        <div id="qr_status_feedback" class="mt-3 small d-none" role="alert"></div>
+    </div>
+</div>
 
-                    {% if form.errors %}
-                        <div class="alert alert-danger bg-danger text-white border-0 mb-4">
-                            {{ form.errors.as_ul }}
-                        </div>
-                    {% endif %}
+<!-- Formulário Principal: Mestre (CustoCompra) + Detalhes (ItemCompra) -->
+<form method="POST" enctype="multipart/form-data" id="form_custo_compra">
+    {% csrf_token %}
 
-                    <div class="mb-3">
-                        <label for="{{ form.nome.id_for_label }}" class="form-label text-secondary small fw-semibold">Nome da Compra / Estabelecimento</label>
-                        {{ form.nome }}
+    {% if form.errors %}
+        <div class="alert alert-danger bg-danger text-white border-0 mb-4 py-2">
+            <strong>Atenção:</strong> Por favor, corrija os erros no formulário da compra.
+            {{ form.errors }}
+        </div>
+    {% endif %}
+
+    {% if itens_formset.non_form_errors %}
+        <div class="alert alert-danger bg-danger text-white border-0 mb-4 py-2">
+            <strong>Atenção nos itens:</strong> {{ itens_formset.non_form_errors }}
+        </div>
+    {% endif %}
+
+    <!-- Seção 1: Dados Principais da Compra -->
+    <div class="card bg-dark border-secondary shadow-sm mb-4" style="border-radius: 12px; border-color: #2d2d2d !important;">
+        <div class="card-header bg-dark border-secondary py-3">
+            <h5 class="card-title text-white mb-0 fw-semibold fs-6">
+                <i class="bi bi-shop me-2" style="color: #00e0c1;"></i>Dados Gerais da Compra
+            </h5>
+        </div>
+        <div class="card-body p-4">
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label for="{{ form.estabelecimento.id_for_label }}" class="form-label text-secondary small fw-semibold">
+                        Estabelecimento / Fornecedor <span class="text-danger">*</span>
+                    </label>
+                    {{ form.estabelecimento }}
+                </div>
+                <div class="col-md-3">
+                    <label for="{{ form.data.id_for_label }}" class="form-label text-secondary small fw-semibold">
+                        Data da Compra
+                    </label>
+                    {{ form.data }}
+                </div>
+                <div class="col-md-3">
+                    <label for="{{ form.valor_total.id_for_label }}" class="form-label text-secondary small fw-semibold">
+                        Valor Total (R$)
+                    </label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-dark border-secondary text-secondary">R$</span>
+                        {{ form.valor_total }}
                     </div>
+                </div>
+            </div>
 
-                    <div class="mb-3">
-                        <label for="{{ form.valor.id_for_label }}" class="form-label text-secondary small fw-semibold">Valor (R$)</label>
-                        <div class="input-group">
-                            <span class="input-group-text bg-dark border-secondary text-secondary">R$</span>
-                            {{ form.valor }}
-                        </div>
-                    </div>
+            <div class="row g-3 mt-1">
+                <div class="col-md-7">
+                    <label for="{{ form.qr_code_url.id_for_label }}" class="form-label text-secondary small fw-semibold">
+                        URL da NFC-e ou Chave de Acesso (44 dígitos)
+                    </label>
+                    {{ form.qr_code_url }}
+                </div>
+                <div class="col-md-5">
+                    <label for="{{ form.imagem_qr.id_for_label }}" class="form-label text-secondary small fw-semibold">
+                        Comprovante / Imagem do Cupom Fiscal (opcional)
+                    </label>
+                    {{ form.imagem_qr }}
+                </div>
+            </div>
+        </div>
+    </div>
 
-                    <div class="mb-3">
-                        <label for="{{ form.imagem_qr.id_for_label }}" class="form-label text-secondary small fw-semibold">Foto / Arquivo do Cupom Fiscal (opcional)</label>
-                        {{ form.imagem_qr }}
-                        <div class="form-text text-secondary small">Você também pode salvar a imagem diretamente ao registrar a compra.</div>
-                    </div>
+    <!-- Seção 2: Itens Detalhados da Compra (Master-Detail Formset) -->
+    <div class="card bg-dark border-secondary shadow-sm mb-4" style="border-radius: 12px; border-color: #2d2d2d !important;">
+        <div class="card-header bg-dark border-secondary py-3 d-flex align-items-center justify-content-between">
+            <div class="d-flex align-items-center">
+                <h5 class="card-title text-white mb-0 fw-semibold fs-6">
+                    <i class="bi bi-basket me-2 text-warning"></i>Itens da Compra
+                </h5>
+                <span class="badge bg-secondary-subtle text-secondary ms-2" id="badge-total-itens">
+                    {{ itens_formset|length }} item(ns)
+                </span>
+            </div>
+            <button type="button" class="btn btn-sm btn-outline-info" id="btn-add-item">
+                <i class="bi bi-plus-circle me-1"></i> Adicionar Item
+            </button>
+        </div>
+        <div class="card-body p-0">
+            {{ itens_formset.management_form }}
 
-                    <div class="mb-4">
-                        <div class="d-flex justify-content-between align-items-center mb-1">
-                            <label for="{{ form.qr_data.id_for_label }}" class="form-label text-secondary small fw-semibold mb-0">Conteúdo do QR-Code / URL da NFC-e</label>
-                            <button type="button" id="btn_extrair_texto_qr" class="btn btn-link btn-sm text-decoration-none text-primary p-0">
-                                <i class="bi bi-arrow-repeat me-1"></i>Extrair do texto acima
-                            </button>
-                        </div>
-                        {{ form.qr_data }}
-                    </div>
+            <div class="table-responsive">
+                <table class="table table-dark table-hover mb-0 align-middle" id="tabela-itens-compra">
+                    <thead>
+                        <tr class="text-secondary small border-secondary">
+                            <th scope="col" class="ps-3" style="width: 5%;">#</th>
+                            <th scope="col" style="width: 45%;">Descrição do Produto / Serviço</th>
+                            <th scope="col" style="width: 15%;">Quantidade</th>
+                            <th scope="col" style="width: 15%;">Valor Unit. (R$)</th>
+                            <th scope="col" style="width: 15%;">Total Item (R$)</th>
+                            <th scope="col" class="text-center pe-3" style="width: 5%;">Excluir</th>
+                        </tr>
+                    </thead>
+                    <tbody id="itens-container" class="table-group-divider border-secondary">
+                        {% for item_form in itens_formset %}
+                        <tr class="item-row border-secondary" data-row-idx="{{ forloop.counter0 }}">
+                            <td class="ps-3 text-secondary item-num">{{ forloop.counter }}</td>
+                            <td>
+                                {% for hidden in item_form.hidden_fields %}
+                                    {{ hidden }}
+                                {% endfor %}
+                                {{ item_form.descricao }}
+                                {% if item_form.descricao.errors %}
+                                    <div class="text-danger small mt-1">{{ item_form.descricao.errors }}</div>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {{ item_form.quantidade }}
+                                {% if item_form.quantidade.errors %}
+                                    <div class="text-danger small mt-1">{{ item_form.quantidade.errors }}</div>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {{ item_form.valor_unitario }}
+                                {% if item_form.valor_unitario.errors %}
+                                    <div class="text-danger small mt-1">{{ item_form.valor_unitario.errors }}</div>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {{ item_form.valor_total_item }}
+                                {% if item_form.valor_total_item.errors %}
+                                    <div class="text-danger small mt-1">{{ item_form.valor_total_item.errors }}</div>
+                                {% endif %}
+                            </td>
+                            <td class="text-center pe-3">
+                                {% if item_form.instance.pk %}
+                                    <div class="d-none">
+                                        {{ item_form.DELETE }}
+                                    </div>
+                                {% endif %}
+                                <button type="button" class="btn btn-sm btn-outline-danger btn-remove-item" title="Remover item">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                    <tfoot>
+                        <tr class="border-secondary text-secondary">
+                            <td colspan="4" class="text-end fw-semibold pe-3 text-white">Soma dos Itens:</td>
+                            <td class="fw-bold text-primary" id="footer-soma-itens">R$ 0,00</td>
+                            <td></td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+    </div>
 
-                    <div class="d-flex justify-content-end gap-2">
-                        <a href="{% url 'list_custoCompra' %}" class="btn btn-outline-secondary">Cancelar</a>
-                        <button type="submit" class="btn btn-primary px-4">
-                            <i class="bi {% if object %}bi-save{% else %}bi-check-lg{% endif %} me-1"></i>
-                            {% if object %}Salvar Alterações{% else %}Adicionar Compra{% endif %}
-                        </button>
-                    </div>
-                </form>
+    <!-- Botões de Ação do Formulário -->
+    <div class="d-flex justify-content-end gap-2 mb-5">
+        <a href="{% url 'list_custoCompra' %}" class="btn btn-outline-secondary">Cancelar</a>
+        <button type="submit" class="btn btn-primary px-4">
+            <i class="bi {% if object %}bi-save{% else %}bi-check-lg{% endif %} me-1"></i>
+            {% if object %}Salvar Alterações{% else %}Salvar Compra{% endif %}
+        </button>
+    </div>
+</form>
+
+<!-- Template Oculto para Nova Linha de Item -->
+<template id="item-empty-row-template">
+    <tr class="item-row border-secondary" data-row-idx="__prefix__">
+        <td class="ps-3 text-secondary item-num">#</td>
+        <td>
+            <input type="hidden" name="itens-__prefix__-id" id="id_itens-__prefix__-id">
+            <input type="text" name="itens-__prefix__-descricao" class="form-control text-bg-dark border-secondary item-descricao" placeholder="Ex: Arroz 5kg, Detergente..." id="id_itens-__prefix__-descricao">
+        </td>
+        <td>
+            <input type="number" name="itens-__prefix__-quantidade" step="0.001" min="0" placeholder="1" class="form-control text-bg-dark border-secondary item-qtd" id="id_itens-__prefix__-quantidade" value="1">
+        </td>
+        <td>
+            <input type="number" name="itens-__prefix__-valor_unitario" step="0.01" min="0" placeholder="0.00" class="form-control text-bg-dark border-secondary item-unitario" id="id_itens-__prefix__-valor_unitario">
+        </td>
+        <td>
+            <input type="number" name="itens-__prefix__-valor_total_item" step="0.01" readonly="readonly" placeholder="0.00" class="form-control text-bg-dark border-secondary item-total" id="id_itens-__prefix__-valor_total_item">
+        </td>
+        <td class="text-center pe-3">
+            <button type="button" class="btn btn-sm btn-outline-danger btn-remove-item" title="Remover item">
+                <i class="bi bi-trash"></i>
+            </button>
+        </td>
+    </tr>
+</template>
+
+<!-- Modal: Leitor de QR-Code via Câmera (html5-qrcode) -->
+<div class="modal fade" id="modalCameraScanner" tabindex="-1" aria-labelledby="modalCameraScannerLabel" aria-hidden="true" data-bs-backdrop="static">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content text-bg-dark border-secondary" style="border-radius: 14px;">
+            <div class="modal-header border-secondary py-3">
+                <h5 class="modal-title fs-5 d-flex align-items-center" id="modalCameraScannerLabel">
+                    <i class="bi bi-camera-video text-info me-2"></i> Leitor de QR-Code da NFC-e
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Fechar" id="btn-fechar-modal-cam"></button>
+            </div>
+            <div class="modal-body p-4 text-center">
+                <p class="text-secondary small mb-3">
+                    Aponte a câmera para o QR-Code impresso no cupom fiscal. A detecção e consulta serão iniciadas automaticamente.
+                </p>
+                <div id="qr-camera-container" class="mx-auto rounded overflow-hidden position-relative" style="max-width: 500px; min-height: 320px; background-color: #0b0b0b; border: 2px dashed #3d3d3d;">
+                    <div id="qr-camera-view" style="width: 100%;"></div>
+                </div>
+                <div id="camera-loading-spinner" class="mt-3 text-info small d-none">
+                    <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+                    Iniciando câmera...
+                </div>
+            </div>
+            <div class="modal-footer border-secondary justify-content-between">
+                <span class="text-secondary small">
+                    <i class="bi bi-shield-check text-success me-1"></i> Apenas decodificação segura no navegador.
+                </span>
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal" id="btn-cancelar-camera">Fechar</button>
             </div>
         </div>
     </div>
 </div>
 
+<!-- Biblioteca html5-qrcode para leitura pela câmera -->
+<script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+
 <script>
 document.addEventListener('DOMContentLoaded', function () {
-    const btnProcessar = document.getElementById('btn_processar_qr');
-    const inputArquivo = document.getElementById('input_qr_ajax');
-    const btnExtrairTexto = document.getElementById('btn_extrair_texto_qr');
-    const inputNome = document.getElementById('id_nome');
-    const inputValor = document.getElementById('id_valor');
-    const inputQrData = document.getElementById('id_qr_data');
-    const feedback = document.getElementById('qr_status_feedback');
     const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]') ? document.querySelector('[name=csrfmiddlewaretoken]').value : '';
 
+    // Elementos principais do formulário Master
+    const inputEstabelecimento = document.getElementById('id_estabelecimento') || document.getElementById('id_nome');
+    const inputData = document.getElementById('id_data');
+    const inputValorTotal = document.getElementById('id_valor_total') || document.getElementById('id_valor');
+    const inputQrCodeUrl = document.getElementById('id_qr_code_url') || document.getElementById('id_qr_data');
+    const feedback = document.getElementById('qr_status_feedback');
+
+    // Elementos do Formset de Itens
+    const containerItens = document.getElementById('itens-container');
+    const btnAddItem = document.getElementById('btn-add-item');
+    const templateRow = document.getElementById('item-empty-row-template');
+    const totalFormsInput = document.getElementById('id_itens-TOTAL_FORMS');
+    const footerSomaItens = document.getElementById('footer-soma-itens');
+    const badgeTotalItens = document.getElementById('badge-total-itens');
+
+    // Elementos do Scanner de Câmera
+    const btnAbrirCamera = document.getElementById('btn-abrir-camera');
+    const modalCameraEl = document.getElementById('modalCameraScanner');
+    const btnFecharCam = document.getElementById('btn-fechar-modal-cam');
+    const btnCancelarCam = document.getElementById('btn-cancelar-camera');
+    const spinnerCam = document.getElementById('camera-loading-spinner');
+    let modalCameraInstance = null;
+    let html5QrScanner = null;
+
+    if (modalCameraEl && typeof bootstrap !== 'undefined') {
+        modalCameraInstance = new bootstrap.Modal(modalCameraEl);
+    }
+
+    // Exibe mensagem de feedback visual
     function exibirFeedback(mensagem, tipo) {
-        feedback.className = `mt-2 small alert alert-${tipo} py-1 px-2 border-0`;
+        if (!feedback) return;
+        feedback.className = `mt-3 small alert alert-${tipo} py-2 px-3 border-0 rounded`;
         feedback.innerHTML = mensagem;
         feedback.classList.remove('d-none');
     }
 
-    function processarDados(formData) {
-        exibirFeedback('<span class="spinner-border spinner-border-sm me-1"></span> Decodificando QR-Code...', 'info');
+    // Formata valor monetário
+    function formatarMoeda(val) {
+        return 'R$ ' + (parseFloat(val) || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
 
-        fetch("{% url 'processar_qrcode_compra' %}", {
+    // Converte data de dd/mm/aaaa para aaaa-mm-dd para campo type="date"
+    function formatarDataIso(dataStr) {
+        if (!dataStr) return '';
+        const regex = /(\d{2})\/(\d{2})\/(\d{4})/;
+        const match = dataStr.match(regex);
+        if (match) {
+            return `${match[3]}-${match[2]}-${match[1]}`;
+        }
+        return dataStr;
+    }
+
+    // Recalcula totais dos itens e o valor total geral
+    function recalcularTotais() {
+        let somaGeral = 0;
+        let contagemAtivos = 0;
+        const rows = containerItens.querySelectorAll('.item-row');
+
+        rows.forEach((row, idx) => {
+            if (row.style.display === 'none') return;
+
+            const inputQtd = row.querySelector('.item-qtd');
+            const inputUnit = row.querySelector('.item-unitario');
+            const inputTot = row.querySelector('.item-total');
+            const numEl = row.querySelector('.item-num');
+
+            const qtd = parseFloat(inputQtd ? inputQtd.value : 0) || 0;
+            const unit = parseFloat(inputUnit ? inputUnit.value : 0) || 0;
+            const totalItem = Math.round(qtd * unit * 100) / 100;
+
+            if (inputTot) {
+                inputTot.value = totalItem > 0 ? totalItem.toFixed(2) : '';
+            }
+
+            somaGeral += totalItem;
+            contagemAtivos++;
+            if (numEl) numEl.textContent = contagemAtivos;
+        });
+
+        if (footerSomaItens) {
+            footerSomaItens.textContent = formatarMoeda(somaGeral);
+        }
+
+        if (inputValorTotal) {
+            if (somaGeral > 0 || rows.length > 0) {
+                inputValorTotal.value = somaGeral.toFixed(2);
+            }
+        }
+
+        if (badgeTotalItens) {
+            badgeTotalItens.textContent = `${contagemAtivos} item(ns)`;
+        }
+    }
+
+    // Vincula eventos de cálculo e remoção a uma linha
+    function vincularEventosLinha(row) {
+        const inputQtd = row.querySelector('.item-qtd');
+        const inputUnit = row.querySelector('.item-unitario');
+        const btnRemove = row.querySelector('.btn-remove-item');
+
+        if (inputQtd) inputQtd.addEventListener('input', recalcularTotais);
+        if (inputUnit) inputUnit.addEventListener('input', recalcularTotais);
+
+        if (btnRemove) {
+            btnRemove.addEventListener('click', function () {
+                const deleteInput = row.querySelector('input[type="checkbox"][name$="-DELETE"]');
+                if (deleteInput) {
+                    deleteInput.checked = true;
+                    row.style.display = 'none';
+                } else {
+                    row.remove();
+                }
+                recalcularTotais();
+            });
+        }
+    }
+
+    // Adiciona uma nova linha vazia de item
+    function adicionarLinhaItem(dados = null) {
+        if (!templateRow || !totalFormsInput) return null;
+
+        const currentTotal = parseInt(totalFormsInput.value, 10) || 0;
+        let html = templateRow.innerHTML.replace(/__prefix__/g, currentTotal);
+
+        const tempDiv = document.createElement('tbody');
+        tempDiv.innerHTML = html.trim();
+        const newRow = tempDiv.firstElementChild;
+
+        if (dados) {
+            const desc = newRow.querySelector('.item-descricao');
+            const qtd = newRow.querySelector('.item-qtd');
+            const unit = newRow.querySelector('.item-unitario');
+            const tot = newRow.querySelector('.item-total');
+
+            if (desc && dados.descricao) desc.value = dados.descricao;
+            if (qtd && dados.quantidade) qtd.value = dados.quantidade;
+            if (unit && dados.valor_unitario) unit.value = dados.valor_unitario;
+            if (tot && dados.valor_total) tot.value = dados.valor_total;
+        }
+
+        containerItens.appendChild(newRow);
+        vincularEventosLinha(newRow);
+        totalFormsInput.value = currentTotal + 1;
+
+        recalcularTotais();
+        return newRow;
+    }
+
+    if (btnAddItem) {
+        btnAddItem.addEventListener('click', function () {
+            adicionarLinhaItem();
+        });
+    }
+
+    // Vincula linhas já renderizadas inicialmente pelo Django
+    containerItens.querySelectorAll('.item-row').forEach(row => {
+        vincularEventosLinha(row);
+    });
+    recalcularTotais();
+
+    // Processamento da resposta de NFC-e retornada pelo motor SEFAZ
+    function preencherDadosNfce(dados) {
+        if (!dados) return;
+
+        if (dados.estabelecimento && inputEstabelecimento) {
+            inputEstabelecimento.value = dados.estabelecimento;
+        } else if (dados.nome && inputEstabelecimento) {
+            inputEstabelecimento.value = dados.nome;
+        }
+
+        if (dados.data_emissao && inputData) {
+            const dataIso = formatarDataIso(dados.data_emissao);
+            if (dataIso) inputData.value = dataIso;
+        }
+
+        if (dados.url && inputQrCodeUrl) {
+            inputQrCodeUrl.value = dados.url;
+        } else if (dados.chave_acesso && inputQrCodeUrl) {
+            inputQrCodeUrl.value = dados.chave_acesso;
+        }
+
+        // Se houver lista de itens extraídos pela SEFAZ
+        if (dados.itens && Array.isArray(dados.itens) && dados.itens.length > 0) {
+            // Remove linhas vazias ou pré-existentes não salvas se houver itens da nota
+            const linhasAtuais = containerItens.querySelectorAll('.item-row');
+            linhasAtuais.forEach(linha => {
+                const idInput = linha.querySelector('input[name$="-id"]');
+                if (!idInput || !idInput.value) {
+                    linha.remove();
+                }
+            });
+
+            // Reseta contador para linhas novas
+            const persistedCount = containerItens.querySelectorAll('.item-row').length;
+            totalFormsInput.value = persistedCount;
+
+            dados.itens.forEach(item => {
+                adicionarLinhaItem(item);
+            });
+        }
+
+        if (dados.valor_total && inputValorTotal) {
+            inputValorTotal.value = parseFloat(dados.valor_total).toFixed(2);
+        } else if (dados.valor && inputValorTotal) {
+            inputValorTotal.value = parseFloat(dados.valor).toFixed(2);
+        }
+
+        recalcularTotais();
+    }
+
+    // Envio para o Endpoint AJAX /api/ler-nfce/
+    function consultarNfceAjax(formData) {
+        exibirFeedback('<span class="spinner-border spinner-border-sm me-1"></span> Consultando portal da SEFAZ e extraindo itens...', 'info');
+
+        fetch("{% url 'ler_nfce_ajax' %}", {
             method: 'POST',
             headers: {
                 'X-CSRFToken': csrfToken
@@ -125,55 +506,117 @@ document.addEventListener('DOMContentLoaded', function () {
         })
         .then(response => response.json().then(data => ({ status: response.status, body: data })))
         .then(res => {
-            if (res.status === 200 && (res.body.valor || res.body.chave_acesso || res.body.sucesso)) {
-                if (res.body.valor && !inputValor.value) {
-                    inputValor.value = parseFloat(res.body.valor).toFixed(2);
-                } else if (res.body.valor) {
-                    inputValor.value = parseFloat(res.body.valor).toFixed(2);
-                }
-
-                if (res.body.nome && (!inputNome.value || inputNome.value.trim() === '')) {
-                    inputNome.value = res.body.nome;
-                }
-
-                if (res.body.qr_data && !inputQrData.value) {
-                    inputQrData.value = res.body.qr_data;
-                }
-
-                exibirFeedback('<i class="bi bi-check-circle me-1"></i> ' + (res.body.mensagem || 'Dados extraídos com sucesso!'), 'success');
+            if (res.status === 200 && res.body.sucesso) {
+                preencherDadosNfce(res.body);
+                const qtd = res.body.itens ? res.body.itens.length : 0;
+                exibirFeedback(`<i class="bi bi-check-circle me-1"></i> Sucesso! ${qtd} item(ns) e dados da NFC-e importados com sucesso.`, 'success');
+            } else if (res.body && (res.body.valor || res.body.estabelecimento || res.body.chave_acesso)) {
+                // Fallback de metadados parciais
+                preencherDadosNfce(res.body);
+                exibirFeedback(`<i class="bi bi-exclamation-triangle me-1"></i> Dados parciais extraídos do QR-Code. ${res.body.mensagem || ''}`, 'warning');
             } else {
-                exibirFeedback('<i class="bi bi-exclamation-triangle me-1"></i> ' + (res.body.mensagem || 'Não foi possível extrair os dados.'), 'warning');
+                exibirFeedback(`<i class="bi bi-x-circle me-1"></i> ${res.body.mensagem || 'Não foi possível ler os dados da NFC-e.'}`, 'danger');
             }
         })
         .catch(err => {
             console.error(err);
-            exibirFeedback('<i class="bi bi-x-circle me-1"></i> Erro ao processar o QR-Code. Tente novamente.', 'danger');
+            exibirFeedback('<i class="bi bi-x-circle me-1"></i> Falha na comunicação com o servidor ao consultar NFC-e.', 'danger');
         });
     }
 
-    if (btnProcessar && inputArquivo) {
-        btnProcessar.addEventListener('click', function () {
+    // Leitura por Upload de Arquivo / Foto
+    const btnProcessarArquivo = document.getElementById('btn_processar_arquivo');
+    const inputArquivo = document.getElementById('input_qr_arquivo');
+    if (btnProcessarArquivo && inputArquivo) {
+        btnProcessarArquivo.addEventListener('click', function () {
             if (!inputArquivo.files || inputArquivo.files.length === 0) {
-                exibirFeedback('<i class="bi bi-info-circle me-1"></i> Selecione um arquivo de imagem com QR-Code.', 'warning');
+                exibirFeedback('<i class="bi bi-info-circle me-1"></i> Selecione uma imagem com o QR-Code para processar.', 'warning');
                 return;
             }
             const fd = new FormData();
             fd.append('imagem', inputArquivo.files[0]);
-            processarDados(fd);
+            consultarNfceAjax(fd);
         });
     }
 
-    if (btnExtrairTexto && inputQrData) {
-        btnExtrairTexto.addEventListener('click', function () {
-            const texto = inputQrData.value.trim();
+    // Leitura por URL / Texto colado
+    const btnProcessarUrl = document.getElementById('btn_processar_url_manual');
+    if (btnProcessarUrl && inputQrCodeUrl) {
+        btnProcessarUrl.addEventListener('click', function () {
+            const texto = inputQrCodeUrl.value.trim();
             if (!texto) {
-                exibirFeedback('<i class="bi bi-info-circle me-1"></i> Cole o link ou texto da NFC-e no campo de QR/Data.', 'warning');
+                exibirFeedback('<i class="bi bi-info-circle me-1"></i> Cole a URL ou chave da NFC-e no campo correspondente.', 'warning');
                 return;
             }
             const fd = new FormData();
             fd.append('qr_text', texto);
-            processarDados(fd);
+            consultarNfceAjax(fd);
         });
+    }
+
+    // Inicialização da Câmera com html5-qrcode
+    function pararCamera() {
+        if (html5QrScanner) {
+            html5QrScanner.stop().then(() => {
+                html5QrScanner.clear();
+                html5QrScanner = null;
+            }).catch(err => {
+                console.warn('Erro ao finalizar câmera:', err);
+            });
+        }
+    }
+
+    function iniciarCamera() {
+        if (typeof Html5Qrcode === 'undefined') {
+            exibirFeedback('<i class="bi bi-exclamation-triangle me-1"></i> Biblioteca de leitura de câmera não carregada.', 'danger');
+            return;
+        }
+
+        if (spinnerCam) spinnerCam.classList.remove('d-none');
+
+        html5QrScanner = new Html5Qrcode("qr-camera-view");
+        const config = { fps: 10, qrbox: { width: 250, height: 250 } };
+
+        html5QrScanner.start(
+            { facingMode: "environment" },
+            config,
+            (decodedText, decodedResult) => {
+                // QR-Code lido com sucesso
+                pararCamera();
+                if (modalCameraInstance) modalCameraInstance.hide();
+
+                exibirFeedback('<i class="bi bi-qr-code me-1"></i> QR-Code detectado! Buscando dados na SEFAZ...', 'info');
+
+                if (inputQrCodeUrl) inputQrCodeUrl.value = decodedText;
+
+                const fd = new FormData();
+                fd.append('qr_text', decodedText);
+                consultarNfceAjax(fd);
+            },
+            (errorMessage) => {
+                // scanning errors ignorados enquanto busca
+            }
+        ).then(() => {
+            if (spinnerCam) spinnerCam.classList.add('d-none');
+        }).catch(err => {
+            if (spinnerCam) spinnerCam.classList.add('d-none');
+            console.error('Falha ao abrir câmera:', err);
+            exibirFeedback('<i class="bi bi-x-circle me-1"></i> Não foi possível acessar a câmera. Verifique as permissões.', 'danger');
+            if (modalCameraInstance) modalCameraInstance.hide();
+        });
+    }
+
+    if (btnAbrirCamera && modalCameraInstance) {
+        btnAbrirCamera.addEventListener('click', function () {
+            modalCameraInstance.show();
+            setTimeout(iniciarCamera, 300);
+        });
+    }
+
+    if (btnFecharCam) btnFecharCam.addEventListener('click', pararCamera);
+    if (btnCancelarCam) btnCancelarCam.addEventListener('click', pararCamera);
+    if (modalCameraEl) {
+        modalCameraEl.addEventListener('hidden.bs.modal', pararCamera);
     }
 });
 </script>
