@@ -75,21 +75,27 @@
     document.addEventListener('DOMContentLoaded', function() {
         const inputTanque = document.getElementById('id_capacidade_tanque');
         if (inputTanque) {
-            if (!inputTanque.value || inputTanque.value === '' || inputTanque.value === '0' || inputTanque.value === '50' || inputTanque.value === '0,0' || inputTanque.value === '0.0') {
-                inputTanque.value = '';
-            }
-
+            // Garantir que vírgulas sejam convertidas para ponto durante a digitação para float válido
             inputTanque.addEventListener('input', function() {
-                let v = this.value.replace(/[^\d.]/g, '');
-                const parts = v.split('.');
-                if (parts.length > 2) {
-                    v = parts[0] + '.' + parts.slice(1).join('');
+                let v = this.value.replace(',', '.');
+                let limpo = v.replace(/[^\d.]/g, '');
+                const partes = limpo.split('.');
+                if (partes.length > 2) {
+                    limpo = partes[0] + '.' + partes.slice(1).join('');
                 }
-                if (parts.length === 2 && parts[1].length > 1) {
-                    v = parts[0] + '.' + parts[1].substring(0, 1);
+                if (partes.length === 2) {
+                    limpo = partes[0] + '.' + partes[1].substring(0, 1);
                 }
-                this.value = v;
+                this.value = limpo;
             });
+
+            const form = inputTanque.closest('form');
+            if (form) {
+                form.addEventListener('submit', function(e) {
+                    let val = inputTanque.value.replace(',', '.');
+                    inputTanque.value = val;
+                });
+            }
         }
     });
 </script>
