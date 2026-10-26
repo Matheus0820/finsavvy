@@ -188,10 +188,18 @@ class FormItemCompra(forms.ModelForm):
 
     def clean(self):
         cleaned_data = super().clean()
-        qtd = cleaned_data.get('quantidade') or 1.0
-        unit = cleaned_data.get('valor_unitario') or 0.0
+        if not cleaned_data.get('descricao') and not cleaned_data.get('quantidade') and not cleaned_data.get('valor_unitario'):
+            return cleaned_data
+        qtd = cleaned_data.get('quantidade')
+        if qtd is None:
+            qtd = 1.0
+            cleaned_data['quantidade'] = qtd
+        unit = cleaned_data.get('valor_unitario')
+        if unit is None:
+            unit = 0.0
+            cleaned_data['valor_unitario'] = unit
         tot = cleaned_data.get('valor_total_item')
-        if not tot and qtd and unit:
+        if not tot:
             cleaned_data['valor_total_item'] = round(float(qtd) * float(unit), 2)
         return cleaned_data
 

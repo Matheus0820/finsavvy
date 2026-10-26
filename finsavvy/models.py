@@ -119,13 +119,17 @@ class CustoCompra(models.Model):
 
 class ItemCompra(models.Model):
     compra = models.ForeignKey(CustoCompra, on_delete=models.CASCADE, related_name='itens')
-    descricao = models.CharField(max_length=255)
-    quantidade = models.FloatField(default=1.0)
-    valor_unitario = models.FloatField(default=0.0)
-    valor_total_item = models.FloatField(default=0.0)
+    descricao = models.CharField(max_length=255, blank=True, default="")
+    quantidade = models.FloatField(default=1.0, blank=True, null=True)
+    valor_unitario = models.FloatField(default=0.0, blank=True, null=True)
+    valor_total_item = models.FloatField(default=0.0, blank=True, null=True)
 
     def save(self, *args, **kwargs):
-        if not self.valor_total_item or self.valor_total_item == 0.0:
+        if self.quantidade is None:
+            self.quantidade = 1.0
+        if self.valor_unitario is None:
+            self.valor_unitario = 0.0
+        if self.valor_total_item is None or self.valor_total_item == 0.0:
             qtd = float(self.quantidade) if self.quantidade is not None else 1.0
             val = float(self.valor_unitario) if self.valor_unitario is not None else 0.0
             self.valor_total_item = round(qtd * val, 2)
