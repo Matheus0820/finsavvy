@@ -166,7 +166,7 @@ class Veiculo(models.Model):
     placa = models.CharField(max_length=20)
     tipo_veiculo = models.CharField(max_length=20, choices=TIPO_VEICULO)
     km_atual = models.PositiveIntegerField()
-    capacidade_tanque = models.IntegerField(default=50, help_text='Capacidade do tanque em litros')
+    capacidade_tanque = models.FloatField(default=50.0, help_text='Capacidade do tanque em litros')
 
     def __str__(self):
         return f"{self.marca} {self.modelo} ({self.placa})"

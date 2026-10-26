@@ -28,6 +28,7 @@
                         <th scope="col">Placa</th>
                         <th scope="col">Tipo</th>
                         <th scope="col">KM Atual</th>
+                        <th scope="col">Tanque</th>
                         <th scope="col" class="text-center pe-3">Ações</th>
                     </tr>
                 </thead>
@@ -40,6 +41,7 @@
                         <td><span class="badge bg-secondary text-white">{{ veiculo.placa }}</span></td>
                         <td>{{ veiculo.get_tipo_veiculo_display }}</td>
                         <td>{{ veiculo.km_atual }} km</td>
+                        <td>{{ veiculo.capacidade_tanque }} L</td>
                         <td class="text-center pe-3">
                             <a href="{% url 'edit_veiculo' veiculo.id %}" class="btn btn-sm btn-outline-warning me-1" title="Editar">
                                 <i class="bi bi-pencil"></i>
