@@ -56,7 +56,7 @@ def dashboard(request):
     total_custos_fixos = CustoFixo.objects.filter(user=user).aggregate(total=Sum('valor'))['total'] or 0
     total_custos_variaveis = CustoVariavel.objects.filter(user=user).aggregate(total=Sum('valor'))['total'] or 0
     total_compras = CustoCompra.objects.filter(user=user).aggregate(total=Sum('valor_total'))['total'] or 0
-    total_combustivel = CustoCombustivel.objects.filter(user=user).aggregate(total=Sum('valor'))['total'] or 0
+    total_combustivel = CustoCombustivel.objects.filter(user=user).aggregate(total=Sum('valor_abastecido'))['total'] or 0
     total_manutencao = Manutencao.objects.filter(user=user).aggregate(total=Sum('valor'))['total'] or 0
 
     total_geral = total_custos_fixos + total_custos_variaveis + total_compras + total_combustivel + total_manutencao
