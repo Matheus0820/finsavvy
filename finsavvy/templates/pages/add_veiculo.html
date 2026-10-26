@@ -75,31 +75,26 @@
     document.addEventListener('DOMContentLoaded', function() {
         const inputTanque = document.getElementById('id_capacidade_tanque');
         if (inputTanque) {
-            function formatarTanqueDecimal(valorStr) {
-                let apenasDigitos = String(valorStr).replace(/\D/g, '');
-                if (!apenasDigitos) return '0,0';
-                let numero = parseInt(apenasDigitos, 10) / 10;
-                let formatado = numero.toLocaleString('pt-BR', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
-                return formatado;
-            }
-
+            // Garantir valor inicial se vazio ou zero
             if (!inputTanque.value || inputTanque.value === '0' || inputTanque.value === '0.0' || inputTanque.value === '0,0') {
                 inputTanque.value = '0,0';
             } else {
                 let valClean = String(inputTanque.value).replace('L', '').trim();
-                if (!valClean.includes(',') && !valClean.includes('.')) {
-                    inputTanque.value = formatarTanqueDecimal(valClean);
-                } else if (valClean.includes('.')) {
-                    let num = Math.round(parseFloat(valClean) * 10);
-                    inputTanque.value = (num / 10).toLocaleString('pt-BR', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
-                } else {
-                    inputTanque.value = formatarTanqueDecimal(valClean);
-                }
+                valClean = valClean.replace('.', ',');
+                inputTanque.value = valClean;
             }
 
-            inputTanque.addEventListener('input', function() {
-                let formatted = formatarTanqueDecimal(this.value);
-                this.value = formatted;
+            inputTanque.addEventListener('input', function(e) {
+                let v = this.value.replace(',', '.');
+                let limpo = v.replace(/[^0-9.]/g, '');
+                const partes = limpo.split('.');
+                if (partes.length > 2) {
+                    limpo = partes[0] + '.' + partes.slice(1).join('');
+                }
+                if (partes.length === 2 && partes[1].length > 1) {
+                    limpo = partes[0] + '.' + partes[1].substring(0, 1);
+                }
+                this.value = limpo.replace('.', ',');
             });
 
             inputTanque.addEventListener('focus', function() {
