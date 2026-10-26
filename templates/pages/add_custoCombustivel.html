@@ -66,4 +66,36 @@
         </div>
     </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    function aplicarMascaraMoeda(input) {
+        function formatar(v) {
+            let limpo = v.replace(/\D/g, '');
+            if (!limpo) return '0,00';
+            let num = parseInt(limpo, 10);
+            return (num / 100).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        }
+
+        input.addEventListener('input', function(e) {
+            let cursorOriginal = input.selectionEnd;
+            let valorFormatado = formatar(input.value);
+            input.value = valorFormatado;
+        });
+
+        // Formata valor inicial se houver
+        if (input.value) {
+            input.value = formatar(input.value);
+        }
+    }
+
+    const ids = ['id_valor_abastecido', 'id_valor_por_litro'];
+    ids.forEach(function(id) {
+        let el = document.getElementById(id);
+        if (el) {
+            aplicarMascaraMoeda(el);
+        }
+    });
+});
+</script>
 {% endblock %}
