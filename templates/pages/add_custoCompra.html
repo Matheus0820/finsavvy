@@ -185,12 +185,8 @@
                                 {% endif %}
                             </td>
                             <td class="text-center pe-3">
-                                {% if item_form.instance.pk %}
-                                    <div class="d-none">
-                                        {{ item_form.DELETE }}
-                                    </div>
-                                {% endif %}
-                                <button type="button" class="btn btn-sm btn-outline-danger btn-remove-item" title="Remover item">
+                                {{ item_form.DELETE }}
+                                <button type="button" class="btn btn-sm btn-outline-danger btn-remove-item ms-1" title="Remover item">
                                     <i class="bi bi-trash"></i>
                                 </button>
                             </td>
@@ -237,6 +233,7 @@
             <input type="number" name="itens-__prefix__-valor_total_item" step="0.01" readonly="readonly" placeholder="0.00" class="form-control text-bg-dark border-secondary item-total" id="id_itens-__prefix__-valor_total_item">
         </td>
         <td class="text-center pe-3">
+            <input type="checkbox" name="itens-__prefix__-DELETE" id="id_itens-__prefix__-DELETE" class="d-none">
             <button type="button" class="btn btn-sm btn-outline-danger btn-remove-item" title="Remover item">
                 <i class="bi bi-trash"></i>
             </button>
