@@ -11,6 +11,6 @@ class FormVeiculo(forms.ModelForm):
             'placa': forms.TextInput(attrs={'class': 'form-control text-bg-dark'}),
             'tipo_veiculo': forms.Select(attrs={'class': 'form-select text-bg-dark'}),
             'km_atual': forms.NumberInput(attrs={'class': 'form-control text-bg-dark'}),
-            'capacidade_tanque': forms.NumberInput(attrs={'class': 'form-control text-bg-dark', 'min': '1'}),
+            'capacidade_tanque': forms.TextInput(attrs={'class': 'form-control text-bg-dark', 'id': 'id_capacidade_tanque', 'autocomplete': 'off'}),
         }
 
