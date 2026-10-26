@@ -10,7 +10,7 @@
         let str = String(valorStr).trim();
 
         // Se contiver ponto ou vírgula decimal direta do banco (ex: "1050.75" ou "12.03")
-        // e não estiver mascarado previamente:
+        // e vier sem formatação de milhares/vírgula de digitação:
         if (/^\d+\.\d{1,2}$/.test(str)) {
             const numero = parseFloat(str);
             if (!isNaN(numero)) {
@@ -34,7 +34,18 @@
 
     function aplicarMascara(input) {
         if (!input) return;
-        input.value = formatarValorMoeda(input.value);
+        const cursorPos = input.selectionStart;
+        const valorAntigo = input.value;
+        const formatado = formatarValorMoeda(valorAntigo);
+        input.value = formatado;
+
+        // Ajustar cursor para o final para digitação natural Right-to-Left
+        if (input === document.activeElement) {
+            try {
+                const pos = input.value.length;
+                input.setSelectionRange(pos, pos);
+            } catch (e) {}
+        }
     }
 
     function inicializarMascarasMoeda() {
@@ -48,6 +59,15 @@
             // Ouvir evento input
             input.addEventListener('input', function () {
                 aplicarMascara(this);
+            });
+
+            // Garantir seleção no foco se estiver em '0,00'
+            input.addEventListener('focus', function () {
+                if (this.value === '0,00') {
+                    try {
+                        this.setSelectionRange(0, this.value.length);
+                    } catch (e) {}
+                }
             });
         });
     }
