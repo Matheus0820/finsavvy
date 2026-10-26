@@ -13,6 +13,7 @@ from .utils.calculos_veiculares import (
     calcular_estatisticas_por_veiculo,
     calcular_metricas_veiculares_gerais,
     preparar_dados_grafico_consumo,
+    calcular_autonomia,
 )
 from .utils.alertas_veiculares import (
     gerar_alertas_veiculo,
@@ -189,3 +190,244 @@ class ThemeSelectorTests(TestCase):
         self.assertContains(response, 'data-bs-theme-value="light"')
         self.assertContains(response, 'data-bs-theme-value="dark"')
         self.assertContains(response, 'data-bs-theme-value="auto"')
+
+
+class VeiculoCombustivelBackendTests(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(username='motorista_test', password='testpass')
+
+    def test_model_fields_and_property_litros(self):
+        veiculo = Veiculo.objects.create(
+            user=self.user,
+            marca='Volkswagen',
+            modelo='Golf',
+            placa='ABC1D23',
+            tipo_veiculo='CARRO',
+            km_atual=10000,
+            capacidade_tanque=55
+        )
+        self.assertEqual(veiculo.capacidade_tanque, 55)
+
+        combustivel = CustoCombustivel.objects.create(
+            user=self.user,
+            veiculo=veiculo,
+            valor_abastecido=300.0,
+            valor_por_litro=6.0,
+            km_atual=10500,
+            tanque_cheio=True
+        )
+        self.assertEqual(combustivel.km_atual, 10500)
+        self.assertTrue(combustivel.tanque_cheio)
+        self.assertEqual(combustivel.litros, 50.0)
+
+    def test_signal_atualiza_km_veiculo(self):
+        veiculo = Veiculo.objects.create(
+            user=self.user,
+            marca='Fiat',
+            modelo='Pulse',
+            placa='PUL1234',
+            tipo_veiculo='CARRO',
+            km_atual=20000,
+            capacidade_tanque=47
+        )
+        # Abastecimento com KM maior deve atualizar veiculo.km_atual
+        CustoCombustivel.objects.create(
+            user=self.user,
+            veiculo=veiculo,
+            valor_abastecido=200.0,
+            valor_por_litro=5.0,
+            km_atual=20400,
+            tanque_cheio=False
+        )
+        veiculo.refresh_from_db()
+        self.assertEqual(veiculo.km_atual, 20400)
+
+        # Abastecimento com KM menor não deve retroceder o hodômetro do veículo
+        CustoCombustivel.objects.create(
+            user=self.user,
+            veiculo=veiculo,
+            valor_abastecido=100.0,
+            valor_por_litro=5.0,
+            km_atual=20100,
+            tanque_cheio=False
+        )
+        veiculo.refresh_from_db()
+        self.assertEqual(veiculo.km_atual, 20400)
+
+
+class FormCustoCombustivelSecurityTests(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(username='driver_security', password='testpass')
+        self.veiculo = Veiculo.objects.create(
+            user=self.user,
+            marca='Toyota',
+            modelo='Corolla',
+            placa='SEC1A23',
+            tipo_veiculo='CARRO',
+            km_atual=30000,
+            capacidade_tanque=50
+        )
+
+    def test_retroactive_km_initial_vehicle_blocks(self):
+        from .new_forms import FormCustoCombustivel
+        form = FormCustoCombustivel(data={
+            'veiculo': self.veiculo.id,
+            'data': '2025-05-10',
+            'valor_abastecido': 200.0,
+            'valor_por_litro': 5.0,
+            'km_atual': 29000,
+            'tanque_cheio': True
+        })
+        self.assertFalse(form.is_valid())
+        self.assertTrue(any('não pode ser menor que a KM cadastrada' in str(err) for err in form.non_field_errors()))
+
+    def test_retroactive_km_previous_fuel_blocks(self):
+        from .new_forms import FormCustoCombustivel
+        CustoCombustivel.objects.create(
+            user=self.user,
+            veiculo=self.veiculo,
+            data=date(2025, 5, 1),
+            valor_abastecido=150.0,
+            valor_por_litro=5.0,
+            km_atual=30500,
+            tanque_cheio=True
+        )
+        form = FormCustoCombustivel(data={
+            'veiculo': self.veiculo.id,
+            'data': '2025-05-10',
+            'valor_abastecido': 150.0,
+            'valor_por_litro': 5.0,
+            'km_atual': 30400,
+            'tanque_cheio': True
+        })
+        self.assertFalse(form.is_valid())
+        self.assertTrue(any('deve ser maior que a KM do último abastecimento' in str(err) for err in form.non_field_errors()))
+
+    def test_liters_exceeding_tank_capacity_blocks(self):
+        from .new_forms import FormCustoCombustivel
+        form = FormCustoCombustivel(data={
+            'veiculo': self.veiculo.id,
+            'data': '2025-05-10',
+            'valor_abastecido': 300.0,
+            'valor_por_litro': 5.0,
+            'km_atual': 30100,
+            'tanque_cheio': True
+        })
+        self.assertFalse(form.is_valid())
+        self.assertTrue(any('excede a capacidade do tanque' in str(err) for err in form.non_field_errors()))
+
+
+class MotorPreditivoAutonomiaTests(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(username='preditivo_user', password='testpass')
+        self.veiculo = Veiculo.objects.create(
+            user=self.user,
+            marca='Honda',
+            modelo='Civic',
+            placa='PRE1234',
+            tipo_veiculo='CARRO',
+            km_atual=10000,
+            capacidade_tanque=50
+        )
+
+    def test_calcular_autonomia_cenario_completo(self):
+        # Abastecimento 1: KM 10000, Tanque Cheio, 40L @ R$ 5,00 (R$ 200)
+        CustoCombustivel.objects.create(
+            user=self.user,
+            veiculo=self.veiculo,
+            data=date(2025, 1, 1),
+            valor_abastecido=200.0,
+            valor_por_litro=5.0,
+            km_atual=10000,
+            tanque_cheio=True
+        )
+        # Abastecimento 2: KM 10500, Tanque Cheio, 50L @ R$ 5,00 (R$ 250) -> delta KM = 500, litros = 50 -> 10.0 km/L
+        CustoCombustivel.objects.create(
+            user=self.user,
+            veiculo=self.veiculo,
+            data=date(2025, 1, 15),
+            valor_abastecido=250.0,
+            valor_por_litro=5.0,
+            km_atual=10500,
+            tanque_cheio=True
+        )
+
+        res = calcular_autonomia(self.veiculo)
+        # autonomia_ultimo_trecho: (10500 - 10000) / 50 = 10.0
+        self.assertEqual(res['autonomia_ultimo_trecho'], 10.0)
+        # autonomia_media_global: (10500 - 10000) / (40 + 50) = 500 / 90 = 5.56
+        self.assertEqual(res['autonomia_media_global'], 5.56)
+        # autonomia_maxima_estimada: 5.56 * 50 = 278.0
+        self.assertEqual(res['autonomia_maxima_estimada'], 278.0)
+        # custo_estimado_tanque_cheio: 50 * 5.0 = 250.0
+        self.assertEqual(res['custo_estimado_tanque_cheio'], 250.0)
+
+    def test_calcular_autonomia_ultimo_trecho_ignorado_se_tanque_parcial(self):
+        CustoCombustivel.objects.create(
+            user=self.user,
+            veiculo=self.veiculo,
+            data=date(2025, 1, 1),
+            valor_abastecido=200.0,
+            valor_por_litro=5.0,
+            km_atual=10000,
+            tanque_cheio=True
+        )
+        # Último abastecimento com tanque parcial (tanque_cheio=False)
+        CustoCombustivel.objects.create(
+            user=self.user,
+            veiculo=self.veiculo,
+            data=date(2025, 1, 15),
+            valor_abastecido=100.0,
+            valor_por_litro=5.0,
+            km_atual=10300,
+            tanque_cheio=False
+        )
+        res = calcular_autonomia(self.veiculo)
+        self.assertIsNone(res['autonomia_ultimo_trecho'])
+        self.assertEqual(res['autonomia_media_global'], 5.0)  # (10300 - 10000) / (40 + 20) = 300 / 60 = 5.0
+
+
+class VeiculoUITests(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(username='ui_user', password='testpass')
+        self.client.login(username='ui_user', password='testpass')
+        self.carro = Veiculo.objects.create(
+            user=self.user,
+            marca='Fiat',
+            modelo='Cronos',
+            placa='CRO1A23',
+            tipo_veiculo='CARRO',
+            km_atual=15000,
+            capacidade_tanque=48
+        )
+        self.combustivel = CustoCombustivel.objects.create(
+            user=self.user,
+            veiculo=self.carro,
+            data=date(2025, 6, 1),
+            valor_abastecido=240.0,
+            valor_por_litro=6.0,
+            km_atual=15500,
+            tanque_cheio=True
+        )
+
+    def test_list_veiculo_displays_tanque(self):
+        response = self.client.get(reverse('list_veiculo'))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, '48 L')
+        self.assertContains(response, 'Cronos')
+
+    def test_list_custo_combustivel_displays_km_and_tanque_cheio(self):
+        response = self.client.get(reverse('list_custoCombustivel'))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, '15500 km')
+        self.assertContains(response, 'R$ 6.00')
+        self.assertContains(response, 'Sim')
+
+    def test_relatorio_displays_autonomia_columns(self):
+        response = self.client.get(reverse('relatorios'), {'ano': '2025', 'mes': '6'})
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Autonomia Estimada')
+        self.assertContains(response, 'Custo Tanque Cheio')
+
+
+

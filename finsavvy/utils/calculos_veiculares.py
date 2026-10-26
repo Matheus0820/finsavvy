@@ -81,6 +81,7 @@ def calcular_estatisticas_por_veiculo(veiculo, combustiveis_qs=None, manutencoes
     custo_por_km = calcular_custo_por_km(total_gasto, km_rodados)
     custo_combustivel_por_km = calcular_custo_por_km(total_gasto_combustivel, km_rodados)
     preco_medio_litro = calcular_preco_medio_litro(total_gasto_combustivel, total_litros)
+    autonomia = calcular_autonomia(veiculo)
 
     return {
         'veiculo_id': veiculo.id,
@@ -88,6 +89,7 @@ def calcular_estatisticas_por_veiculo(veiculo, combustiveis_qs=None, manutencoes
         'placa': veiculo.placa,
         'tipo': veiculo.get_tipo_veiculo_display() if hasattr(veiculo, 'get_tipo_veiculo_display') else veiculo.tipo_veiculo,
         'km_atual': veiculo.km_atual,
+        'capacidade_tanque': veiculo.capacidade_tanque,
         'total_abastecimentos': total_abastecimentos,
         'total_litros': round(total_litros, 2),
         'total_gasto_combustivel': round(total_gasto_combustivel, 2),
@@ -97,6 +99,10 @@ def calcular_estatisticas_por_veiculo(veiculo, combustiveis_qs=None, manutencoes
         'custo_por_km': custo_por_km,
         'custo_combustivel_por_km': custo_combustivel_por_km,
         'preco_medio_litro': preco_medio_litro,
+        'autonomia_ultimo_trecho': autonomia['autonomia_ultimo_trecho'],
+        'autonomia_media_global': autonomia['autonomia_media_global'],
+        'autonomia_maxima_estimada': autonomia['autonomia_maxima_estimada'],
+        'custo_estimado_tanque_cheio': autonomia['custo_estimado_tanque_cheio'],
     }
 
 
@@ -161,3 +167,52 @@ def preparar_dados_grafico_consumo(combustiveis_qs) -> Dict[str, Any]:
         'valores': dados_valores,
         'precos_litro': dados_preco_litro,
     }
+
+
+def calcular_autonomia(veiculo) -> Dict[str, Any]:
+    """
+    Calcula as métricas preditivas e estatísticas de autonomia de um veículo:
+    1. autonomia_ultimo_trecho: (KM atual - KM anterior) / litros atuais.
+       Calculado APENAS se os dois últimos abastecimentos possuírem tanque_cheio=True.
+    2. autonomia_media_global: (KM mais recente - KM mais antiga) / soma total de litros.
+    3. autonomia_maxima_estimada: autonomia_media_global * capacidade_tanque.
+    4. custo_estimado_tanque_cheio: capacidade_tanque * último valor_por_litro registrado.
+    """
+    combustiveis = list(veiculo.combustiveis.all().order_by('km_atual', 'data', 'id'))
+    capacidade_tanque = float(veiculo.capacidade_tanque or 0)
+
+    # 1. autonomia_ultimo_trecho
+    autonomia_ultimo_trecho = None
+    if len(combustiveis) >= 2:
+        penultimo = combustiveis[-2]
+        ultimo = combustiveis[-1]
+        if penultimo.tanque_cheio and ultimo.tanque_cheio:
+            delta_km = ultimo.km_atual - penultimo.km_atual
+            litros_atuais = ultimo.litros
+            if delta_km > 0 and litros_atuais > 0:
+                autonomia_ultimo_trecho = round(delta_km / litros_atuais, 2)
+
+    # 2. autonomia_media_global
+    autonomia_media_global = 0.0
+    if len(combustiveis) >= 2:
+        km_mais_antiga = combustiveis[0].km_atual
+        km_mais_recente = combustiveis[-1].km_atual
+        soma_total_litros = sum(c.litros for c in combustiveis)
+        delta_km_total = km_mais_recente - km_mais_antiga
+        if delta_km_total > 0 and soma_total_litros > 0:
+            autonomia_media_global = round(delta_km_total / soma_total_litros, 2)
+
+    # 3. autonomia_maxima_estimada
+    autonomia_maxima_estimada = round(autonomia_media_global * capacidade_tanque, 2)
+
+    # 4. custo_estimado_tanque_cheio
+    ultimo_preco_litro = combustiveis[-1].valor_por_litro if combustiveis else 0.0
+    custo_estimado_tanque_cheio = round(capacidade_tanque * float(ultimo_preco_litro or 0), 2)
+
+    return {
+        'autonomia_ultimo_trecho': autonomia_ultimo_trecho,
+        'autonomia_media_global': autonomia_media_global,
+        'autonomia_maxima_estimada': autonomia_maxima_estimada,
+        'custo_estimado_tanque_cheio': custo_estimado_tanque_cheio,
+    }
+

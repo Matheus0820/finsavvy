@@ -355,6 +355,8 @@
                                 <th scope="col" class="text-center">Abastecimentos</th>
                                 <th scope="col" class="text-end">Litros</th>
                                 <th scope="col" class="text-end">Consumo Médio</th>
+                                <th scope="col" class="text-end">Autonomia Estimada</th>
+                                <th scope="col" class="text-end">Custo Tanque Cheio</th>
                                 <th scope="col" class="text-end">Custo / Km</th>
                                 <th scope="col" class="text-end pe-3">Gasto Total</th>
                             </tr>
@@ -375,6 +377,24 @@
                                 <td class="text-end text-secondary">{{ v.total_litros }} L</td>
                                 <td class="text-end fw-semibold {% if v.consumo_medio > 0 %}text-success{% else %}text-secondary{% endif %}">
                                     {% if v.consumo_medio > 0 %}{{ v.consumo_medio }} km/L{% else %}—{% endif %}
+                                </td>
+                                <td class="text-end">
+                                    {% if v.autonomia_maxima_estimada > 0 %}
+                                        <span class="badge bg-primary bg-opacity-25 text-primary border border-primary border-opacity-25">
+                                            ~{{ v.autonomia_maxima_estimada }} km
+                                        </span>
+                                    {% else %}
+                                        <span class="text-secondary">—</span>
+                                    {% endif %}
+                                </td>
+                                <td class="text-end">
+                                    {% if v.custo_estimado_tanque_cheio > 0 %}
+                                        <span class="badge bg-success bg-opacity-25 text-success border border-success border-opacity-25">
+                                            R$ {{ v.custo_estimado_tanque_cheio|floatformat:2 }}
+                                        </span>
+                                    {% else %}
+                                        <span class="text-secondary">—</span>
+                                    {% endif %}
                                 </td>
                                 <td class="text-end fw-semibold {% if v.custo_por_km > 0 %}text-warning{% else %}text-secondary{% endif %}">
                                     {% if v.custo_por_km > 0 %}R$ {{ v.custo_por_km }}/km{% else %}—{% endif %}

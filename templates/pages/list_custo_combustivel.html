@@ -24,8 +24,11 @@
                     <tr class="text-secondary small border-secondary">
                         <th scope="col" class="ps-3">#</th>
                         <th scope="col">Veículo</th>
+                        <th scope="col">KM</th>
                         <th scope="col">Litros</th>
-                        <th scope="col">Valor</th>
+                        <th scope="col">Preço/L</th>
+                        <th scope="col">Valor Total</th>
+                        <th scope="col" class="text-center">Tanque Cheio</th>
                         <th scope="col">Data</th>
                         <th scope="col" class="text-center pe-3">Ações</th>
                     </tr>
@@ -35,8 +38,17 @@
                     <tr class="border-secondary">
                         <th scope="row" class="ps-3 text-secondary">{{ forloop.counter }}</th>
                         <td class="text-white fw-medium">{{ obj.veiculo }}</td>
+                        <td class="text-secondary">{{ obj.km_atual }} km</td>
                         <td>{{ obj.litros }}L</td>
+                        <td class="text-secondary">R$ {{ obj.valor_por_litro|floatformat:2 }}</td>
                         <td class="text-danger fw-semibold">R$ {{ obj.valor|floatformat:2 }}</td>
+                        <td class="text-center">
+                            {% if obj.tanque_cheio %}
+                                <span class="badge bg-success bg-opacity-25 text-success border border-success border-opacity-25"><i class="bi bi-check-circle me-1"></i>Sim</span>
+                            {% else %}
+                                <span class="badge bg-secondary bg-opacity-25 text-secondary border border-secondary border-opacity-25">Não</span>
+                            {% endif %}
+                        </td>
                         <td class="text-secondary small">{{ obj.data|date:"d/m/Y" }}</td>
                         <td class="text-center pe-3">
                             <a href="{% url 'edit_custoCombustivel' obj.id %}" class="btn btn-sm btn-outline-warning me-1" title="Editar">

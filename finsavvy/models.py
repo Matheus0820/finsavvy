@@ -166,6 +166,7 @@ class Veiculo(models.Model):
     placa = models.CharField(max_length=20)
     tipo_veiculo = models.CharField(max_length=20, choices=TIPO_VEICULO)
     km_atual = models.PositiveIntegerField()
+    capacidade_tanque = models.IntegerField(default=50, help_text='Capacidade do tanque em litros')
 
     def __str__(self):
         return f"{self.marca} {self.modelo} ({self.placa})"
@@ -176,6 +177,8 @@ class CustoCombustivel(models.Model):
     data = models.DateField(default=timezone.now)
     valor_abastecido = models.FloatField(help_text='Valor total pago no posto (R$)', default=0.0)
     valor_por_litro = models.FloatField(help_text='Preço do litro do combustível (R$)', default=0.0)
+    km_atual = models.IntegerField(default=0, help_text='KM do veículo no momento do abastecimento')
+    tanque_cheio = models.BooleanField(default=False, help_text='Indica se o tanque foi completado')
 
     @property
     def litros(self):
@@ -201,6 +204,14 @@ class CustoCombustivel(models.Model):
 
     def __str__(self):
         return f"{self.veiculo} - R$ {self.valor_abastecido:.2f} ({self.data})"
+
+
+@receiver(post_save, sender=CustoCombustivel)
+def atualizar_km_veiculo_abastecimento(sender, instance, **kwargs):
+    if instance.veiculo and instance.km_atual:
+        if instance.km_atual > instance.veiculo.km_atual:
+            instance.veiculo.km_atual = instance.km_atual
+            instance.veiculo.save(update_fields=['km_atual'])
 
 class Manutencao(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='manutencoes')

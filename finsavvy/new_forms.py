@@ -216,25 +216,63 @@ ItemCompraFormSet = inlineformset_factory(
 class FormVeiculo(forms.ModelForm):
     class Meta:
         model = Veiculo
-        fields = ('marca', 'modelo', 'placa', 'tipo_veiculo', 'km_atual')
+        fields = ('marca', 'modelo', 'placa', 'tipo_veiculo', 'km_atual', 'capacidade_tanque')
         widgets = {
             'marca': forms.TextInput(attrs={'class': 'form-control text-bg-dark border-secondary'}),
             'modelo': forms.TextInput(attrs={'class': 'form-control text-bg-dark border-secondary'}),
             'placa': forms.TextInput(attrs={'class': 'form-control text-bg-dark border-secondary'}),
             'tipo_veiculo': forms.Select(attrs={'class': 'form-select text-bg-dark border-secondary'}),
             'km_atual': forms.NumberInput(attrs={'class': 'form-control text-bg-dark border-secondary', 'min': '0'}),
+            'capacidade_tanque': forms.NumberInput(attrs={'class': 'form-control text-bg-dark border-secondary', 'min': '1'}),
         }
 
 class FormCustoCombustivel(forms.ModelForm):
     class Meta:
         model = CustoCombustivel
-        fields = ('veiculo', 'data', 'valor_abastecido', 'valor_por_litro')
+        fields = ('veiculo', 'data', 'valor_abastecido', 'valor_por_litro', 'km_atual', 'tanque_cheio')
         widgets = {
             'veiculo': forms.Select(attrs={'class': 'form-select text-bg-dark border-secondary'}),
             'data': forms.DateInput(format='%Y-%m-%d', attrs={'class': 'form-control text-bg-dark border-secondary', 'type': 'date'}),
             'valor_abastecido': forms.NumberInput(attrs={'class': 'form-control text-bg-dark border-secondary', 'step': '0.01', 'placeholder': '0.00'}),
             'valor_por_litro': forms.NumberInput(attrs={'class': 'form-control text-bg-dark border-secondary', 'step': '0.01', 'placeholder': '0.00'}),
+            'km_atual': forms.NumberInput(attrs={'class': 'form-control text-bg-dark border-secondary', 'min': '0'}),
+            'tanque_cheio': forms.CheckboxInput(attrs={'class': 'form-check-input', 'role': 'switch'}),
         }
+
+    def clean(self):
+        cleaned_data = super().clean()
+        veiculo = cleaned_data.get('veiculo')
+        km_atual = cleaned_data.get('km_atual')
+        valor_abastecido = cleaned_data.get('valor_abastecido')
+        valor_por_litro = cleaned_data.get('valor_por_litro')
+
+        if veiculo is not None:
+            # Trava de KM: km_atual deve ser estritamente maior que a do último abastecimento registrado
+            ultimo_abastecimento = CustoCombustivel.objects.filter(veiculo=veiculo)
+            if self.instance and self.instance.pk:
+                ultimo_abastecimento = ultimo_abastecimento.exclude(pk=self.instance.pk)
+            ultimo_abastecimento = ultimo_abastecimento.order_by('-km_atual', '-data', '-id').first()
+
+            if km_atual is not None:
+                if ultimo_abastecimento and ultimo_abastecimento.km_atual:
+                    if km_atual <= ultimo_abastecimento.km_atual:
+                        raise forms.ValidationError(
+                            f"A KM atual ({km_atual}) deve ser maior que a KM do último abastecimento registrado ({ultimo_abastecimento.km_atual})."
+                        )
+                elif km_atual < veiculo.km_atual:
+                    raise forms.ValidationError(
+                        f"A KM atual ({km_atual}) não pode ser menor que a KM cadastrada do veículo ({veiculo.km_atual})."
+                    )
+
+            # Trava de Litros: litros calculados não podem ser maiores que a capacidade_tanque do veículo
+            if valor_abastecido and valor_por_litro and valor_por_litro > 0:
+                litros_calculados = valor_abastecido / valor_por_litro
+                if veiculo.capacidade_tanque and litros_calculados > veiculo.capacidade_tanque:
+                    raise forms.ValidationError(
+                        f"A quantidade calculada ({litros_calculados:.2f} L) excede a capacidade do tanque do veículo ({veiculo.capacidade_tanque} L)."
+                    )
+
+        return cleaned_data
 
 class FormManutencao(forms.ModelForm):
     class Meta:

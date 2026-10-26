@@ -27,6 +27,7 @@
                         <th scope="col">Modelo</th>
                         <th scope="col">Placa</th>
                         <th scope="col">Tipo</th>
+                        <th scope="col">Tanque</th>
                         <th scope="col">KM Atual</th>
                         <th scope="col" class="text-center pe-3">Ações</th>
                     </tr>
@@ -39,6 +40,7 @@
                         <td class="text-white">{{ obj.modelo }}</td>
                         <td class="text-secondary">{{ obj.placa }}</td>
                         <td class="text-secondary"><span class="badge bg-secondary">{{ obj.get_tipo_veiculo_display }}</span></td>
+                        <td class="text-secondary">{{ obj.capacidade_tanque }} L</td>
                         <td class="text-secondary">{{ obj.km_atual }} km</td>
                         <td class="text-center pe-3">
                             <a href="{% url 'edit_veiculo' obj.id %}" class="btn btn-sm btn-outline-warning me-1" title="Editar">
