@@ -24,12 +24,18 @@ class FormCustoFixo(forms.ModelForm):
             if not data_str:
                 return None
             try:
-                return datetime.strptime(data_str, '%d/%m/%Y').date()
+                # Formato MM/YYYY ou M/YYYY
+                dt = datetime.strptime(data_str, '%m/%Y')
+                # Retorna o último dia do mês ou o dia 1 do mês para vigência (usualmente dia 1 ou último dia)
+                return dt.date()
             except ValueError:
                 try:
-                    return datetime.strptime(data_str, '%Y-%m-%d').date()
+                    return datetime.strptime(data_str, '%d/%m/%Y').date()
                 except ValueError:
-                    raise forms.ValidationError("Informe uma data válida no formato dd/mm/aaaa.")
+                    try:
+                        return datetime.strptime(data_str, '%Y-%m-%d').date()
+                    except ValueError:
+                        raise forms.ValidationError("Informe um mês e ano válidos no formato mm/aaaa.")
         return data
 
     def clean_valor(self):

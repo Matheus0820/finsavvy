@@ -67,11 +67,12 @@
                         </div>
 
                         <div class="mb-3">
-                            <label for="datepicker_vigencia" class="form-label text-light">Data de Vigência (Opcional)</label>
+                            <label for="datepicker_vigencia" class="form-label text-light">Válido até o Mês (Opcional)</label>
                             <div class="input-group">
                                 <span class="input-group-text bg-secondary text-white border-secondary"><i class="bi bi-calendar-event"></i></span>
-                                <input type="text" class="form-control text-bg-dark border-secondary" id="datepicker_vigencia" name="data_vigencia" data-bs-toggle="datepicker" autocomplete="off" placeholder="dd/mm/aaaa" value="{{ formCustoFixo.data_vigencia.value|date:'d/m/Y'|default:'' }}">
+                                <input type="text" class="form-control text-bg-dark border-secondary" id="datepicker_vigencia" name="data_vigencia" data-bs-toggle="datepicker" autocomplete="off" placeholder="mm/aaaa" value="{{ formCustoFixo.data_vigencia.value|date:'m/Y'|default:'' }}">
                             </div>
+                            <div class="form-text text-muted small">Mês limite em que este custo fixo permanece ativo.</div>
                             {% if formCustoFixo.data_vigencia.errors %}
                                 <div class="text-danger small mt-1">{{ formCustoFixo.data_vigencia.errors.0 }}</div>
                             {% endif %}
@@ -95,10 +96,12 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/locales/bootstrap-datepicker.pt-BR.min.js"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // Inicializar Datepicker pt-BR
+        // Inicializar Datepicker pt-BR para Mês/Ano
         if (typeof jQuery !== 'undefined' && jQuery.fn.datepicker) {
             jQuery('#datepicker_vigencia').datepicker({
-                format: 'dd/mm/yyyy',
+                format: 'mm/yyyy',
+                startView: 'months',
+                minViewMode: 'months',
                 language: 'pt-BR',
                 autoclose: true,
                 todayHighlight: true
