@@ -2,21 +2,73 @@
 
 {% block title %}FinSavvy - {% if custo %}Editar Custo Fixo{% else %}Novo Custo Fixo{% endif %}{% endblock %}
 
+{% block extra_head %}
+<!-- Datepicker CSS -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/css/bootstrap-datepicker.min.css">
+<style>
+    .datepicker.dropdown-menu {
+        background-color: #1a1a1a !important;
+        color: #ffffff !important;
+        border: 1px solid #2d2d2d !important;
+    }
+    .datepicker td, .datepicker th {
+        color: #ffffff !important;
+    }
+    .datepicker td.day:hover, .datepicker td.focused {
+        background: #00e0c1 !important;
+        color: #121212 !important;
+    }
+    .datepicker table tr td.active, .datepicker table tr td.active:hover {
+        background: #00e0c1 !important;
+        color: #121212 !important;
+        text-shadow: none !important;
+    }
+</style>
+{% endblock %}
+
 {% block content %}
 <div class="container mt-4">
     <div class="row justify-content-center">
-        <div class="col-md-8">
-            <div class="card bg-dark text-white border-secondary">
-                <div class="card-header bg-secondary bg-opacity-20">
-                    <h4 class="mb-0">{% if custo %}Editar Custo Fixo{% else %}Novo Custo Fixo{% endif %}</h4>
+        <div class="col-md-8 col-lg-6 mx-auto">
+            <div class="card shadow-sm border-0 bg-dark text-white">
+                <div class="card-header bg-secondary bg-opacity-25 py-3 d-flex justify-content-between align-items-center">
+                    <h4 class="mb-0 text-white"><i class="bi bi-pin-angle me-2 text-warning"></i>{% if custo %}Editar Custo Fixo{% else %}Novo Custo Fixo{% endif %}</h4>
+                    <a href="{% url 'list_custosFixos' %}" class="btn btn-sm btn-outline-light"><i class="bi bi-arrow-left me-1"></i> Voltar</a>
                 </div>
-                <div class="card-body">
-                    <form method="post">
+                <div class="card-body p-4">
+                    <form method="post" novalidate>
                         {% csrf_token %}
-                        {{ formCustoFixo.as_p }}
-                        <div class="d-flex justify-content-between mt-3">
-                            <a href="{% url 'list_custosFixos' %}" class="btn btn-outline-secondary">Cancelar</a>
-                            <button type="submit" class="btn btn-primary">Salvar</button>
+
+                        <div class="mb-3">
+                            <label for="{{ formCustoFixo.nome.id_for_label }}" class="form-label text-light">Nome do Custo Fixo</label>
+                            {{ formCustoFixo.nome }}
+                            {% if formCustoFixo.nome.errors %}
+                                <div class="text-danger small mt-1">{{ formCustoFixo.nome.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="id_valor" class="form-label text-light">Valor (R$)</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-secondary text-white border-secondary">R$</span>
+                                <input type="text" class="form-control text-bg-dark border-secondary mascara-dinheiro" id="id_valor" name="valor" value="{{ form.valor.value|default:formCustoFixo.valor.value|default:'0,00' }}" autocomplete="off">
+                            </div>
+                            {% if formCustoFixo.valor.errors %}
+                                <div class="text-danger small mt-1">{{ formCustoFixo.valor.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="datepicker_vencimento" class="form-label text-light">Data de Vencimento</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-secondary text-white border-secondary"><i class="bi bi-calendar-event"></i></span>
+                                <input type="text" class="form-control text-bg-dark border-secondary" id="datepicker_vencimento" name="data_vencimento" data-bs-toggle="datepicker" autocomplete="off" placeholder="dd/mm/aaaa" value="{{ data_vencimento|default:'' }}">
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-between align-items-center mt-4">
+                            <a href="{% url 'list_custosFixos' %}" class="btn btn-outline-secondary px-4">Cancelar</a>
+                            <button type="submit" class="btn btn-primary px-4 fw-semibold" style="background-color: #00e0c1; border-color: #00e0c1; color: #121212;">Salvar Custo</button>
                         </div>
                     </form>
                 </div>
@@ -24,4 +76,65 @@
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<!-- Datepicker JS -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/locales/bootstrap-datepicker.pt-BR.min.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Inicializar Datepicker pt-BR
+        if (typeof jQuery !== 'undefined' && jQuery.fn.datepicker) {
+            jQuery('#datepicker_vencimento').datepicker({
+                format: 'dd/mm/yyyy',
+                language: 'pt-BR',
+                autoclose: true,
+                todayHighlight: true
+            });
+        }
+
+        // Máscara de Moeda Dinâmica (Right to Left)
+        const inputValor = document.getElementById('id_valor');
+        if (inputValor) {
+            function formatarMoeda(valorStr) {
+                let apenasDigitos = valorStr.replace(/\D/g, '');
+                if (apenasDigitos === '') apenasDigitos = '0';
+                let numero = parseInt(apenasDigitos, 10);
+                let formatado = (numero / 100).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+                return formatado;
+            }
+
+            // Inicialização com valor existente (edição)
+            if (inputValor.value && inputValor.value !== '0,00' && inputValor.value !== '') {
+                let valClean = String(inputValor.value).replace('R$', '').trim();
+                if (!valClean.includes(',') && !valClean.includes('.')) {
+                    inputValor.value = formatarMoeda(valClean);
+                } else if (valClean.includes('.') && !valClean.includes(',')) {
+                    let num = Math.round(parseFloat(valClean) * 100);
+                    inputValor.value = (num / 100).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+                } else {
+                    inputValor.value = formatarMoeda(valClean);
+                }
+            } else {
+                inputValor.value = '0,00';
+            }
+
+            inputValor.addEventListener('input', function(e) {
+                let formatted = formatarMoeda(this.value);
+                this.value = formatted;
+            });
+
+            // Garantir conversão correta no submit do form
+            const form = inputValor.closest('form');
+            if (form) {
+                form.addEventListener('submit', function() {
+                    let val = inputValor.value;
+                    val = val.replace(/\./g, '').replace(',', '.');
+                    inputValor.value = val;
+                });
+            }
+        }
+    });
+</script>
 {% endblock %}
