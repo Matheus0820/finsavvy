@@ -37,18 +37,24 @@
                         {{ form.veiculo }}
                     </div>
                     <div class="mb-3">
-                        <label for="{{ form.valor_abastecido.id_for_label }}" class="form-label text-secondary small fw-semibold">Valor Abastecido (R$)</label>
+                        <label for="id_valor_abastecido" class="form-label text-secondary small fw-semibold">Valor Abastecido (R$)</label>
                         <div class="input-group">
                             <span class="input-group-text bg-dark border-secondary text-secondary">R$</span>
-                            {{ form.valor_abastecido }}
+                            <input type="text" class="form-control bg-dark text-white border-secondary mascara-dinheiro" id="id_valor_abastecido" name="valor_abastecido" value="{{ form.valor_abastecido.value|default:'0,00' }}" autocomplete="off">
                         </div>
+                        {% if form.valor_abastecido.errors %}
+                            <div class="text-danger small mt-1">{{ form.valor_abastecido.errors.0 }}</div>
+                        {% endif %}
                     </div>
                     <div class="mb-3">
-                        <label for="{{ form.valor_por_litro.id_for_label }}" class="form-label text-secondary small fw-semibold">Preço por Litro (R$)</label>
+                        <label for="id_valor_por_litro" class="form-label text-secondary small fw-semibold">Preço por Litro (R$)</label>
                         <div class="input-group">
                             <span class="input-group-text bg-dark border-secondary text-secondary">R$</span>
-                            {{ form.valor_por_litro }}
+                            <input type="text" class="form-control bg-dark text-white border-secondary mascara-dinheiro" id="id_valor_por_litro" name="valor_por_litro" value="{{ form.valor_por_litro.value|default:'0,00' }}" autocomplete="off">
                         </div>
+                        {% if form.valor_por_litro.errors %}
+                            <div class="text-danger small mt-1">{{ form.valor_por_litro.errors.0 }}</div>
+                        {% endif %}
                     </div>
                     <div class="mb-3">
                         <label for="{{ form.km_atual.id_for_label }}" class="form-label text-secondary small fw-semibold">KM Atual do Veículo</label>

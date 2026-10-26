@@ -33,11 +33,14 @@
                         {{ form.nome }}
                     </div>
                     <div class="mb-3">
-                        <label for="{{ form.valor.id_for_label }}" class="form-label text-secondary small fw-semibold">Valor (R$)</label>
+                        <label for="id_valor" class="form-label text-secondary small fw-semibold">Valor (R$)</label>
                         <div class="input-group">
                             <span class="input-group-text bg-dark border-secondary text-secondary">R$</span>
-                            {{ form.valor }}
+                            <input type="text" class="form-control bg-dark text-white border-secondary mascara-dinheiro" id="id_valor" name="valor" value="{{ form.valor.value|default:'0,00' }}" autocomplete="off">
                         </div>
+                        {% if form.valor.errors %}
+                            <div class="text-danger small mt-1">{{ form.valor.errors.0 }}</div>
+                        {% endif %}
                     </div>
                     <div class="mb-4">
                         <div class="d-flex justify-content-between align-items-center mb-1">

@@ -96,13 +96,16 @@
                     {{ form.data }}
                 </div>
                 <div class="col-md-3">
-                    <label for="{{ form.valor_total.id_for_label }}" class="form-label text-secondary small fw-semibold">
+                    <label for="id_valor_total" class="form-label text-secondary small fw-semibold">
                         Valor Total (R$)
                     </label>
                     <div class="input-group">
                         <span class="input-group-text bg-dark border-secondary text-secondary">R$</span>
-                        {{ form.valor_total }}
+                        <input type="text" class="form-control bg-dark text-white border-secondary mascara-dinheiro" id="id_valor_total" name="valor_total" value="{{ form.valor_total.value|default:'0,00' }}" autocomplete="off" readonly="readonly">
                     </div>
+                    {% if form.valor_total.errors %}
+                        <div class="text-danger small mt-1">{{ form.valor_total.errors.0 }}</div>
+                    {% endif %}
                 </div>
             </div>
 
