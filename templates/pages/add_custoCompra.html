@@ -230,10 +230,10 @@
             <input type="number" name="itens-__prefix__-quantidade" step="0.001" min="0" placeholder="1" class="form-control text-bg-dark border-secondary item-qtd" id="id_itens-__prefix__-quantidade" value="1">
         </td>
         <td>
-            <input type="number" name="itens-__prefix__-valor_unitario" step="0.01" min="0" placeholder="0.00" class="form-control text-bg-dark border-secondary item-unitario" id="id_itens-__prefix__-valor_unitario">
+            <input type="text" name="itens-__prefix__-valor_unitario" placeholder="0,00" class="form-control text-bg-dark border-secondary item-unitario mascara-dinheiro" id="id_itens-__prefix__-valor_unitario" autocomplete="off" value="0,00">
         </td>
         <td>
-            <input type="number" name="itens-__prefix__-valor_total_item" step="0.01" readonly="readonly" placeholder="0.00" class="form-control text-bg-dark border-secondary item-total" id="id_itens-__prefix__-valor_total_item">
+            <input type="text" name="itens-__prefix__-valor_total_item" readonly="readonly" placeholder="0,00" class="form-control text-bg-dark border-secondary item-total mascara-dinheiro" id="id_itens-__prefix__-valor_total_item" autocomplete="off" value="0,00">
         </td>
         <td class="text-center pe-3">
             <input type="checkbox" name="itens-__prefix__-DELETE" id="id_itens-__prefix__-DELETE" class="d-none">
@@ -618,6 +618,85 @@ document.addEventListener('DOMContentLoaded', function () {
     if (modalCameraEl) {
         modalCameraEl.addEventListener('hidden.bs.modal', pararCamera);
     }
+
+    // Aplicação de máscara monetária nos itens existentes e futuros
+    function aplicarMascaraMoedaEmElemento(inputValor) {
+        if (!inputValor || inputValor.dataset.mascaraAplicada === 'true') return;
+        inputValor.dataset.mascaraAplicada = 'true';
+
+        function formatarMoedaStr(valorStr) {
+            let apenasDigitos = String(valorStr).replace(/\D/g, '');
+            if (apenasDigitos === '') apenasDigitos = '0';
+            let numero = parseInt(apenasDigitos, 10);
+            let formatado = (numero / 100).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+            return formatado;
+        }
+
+        if (inputValor.value && inputValor.value !== '0,00' && inputValor.value !== '') {
+            let valClean = String(inputValor.value).replace('R$', '').trim();
+            if (!valClean.includes(',') && !valClean.includes('.')) {
+                inputValor.value = formatarMoedaStr(valClean);
+            } else if (valClean.includes('.') && !valClean.includes(',')) {
+                let num = Math.round(parseFloat(valClean) * 100);
+                inputValor.value = (num / 100).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+            } else {
+                inputValor.value = formatarMoedaStr(valClean);
+            }
+        } else {
+            inputValor.value = '0,00';
+        }
+
+        inputValor.addEventListener('input', function(e) {
+            let formatted = formatarMoedaStr(this.value);
+            this.value = formatted;
+            recalcularTotais();
+        });
+
+        const form = inputValor.closest('form');
+        if (form && !form.dataset.submitMaskHandlerAdded) {
+            form.dataset.submitMaskHandlerAdded = 'true';
+            form.addEventListener('submit', function() {
+                document.querySelectorAll('.mascara-dinheiro').forEach(inp => {
+                    let val = inp.value;
+                    if (val) {
+                        val = val.replace(/\./g, '').replace(',', '.');
+                        inp.value = val;
+                    }
+                });
+            });
+        }
+    }
+
+    function inicializarMascarasItens() {
+        document.querySelectorAll('.item-row .mascara-dinheiro').forEach(input => {
+            aplicarMascaraMoedaEmElemento(input);
+        });
+    }
+
+    // Sobrescrever adicionarLinhaItem para aplicar máscara nas novas linhas
+    const originalAdicionarLinhaItem = adicionarLinhaItem;
+    window.adicionarLinhaItem = function(dados = null) {
+        const novaRow = originalAdicionarLinhaItem(dados);
+        if (novaRow) {
+            novaRow.querySelectorAll('.mascara-dinheiro').forEach(input => {
+                aplicarMascaraMoedaEmElemento(input);
+            });
+        }
+        return novaRow;
+    };
+
+    // Atualizar btnAddItem se necessário ou interceptar clique
+    if (btnAddItem) {
+        btnAddItem.replaceWith(btnAddItem.cloneNode(true));
+        const novoBtnAdd = document.getElementById('btn-add-item');
+        if (novoBtnAdd) {
+            novoBtnAdd.addEventListener('click', function() {
+                adicionarLinhaItem();
+            });
+        }
+    }
+
+    inicializarMascarasItens();
 });
 </script>
 {% endblock %}
