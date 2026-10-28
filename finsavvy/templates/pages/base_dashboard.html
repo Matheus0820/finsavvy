@@ -168,6 +168,11 @@
                                     <i class="bi bi-tools me-2 text-info"></i> Manutenções
                                 </a>
                             </li>
+                            <li class="nav-item">
+                                <a href="{% url 'list_troca_oleo' %}" class="sub-nav-link {% if 'troca' in request.path or 'oleo' in request.path %}active{% endif %}">
+                                    <i class="bi bi-droplet-half me-2 text-info"></i> Troca de Óleo
+                                </a>
+                            </li>
                         </ul>
                     </div>
                 </li>
