@@ -85,14 +85,49 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    const ids = ['id_valor_abastecido', 'id_valor_por_litro'];
-    ids.forEach(function(id) {
-        let el = document.getElementById(id);
-        if (el) {
-            // Remove readonly/disabled or conflicting handlers if any, and ensure it's a regular text input
-            el.removeAttribute('readonly');
+    function aplicarMascaraMoeda(inputId) {
+        const inputValor = document.getElementById(inputId);
+        if (inputValor) {
+            function formatarMoeda(valorStr) {
+                let apenasDigitos = String(valorStr).replace(/\D/g, '');
+                if (apenasDigitos === '') apenasDigitos = '0';
+                let numero = parseInt(apenasDigitos, 10);
+                let formatado = (numero / 100).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+                return formatado;
+            }
+
+            if (inputValor.value && inputValor.value !== '0,00' && inputValor.value !== '') {
+                let valClean = String(inputValor.value).replace('R$', '').trim();
+                if (!valClean.includes(',') && !valClean.includes('.')) {
+                    inputValor.value = formatarMoeda(valClean);
+                } else if (valClean.includes('.') && !valClean.includes(',')) {
+                    let num = Math.round(parseFloat(valClean) * 100);
+                    inputValor.value = (num / 100).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+                } else {
+                    inputValor.value = formatarMoeda(valClean);
+                }
+            } else {
+                inputValor.value = '0,00';
+            }
+
+            inputValor.addEventListener('input', function(e) {
+                let formatted = formatarMoeda(this.value);
+                this.value = formatted;
+            });
+
+            const form = inputValor.closest('form');
+            if (form) {
+                form.addEventListener('submit', function() {
+                    let val = inputValor.value;
+                    val = val.replace(/\./g, '').replace(',', '.');
+                    inputValor.value = val;
+                });
+            }
         }
-    });
+    }
+
+    aplicarMascaraMoeda('id_valor_abastecido');
+    aplicarMascaraMoeda('id_valor_por_litro');
 });
 </script>
 {% endblock %}
