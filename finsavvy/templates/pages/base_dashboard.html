@@ -175,7 +175,7 @@
                                 </a>
                             </li>
                             <li class="nav-item">
-                                <a href="{% url 'list_troca_oleo' %}" class="sub-nav-link {% if 'troca' in request.path or 'oleo' in request.path %}active{% endif %}">
+                                <a href="{% url 'list_troca_oleo' %}" class="sub-nav-link {% if 'trocas-oleo' in request.path or 'oleo' in request.path %}active{% endif %}">
                                     <i class="bi bi-droplet-half me-2 text-info"></i> Troca de Óleo
                                 </a>
                             </li>
@@ -212,10 +212,15 @@
                 <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
             </div>
             <div class="offcanvas-body d-flex flex-column p-4">
-                <ul class="nav nav-pills flex-column mb-auto">
+                <ul class="nav nav-pills flex-column mb-auto overflow-y-auto">
                     <li class="nav-item mb-2">
                         <a href="{% url 'dashboard' %}" class="nav-link {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %} d-flex align-items-center py-2 px-3">
                             <i class="bi bi-speedometer2 fs-5 me-3 text-info"></i> Dashboard
+                        </a>
+                    </li>
+                    <li class="nav-item mb-2">
+                        <a href="{% url 'list_renda' %}" class="nav-link {% if 'rendas' in request.path %}active{% endif %} d-flex align-items-center py-2 px-3">
+                            <i class="bi bi-wallet2 fs-5 me-3 text-success"></i> Rendas
                         </a>
                     </li>
                     <li class="nav-item mb-2">
@@ -254,6 +259,7 @@
                                 <li class="nav-item"><a href="{% url 'list_veiculo' %}" class="sub-nav-link {% if request.resolver_match.url_name == 'list_veiculo' %}active{% endif %}"><i class="bi bi-truck me-2 text-danger"></i> Veículos</a></li>
                                 <li class="nav-item"><a href="{% url 'list_custoCombustivel' %}" class="sub-nav-link {% if request.resolver_match.url_name == 'list_custoCombustivel' %}active{% endif %}"><i class="bi bi-fuel-pump me-2 text-warning"></i> Combustível</a></li>
                                 <li class="nav-item"><a href="{% url 'list_manutencao' %}" class="sub-nav-link {% if request.resolver_match.url_name == 'list_manutencao' %}active{% endif %}"><i class="bi bi-tools me-2 text-info"></i> Manutenções</a></li>
+                            <li class="nav-item"><a href="{% url 'list_troca_oleo' %}" class="sub-nav-link {% if 'trocas-oleo' in request.path or 'oleo' in request.path %}active{% endif %}"><i class="bi bi-droplet-half me-2 text-info"></i> Troca de Óleo</a></li>
                             </ul>
                         </div>
                     </li>
