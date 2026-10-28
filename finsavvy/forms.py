@@ -1,6 +1,6 @@
 from datetime import datetime
 from django import forms
-from .models import (CustoFixo)
+from .models import CustoFixo, Renda
 from .utils.forms import MonetaryMaskMixin
 
 class FormCustoFixo(MonetaryMaskMixin, forms.ModelForm):
@@ -40,6 +40,43 @@ class FormCustoFixo(MonetaryMaskMixin, forms.ModelForm):
                     except ValueError:
                         raise forms.ValidationError("Informe um mês e ano válidos no formato mm/aaaa.")
         return data
+
+    def clean_valor(self):
+        valor = self.cleaned_data.get('valor')
+        if not valor:
+            return 0.0
+        if isinstance(valor, (int, float)):
+            return float(valor)
+
+        valor_str = str(valor).strip()
+        valor_str = valor_str.replace('R$', '').replace('r$', '').strip()
+
+        if ',' in valor_str and '.' in valor_str:
+            if valor_str.rfind(',') > valor_str.rfind('.'):
+                valor_str = valor_str.replace('.', '').replace(',', '.')
+            else:
+                valor_str = valor_str.replace(',', '')
+        elif ',' in valor_str:
+            valor_str = valor_str.replace(',', '.')
+
+        try:
+            return float(valor_str)
+        except ValueError:
+            raise forms.ValidationError("Informe um valor numérico válido.")
+
+
+class RendaForm(MonetaryMaskMixin, forms.ModelForm):
+    monetary_fields = ('valor',)
+
+    class Meta:
+        model = Renda
+        fields = ('descricao', 'valor', 'tipo_renda', 'data_recebimento')
+        widgets = {
+            'descricao': forms.TextInput(attrs={'class': 'form-control bg-body text-body', 'placeholder': 'Ex: Salário, Aluguel, Dividendos...'}),
+            'valor': forms.TextInput(attrs={'class': 'form-control bg-body text-body mascara-dinheiro', 'placeholder': '0,00', 'id': 'id_valor_renda'}),
+            'tipo_renda': forms.Select(attrs={'class': 'form-select bg-body text-body'}),
+            'data_recebimento': forms.DateInput(attrs={'class': 'form-control bg-body text-body', 'type': 'date'}),
+        }
 
     def clean_valor(self):
         valor = self.cleaned_data.get('valor')

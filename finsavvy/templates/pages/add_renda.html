@@ -1,0 +1,63 @@
+{% extends 'pages/base_dashboard.html' %}
+
+{% block title %}FinSavvy - {% if object %}Editar Renda{% else %}Nova Renda{% endif %}{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6 mx-auto">
+            <div class="card shadow-sm border bg-body-tertiary text-body">
+                <div class="card-header bg-body-tertiary border-bottom py-3 d-flex justify-content-between align-items-center">
+                    <h4 class="mb-0 text-body"><i class="bi bi-wallet2 me-2 text-success"></i>{% if object %}Editar Renda{% else %}Nova Renda{% endif %}</h4>
+                    <a href="{% url 'list_renda' %}" class="btn btn-sm btn-outline-secondary"><i class="bi bi-arrow-left me-1"></i> Voltar</a>
+                </div>
+                <div class="card-body p-4">
+                    <form method="post" novalidate>
+                        {% csrf_token %}
+
+                        <div class="mb-3">
+                            <label for="{{ form.descricao.id_for_label }}" class="form-label text-body">Descrição da Renda</label>
+                            {{ form.descricao }}
+                            {% if form.descricao.errors %}
+                                <div class="text-danger small mt-1">{{ form.descricao.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="{{ form.valor.id_for_label }}" class="form-label text-body">Valor (R$)</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-body-secondary text-body border-secondary">R$</span>
+                                {{ form.valor }}
+                            </div>
+                            {% if form.valor.errors %}
+                                <div class="text-danger small mt-1">{{ form.valor.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="{{ form.tipo_renda.id_for_label }}" class="form-label text-body">Tipo de Renda</label>
+                            {{ form.tipo_renda }}
+                            {% if form.tipo_renda.errors %}
+                                <div class="text-danger small mt-1">{{ form.tipo_renda.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="{{ form.data_recebimento.id_for_label }}" class="form-label text-body">Data de Recebimento</label>
+                            {{ form.data_recebimento }}
+                            {% if form.data_recebimento.errors %}
+                                <div class="text-danger small mt-1">{{ form.data_recebimento.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="d-flex justify-content-between align-items-center mt-4">
+                            <a href="{% url 'list_renda' %}" class="btn btn-outline-secondary px-4">Cancelar</a>
+                            <button type="submit" class="btn btn-primary px-4 fw-semibold" style="background-color: #00e0c1; border-color: #00e0c1; color: #121212;">Salvar Renda</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

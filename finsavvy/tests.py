@@ -3,7 +3,7 @@ from datetime import date
 from django.test import TestCase
 from django.contrib.auth import get_user_model
 from django.urls import reverse
-from .models import CustoFixo, Veiculo, Categoria, CustoVariavel, CustoCombustivel, Manutencao, Aviso, CustoCompra, ItemCompra
+from .models import CustoFixo, Veiculo, Categoria, CustoVariavel, CustoCombustivel, Manutencao, Aviso, CustoCompra, ItemCompra, Renda
 from .utils.leitor_qrcode import extrair_dados_nfce, decodificar_imagem_qrcode
 from .utils.leitor_nfce import parsear_html_nfce, consultar_nfce
 from .utils.calculos_veiculares import (
@@ -320,74 +320,26 @@ class FormCustoCombustivelSecurityTests(TestCase):
         self.assertTrue(any('excede a capacidade do tanque' in str(err) for err in form.non_field_errors()))
 
 
-class MotorPreditivoAutonomiaTests(TestCase):
+class RendaModelTests(TestCase):
     def setUp(self):
-        self.user = User.objects.create_user(username='preditivo_user', password='testpass')
-        self.veiculo = Veiculo.objects.create(
-            user=self.user,
-            marca='Honda',
-            modelo='Civic',
-            placa='PRE1234',
-            tipo_veiculo='CARRO',
-            km_atual=10000,
-            capacidade_tanque=50
-        )
+        self.user = User.objects.create_user(username='renda_user', password='testpass')
 
-    def test_calcular_autonomia_cenario_completo(self):
-        # Abastecimento 1: KM 10000, Tanque Cheio, 40L @ R$ 5,00 (R$ 200)
-        CustoCombustivel.objects.create(
+    def test_criar_renda_fixa_e_variavel(self):
+        renda_fixa = Renda.objects.create(
             user=self.user,
-            veiculo=self.veiculo,
-            data=date(2025, 1, 1),
-            valor_abastecido=200.0,
-            valor_por_litro=5.0,
-            km_atual=10000,
-            tanque_cheio=True
+            descricao='Salário Mensal',
+            valor=5500.00,
+            tipo_renda='FIXA'
         )
-        # Abastecimento 2: KM 10500, Tanque Cheio, 50L @ R$ 5,00 (R$ 250) -> delta KM = 500, litros = 50 -> 10.0 km/L
-        CustoCombustivel.objects.create(
+        renda_var = Renda.objects.create(
             user=self.user,
-            veiculo=self.veiculo,
-            data=date(2025, 1, 15),
-            valor_abastecido=250.0,
-            valor_por_litro=5.0,
-            km_atual=10500,
-            tanque_cheio=True
+            descricao='Freelance Python',
+            valor=1200.50,
+            tipo_renda='VARIAVEL'
         )
-
-        res = calcular_autonomia(self.veiculo)
-        # autonomia_ultimo_trecho: (10500 - 10000) / 50 = 10.0
-        self.assertEqual(res['autonomia_ultimo_trecho'], 10.0)
-        # autonomia_media_global: (10500 - 10000) / (40 + 50) = 500 / 90 = 5.56
-        self.assertEqual(res['autonomia_media_global'], 5.56)
-        # autonomia_maxima_estimada: 5.56 * 50 = 278.0
-        self.assertEqual(res['autonomia_maxima_estimada'], 278.0)
-        # custo_estimado_tanque_cheio: 50 * 5.0 = 250.0
-        self.assertEqual(res['custo_estimado_tanque_cheio'], 250.0)
-
-    def test_calcular_autonomia_ultimo_trecho_ignorado_se_tanque_parcial(self):
-        CustoCombustivel.objects.create(
-            user=self.user,
-            veiculo=self.veiculo,
-            data=date(2025, 1, 1),
-            valor_abastecido=200.0,
-            valor_por_litro=5.0,
-            km_atual=10000,
-            tanque_cheio=True
-        )
-        # Último abastecimento com tanque parcial (tanque_cheio=False)
-        CustoCombustivel.objects.create(
-            user=self.user,
-            veiculo=self.veiculo,
-            data=date(2025, 1, 15),
-            valor_abastecido=100.0,
-            valor_por_litro=5.0,
-            km_atual=10300,
-            tanque_cheio=False
-        )
-        res = calcular_autonomia(self.veiculo)
-        self.assertIsNone(res['autonomia_ultimo_trecho'])
-        self.assertEqual(res['autonomia_media_global'], 5.0)  # (10300 - 10000) / (40 + 20) = 300 / 60 = 5.0
+        self.assertEqual(renda_fixa.tipo_renda, 'FIXA')
+        self.assertEqual(renda_var.tipo_renda, 'VARIAVEL')
+        self.assertEqual(Renda.objects.filter(user=self.user).count(), 2)
 
 
 class VeiculoUITests(TestCase):

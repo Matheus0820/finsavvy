@@ -33,6 +33,23 @@ class CustoVariavel(models.Model):
     def __str__(self):
         return f"{self.nome} ({self.valor})"
 
+
+class Renda(models.Model):
+    TIPO_RENDA_CHOICES = [
+        ('FIXA', 'Renda Fixa'),
+        ('VARIAVEL', 'Renda Variável'),
+    ]
+
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='rendas')
+    descricao = models.CharField(max_length=255)
+    valor = models.FloatField()
+    tipo_renda = models.CharField(max_length=20, choices=TIPO_RENDA_CHOICES, default='FIXA')
+    data_recebimento = models.DateField(default=timezone.now)
+
+    def __str__(self):
+        return f"{self.descricao} - R$ {self.valor:.2f} ({self.get_tipo_renda_display()})"
+
+
 class CustoCompraQuerySet(models.QuerySet):
     def _remap_kwargs(self, kwargs):
         new_kwargs = {}
