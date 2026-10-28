@@ -221,11 +221,37 @@ class Manutencao(models.Model):
     descricao = models.TextField(blank=True, null=True)
     valor = models.FloatField()
     km_atual = models.PositiveIntegerField()
-    km_proximo_oleo = models.PositiveIntegerField(blank=True, null=True)
-    km_troca_oleo = models.PositiveIntegerField(blank=True, null=True)
 
     def __str__(self):
         return f"{self.veiculo} – {self.tipo} ({self.data})"
+
+
+class TrocaOleo(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='trocas_oleo')
+    veiculo = models.ForeignKey(Veiculo, on_delete=models.CASCADE, related_name='trocas_oleo')
+    data = models.DateField(default=timezone.now)
+    km_atual = models.PositiveIntegerField(help_text='KM atual do veículo na troca de óleo')
+    valor = models.FloatField(help_text='Valor pago na troca de óleo (R$)')
+    tipo_oleo = models.CharField(max_length=255, help_text='Ex: 5W30 Sintético, 10W40...')
+    intervalo_troca = models.IntegerField(help_text='Intervalo em KM para a próxima troca (ex: 5000, 10000)')
+    km_proxima_troca = models.PositiveIntegerField(editable=False, help_text='KM calculada para a próxima troca')
+    observacao = models.TextField(blank=True, null=True)
+
+    def save(self, *args, **kwargs):
+        if self.km_atual is not None and self.intervalo_troca is not None:
+            self.km_proxima_troca = int(self.km_atual) + int(self.intervalo_troca)
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return f"{self.veiculo} - Óleo: {self.tipo_oleo} ({self.data})"
+
+
+@receiver(post_save, sender=TrocaOleo)
+def atualizar_km_veiculo_troca_oleo(sender, instance, **kwargs):
+    if instance.veiculo and instance.km_atual:
+        if instance.km_atual > instance.veiculo.km_atual:
+            instance.veiculo.km_atual = instance.km_atual
+            instance.veiculo.save(update_fields=['km_atual'])
 
 
 class Aviso(models.Model):

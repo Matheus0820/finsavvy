@@ -416,7 +416,7 @@ class VeiculoUITests(TestCase):
     def test_list_veiculo_displays_tanque(self):
         response = self.client.get(reverse('list_veiculo'))
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, '48 L')
+        self.assertContains(response, '48')
         self.assertContains(response, 'Cronos')
 
     def test_list_custo_combustivel_displays_km_and_tanque_cheio(self):

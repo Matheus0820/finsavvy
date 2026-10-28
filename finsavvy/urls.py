@@ -14,6 +14,7 @@ urlpatterns = [
     path('veiculos/', include('finsavvy.urls_veiculos'), name='veiculos'),
     path('combustiveis/', include('finsavvy.urls_custo_combustivel'), name='combustiveis'),
     path('manutencoes/', include('finsavvy.urls_manutencao'), name='manutencoes'),
+    path('trocas-oleo/', include('finsavvy.urls_troca_oleo'), name='trocas_oleo'),
     path('dashboard/', dashboard, name='dashboard'),
     path('fechar-mes/', FecharMesView.as_view(), name='fechar_mes'),
     path('reabrir-mes/', ReabrirMesView.as_view(), name='reabrir_mes'),

@@ -1,0 +1,89 @@
+{% extends 'pages/base_dashboard.html' %}
+
+{% block title %}FinSavvy - Trocas de Óleo{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="fw-bold text-white mb-1"><i class="bi bi-droplet-half text-info me-2"></i>Trocas de Óleo</h2>
+        <p class="text-secondary mb-0">Gerencie o histórico de lubrificação e troca de óleo da frota.</p>
+    </div>
+    <div>
+        <a href="{% url 'add_troca_oleo' %}" class="btn btn-outline-info">
+            <i class="bi bi-plus-lg me-1"></i> Nova Troca de Óleo
+        </a>
+    </div>
+</div>
+
+<div class="card bg-dark border-secondary shadow-sm">
+    <div class="card-body p-0">
+        {% if object_list %}
+        <div class="table-responsive">
+            <table class="table table-dark table-hover mb-0 align-middle">
+                <thead>
+                    <tr class="text-secondary small border-secondary">
+                        <th scope="col" class="ps-3">#</th>
+                        <th scope="col">Veículo</th>
+                        <th scope="col">Tipo de Óleo</th>
+                        <th scope="col">Valor</th>
+                        <th scope="col">Data</th>
+                        <th scope="col">KM Atual</th>
+                        <th scope="col">Próxima Troca (KM)</th>
+                        <th scope="col" class="text-center pe-3">Ações</th>
+                    </tr>
+                </thead>
+                <tbody class="table-group-divider border-secondary">
+                   {% for obj in object_list %}
+                    <tr class="border-secondary">
+                        <th scope="row" class="ps-3 text-secondary">{{ forloop.counter }}</th>
+                        <td class="text-white fw-medium">{{ obj.veiculo }}</td>
+                        <td><span class="badge bg-secondary text-info border border-info">{{ obj.tipo_oleo }}</span></td>
+                        <td class="text-info fw-semibold">R$ {{ obj.valor|floatformat:2 }}</td>
+                        <td class="text-secondary small">{{ obj.data|date:"d/m/Y" }}</td>
+                        <td>{{ obj.km_atual }} km</td>
+                        <td><strong class="text-warning">{{ obj.km_proxima_troca }} km</strong></td>
+                        <td class="text-center pe-3">
+                            <a href="{% url 'edit_troca_oleo' obj.id %}" class="btn btn-sm btn-outline-info me-1" title="Editar">
+                                <i class="bi bi-pencil"></i>
+                            </a>
+                            <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#ModalRemoveTrocaOleo{{ obj.id }}" title="Excluir">
+                                <i class="bi bi-trash"></i>
+                            </button>
+
+                            <!-- Modal -->
+                            <div class="modal fade" id="ModalRemoveTrocaOleo{{ obj.id }}" tabindex="-1" aria-labelledby="ModalRemoveTrocaOleoLabel{{ obj.id }}" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+                                <div class="modal-dialog modal-dialog-centered">
+                                    <div class="modal-content text-bg-dark border-secondary">
+                                        <div class="modal-header border-secondary">
+                                            <h1 class="modal-title fs-5" id="ModalRemoveTrocaOleoLabel{{ obj.id }}">Confirmar exclusão</h1>
+                                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                                        </div>
+                                        <div class="modal-body text-secondary">
+                                            Deseja realmente remover a troca de óleo do veículo <strong class="text-white">{{ obj.veiculo }} ({{ obj.tipo_oleo }})</strong>?
+                                        </div>
+                                        <div class="modal-footer border-secondary">
+                                            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+                                            <form method="POST" action="{% url 'delete_troca_oleo' obj.id %}">
+                                                {% csrf_token %}
+                                                <button type="submit" class="btn btn-danger">Sim, excluir</button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="text-center py-5">
+            <i class="bi bi-droplet-half fs-1 text-secondary opacity-50 mb-3 d-block"></i>
+            <h6 class="text-secondary">Nenhuma troca de óleo cadastrada.</h6>
+            <a href="{% url 'add_troca_oleo' %}" class="btn btn-sm btn-info mt-2 text-dark fw-semibold">Adicionar Troca de Óleo</a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

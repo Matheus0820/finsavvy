@@ -9,6 +9,7 @@ from .models import (
     Veiculo,
     CustoCombustivel,
     Manutencao,
+    TrocaOleo,
 )
 from .utils.leitor_qrcode import decodificar_imagem_qrcode, extrair_dados_nfce
 from .utils.forms import MonetaryMaskMixin
@@ -282,17 +283,54 @@ class FormCustoCombustivel(MonetaryMaskMixin, forms.ModelForm):
         return cleaned_data
 
 class FormManutencao(MonetaryMaskMixin, forms.ModelForm):
-    monetary_fields = ('valor', 'km_atual', 'km_proximo_oleo', 'km_troca_oleo')
+    monetary_fields = ('valor', 'km_atual')
 
     class Meta:
         model = Manutencao
-        fields = ('veiculo', 'tipo', 'descricao', 'valor', 'km_atual', 'km_proximo_oleo', 'km_troca_oleo')
+        fields = ('veiculo', 'tipo', 'descricao', 'valor', 'km_atual')
         widgets = {
             'veiculo': forms.Select(attrs={'class': 'form-select text-bg-dark border-secondary'}),
             'tipo': forms.TextInput(attrs={'class': 'form-control text-bg-dark border-secondary'}),
             'descricao': forms.Textarea(attrs={'class': 'form-control text-bg-dark border-secondary', 'rows': 3}),
             'valor': forms.TextInput(attrs={'class': 'form-control text-bg-dark border-secondary mascara-dinheiro', 'placeholder': '0,00'}),
             'km_atual': forms.TextInput(attrs={'class': 'form-control text-bg-dark border-secondary mascara-dinheiro', 'placeholder': '0,00'}),
-            'km_proximo_oleo': forms.TextInput(attrs={'class': 'form-control text-bg-dark border-secondary mascara-dinheiro', 'placeholder': '0,00'}),
-            'km_troca_oleo': forms.TextInput(attrs={'class': 'form-control text-bg-dark border-secondary mascara-dinheiro', 'placeholder': '0,00'}),
         }
+
+
+class FormTrocaOleo(MonetaryMaskMixin, forms.ModelForm):
+    monetary_fields = ('valor', 'km_atual', 'intervalo_troca')
+
+    class Meta:
+        model = TrocaOleo
+        fields = ('veiculo', 'data', 'km_atual', 'valor', 'tipo_oleo', 'intervalo_troca', 'observacao')
+        widgets = {
+            'veiculo': forms.Select(attrs={'class': 'form-select text-bg-dark border-secondary'}),
+            'data': forms.DateInput(format='%Y-%m-%d', attrs={'class': 'form-control text-bg-dark border-secondary', 'type': 'date'}),
+            'km_atual': forms.TextInput(attrs={'class': 'form-control text-bg-dark border-secondary mascara-dinheiro', 'placeholder': '0,00'}),
+            'valor': forms.TextInput(attrs={'class': 'form-control text-bg-dark border-secondary mascara-dinheiro', 'placeholder': '0,00'}),
+            'tipo_oleo': forms.TextInput(attrs={'class': 'form-control text-bg-dark border-secondary', 'placeholder': 'Ex: 5W30 Sintético'}),
+            'intervalo_troca': forms.TextInput(attrs={'class': 'form-control text-bg-dark border-secondary mascara-dinheiro', 'placeholder': 'Ex: 10000'}),
+            'observacao': forms.Textarea(attrs={'class': 'form-control text-bg-dark border-secondary', 'rows': 2}),
+        }
+
+    def clean(self):
+        cleaned_data = super().clean()
+        veiculo = cleaned_data.get('veiculo')
+        km_atual = cleaned_data.get('km_atual')
+
+        if veiculo is not None and km_atual is not None:
+            ultimo = TrocaOleo.objects.filter(veiculo=veiculo)
+            if self.instance and self.instance.pk:
+                ultimo = ultimo.exclude(pk=self.instance.pk)
+            ultimo = ultimo.order_by('-km_atual', '-data', '-id').first()
+
+            if ultimo and ultimo.km_atual and km_atual <= ultimo.km_atual:
+                raise forms.ValidationError(
+                    f"A KM atual da troca ({km_atual}) deve ser maior que a KM da última troca registrada ({ultimo.km_atual})."
+                )
+            elif km_atual < veiculo.km_atual:
+                # Opcional, mas garante consistência com o veículo
+                pass
+
+        return cleaned_data
+
