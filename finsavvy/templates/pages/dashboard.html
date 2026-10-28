@@ -86,7 +86,7 @@
 </div>
 
 <!-- Secondary KPIs Row -->
-<div class="row row-cols-1 row-cols-md-3 g-4 mb-4">
+<div class="row row-cols-1 row-cols-md-4 g-4 mb-4">
     <!-- Combustível -->
     <div class="col">
         <div class="card bg-body-tertiary border shadow-sm h-100">
@@ -123,6 +123,24 @@
         </div>
     </div>
 
+    <!-- Troca de Óleo -->
+    <div class="col">
+        <div class="card bg-body-tertiary border shadow-sm h-100">
+            <div class="card-body">
+                <div class="d-flex align-items-center mb-3">
+                    <div class="p-3 bg-secondary bg-opacity-10 text-body rounded-3 me-3">
+                        <i class="bi bi-water fs-4"></i>
+                    </div>
+                    <div>
+                        <span class="text-secondary small fw-semibold text-uppercase">Troca de Óleo</span>
+                        <h4 class="fw-bold text-body mb-0">R$ {{ total_troca_oleo|floatformat:2 }}</h4>
+                    </div>
+                </div>
+                <a href="{% url 'list_troca_oleo' %}" class="text-secondary small text-decoration-none">Ver trocas de óleo <i class="bi bi-chevron-right small"></i></a>
+            </div>
+        </div>
+    </div>
+
     <!-- Veículos -->
     <div class="col">
         <div class="card bg-body-tertiary border shadow-sm h-100">
@@ -145,6 +163,7 @@
                             <li><a class="dropdown-item" href="{% url 'list_veiculo' %}"><i class="bi bi-truck text-info me-2"></i>Ver Veículos</a></li>
                             <li><a class="dropdown-item" href="{% url 'list_custoCombustivel' %}"><i class="bi bi-fuel-pump text-danger me-2"></i>Abastecimentos</a></li>
                             <li><a class="dropdown-item" href="{% url 'list_manutencao' %}"><i class="bi bi-tools text-warning me-2"></i>Manutenções</a></li>
+                            <li><a class="dropdown-item" href="{% url 'list_troca_oleo' %}"><i class="bi bi-water text-body me-2"></i>Troca de Óleo</a></li>
                             <li><hr class="dropdown-divider"></li>
                             <li><a class="dropdown-item" href="{% url 'add_veiculo' %}"><i class="bi bi-plus-circle text-success me-2"></i>Novo Veículo</a></li>
                         </ul>
@@ -265,10 +284,11 @@
     const purchaseCost = {{ total_compras|default:0 }};
     const fuelCost = {{ total_combustivel|default:0 }};
     const maintCost = {{ total_manutencao|default:0 }};
+    const trocaOleoCost = {{ total_troca_oleo|default:0 }};
 
-    const labels = ['Fixos', 'Variáveis', 'Compras', 'Combustível', 'Manutenção'];
-    const dataValues = [fixedCost, variableCost, purchaseCost, fuelCost, maintCost];
-    const backgroundColors = ['#ffc107', '#198754', '#0d6efd', '#dc3545', '#ffca2c'];
+    const labels = ['Fixos', 'Variáveis', 'Compras', 'Combustível', 'Manutenção', 'Troca de Óleo'];
+    const dataValues = [fixedCost, variableCost, purchaseCost, fuelCost, maintCost, trocaOleoCost];
+    const backgroundColors = ['#ffc107', '#198754', '#0d6efd', '#dc3545', '#ffca2c', '#6c757d'];
 
     // Helper to get CSS computed variable or color
     function getThemeColors() {
