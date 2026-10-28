@@ -133,6 +133,7 @@ def dashboard(request):
     comb_qs = CustoCombustivel.objects.filter(user=user, data__year=ano, data__month=mes)
     manut_qs = Manutencao.objects.filter(user=user, data__year=ano, data__month=mes)
     troca_oleo_qs = TrocaOleo.objects.filter(user=user, data__year=ano, data__month=mes)
+    renda_qs = Renda.objects.filter(user=user, data_recebimento__year=ano, data_recebimento__month=mes)
 
     cf_qs = CustoFixo.objects.filter(user=user)
 
@@ -142,6 +143,9 @@ def dashboard(request):
     total_combustivel = comb_qs.aggregate(total=Sum('valor_abastecido'))['total'] or 0
     total_manutencao = manut_qs.aggregate(total=Sum('valor'))['total'] or 0
     total_troca_oleo = troca_oleo_qs.aggregate(total=Sum('valor'))['total'] or 0
+    total_rendas = renda_qs.aggregate(total=Sum('valor'))['total'] or 0
+    total_renda_fixa = renda_qs.filter(tipo_renda='FIXA').aggregate(total=Sum('valor'))['total'] or 0
+    total_renda_variavel = renda_qs.filter(tipo_renda='VARIAVEL').aggregate(total=Sum('valor'))['total'] or 0
 
     total_geral = total_custos_fixos + total_custos_variaveis + total_compras + total_combustivel + total_manutencao + total_troca_oleo
     total_veiculos = Veiculo.objects.filter(user=user).count()
@@ -159,12 +163,16 @@ def dashboard(request):
         'total_combustivel': total_combustivel,
         'total_manutencao': total_manutencao,
         'total_troca_oleo': total_troca_oleo,
+        'total_rendas': total_rendas,
+        'total_renda_fixa': total_renda_fixa,
+        'total_renda_variavel': total_renda_variavel,
         'total_geral': total_geral,
         'total_veiculos': total_veiculos,
         'recent_variaveis': recent_variaveis,
         'recent_compras': recent_compras,
         'recent_manutencoes': recent_manutencoes,
         'recent_troca_oleo': troca_oleo_qs.order_by('-id')[:5],
+        'recent_rendas': renda_qs.order_by('-id')[:5],
         'mes_atual': mes,
         'ano_atual': ano,
         'is_mes_fechado': is_mes_fechado,
