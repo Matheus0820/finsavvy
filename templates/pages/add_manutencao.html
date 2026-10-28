@@ -52,16 +52,34 @@
                     </div>
                     <div class="row g-3 mb-4">
                         <div class="col-md-4">
-                            <label for="{{ form.km_atual.id_for_label }}" class="form-label text-secondary small fw-semibold">KM Atual</label>
-                            {{ form.km_atual }}
+                            <label for="id_km_atual" class="form-label text-secondary small fw-semibold">KM Atual</label>
+                            <div class="input-group">
+                                <input type="text" class="form-control bg-dark text-white border-secondary mascara-dinheiro" id="id_km_atual" name="km_atual" value="{{ form.km_atual.value|default:'0,00' }}" autocomplete="off">
+                                <span class="input-group-text bg-dark border-secondary text-secondary">km</span>
+                            </div>
+                            {% if form.km_atual.errors %}
+                                <div class="text-danger small mt-1">{{ form.km_atual.errors.0 }}</div>
+                            {% endif %}
                         </div>
                         <div class="col-md-4">
-                            <label for="{{ form.km_troca_oleo.id_for_label }}" class="form-label text-secondary small fw-semibold">KM Troca de Óleo</label>
-                            {{ form.km_troca_oleo }}
+                            <label for="id_km_troca_oleo" class="form-label text-secondary small fw-semibold">KM Troca de Óleo</label>
+                            <div class="input-group">
+                                <input type="text" class="form-control bg-dark text-white border-secondary mascara-dinheiro" id="id_km_troca_oleo" name="km_troca_oleo" value="{{ form.km_troca_oleo.value|default:'0,00' }}" autocomplete="off">
+                                <span class="input-group-text bg-dark border-secondary text-secondary">km</span>
+                            </div>
+                            {% if form.km_troca_oleo.errors %}
+                                <div class="text-danger small mt-1">{{ form.km_troca_oleo.errors.0 }}</div>
+                            {% endif %}
                         </div>
                         <div class="col-md-4">
-                            <label for="{{ form.km_proximo_oleo.id_for_label }}" class="form-label text-secondary small fw-semibold">Próxima Troca (KM)</label>
-                            {{ form.km_proximo_oleo }}
+                            <label for="id_km_proximo_oleo" class="form-label text-secondary small fw-semibold">Próxima Troca (KM)</label>
+                            <div class="input-group">
+                                <input type="text" class="form-control bg-dark text-white border-secondary mascara-dinheiro" id="id_km_proximo_oleo" name="km_proximo_oleo" value="{{ form.km_proximo_oleo.value|default:'0,00' }}" autocomplete="off">
+                                <span class="input-group-text bg-dark border-secondary text-secondary">km</span>
+                            </div>
+                            {% if form.km_proximo_oleo.errors %}
+                                <div class="text-danger small mt-1">{{ form.km_proximo_oleo.errors.0 }}</div>
+                            {% endif %}
                         </div>
                     </div>
 
@@ -77,4 +95,56 @@
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        function aplicarMascaraMoeda(inputId) {
+            const inputValor = document.getElementById(inputId);
+            if (inputValor) {
+                function formatarMoeda(valorStr) {
+                    let apenasDigitos = String(valorStr).replace(/\D/g, '');
+                    if (apenasDigitos === '') apenasDigitos = '0';
+                    let numero = parseInt(apenasDigitos, 10);
+                    let formatado = (numero / 100).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+                    return formatado;
+                }
+
+                if (inputValor.value && inputValor.value !== '0,00' && inputValor.value !== '') {
+                    let valClean = String(inputValor.value).replace('R$', '').trim();
+                    if (!valClean.includes(',') && !valClean.includes('.')) {
+                        inputValor.value = formatarMoeda(valClean);
+                    } else if (valClean.includes('.') && !valClean.includes(',')) {
+                        let num = Math.round(parseFloat(valClean) * 100);
+                        inputValor.value = (num / 100).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+                    } else {
+                        inputValor.value = formatarMoeda(valClean);
+                    }
+                } else {
+                    inputValor.value = '0,00';
+                }
+
+                inputValor.addEventListener('input', function(e) {
+                    let formatted = formatarMoeda(this.value);
+                    this.value = formatted;
+                });
+
+                const form = inputValor.closest('form');
+                if (form) {
+                    form.addEventListener('submit', function() {
+                        let val = inputValor.value;
+                        val = val.replace(/\./g, '').replace(',', '.');
+                        inputValor.value = val;
+                    });
+                }
+            }
+        }
+
+        aplicarMascaraMoeda('id_valor');
+        aplicarMascaraMoeda('id_km_atual');
+        aplicarMascaraMoeda('id_km_troca_oleo');
+        aplicarMascaraMoeda('id_km_proximo_oleo');
+    });
+</script>
 {% endblock %}

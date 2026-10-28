@@ -282,7 +282,7 @@ class FormCustoCombustivel(MonetaryMaskMixin, forms.ModelForm):
         return cleaned_data
 
 class FormManutencao(MonetaryMaskMixin, forms.ModelForm):
-    monetary_fields = ('valor',)
+    monetary_fields = ('valor', 'km_atual', 'km_proximo_oleo', 'km_troca_oleo')
 
     class Meta:
         model = Manutencao
@@ -292,7 +292,7 @@ class FormManutencao(MonetaryMaskMixin, forms.ModelForm):
             'tipo': forms.TextInput(attrs={'class': 'form-control text-bg-dark border-secondary'}),
             'descricao': forms.Textarea(attrs={'class': 'form-control text-bg-dark border-secondary', 'rows': 3}),
             'valor': forms.TextInput(attrs={'class': 'form-control text-bg-dark border-secondary mascara-dinheiro', 'placeholder': '0,00'}),
-            'km_atual': forms.NumberInput(attrs={'class': 'form-control text-bg-dark border-secondary', 'min': '0'}),
-            'km_proximo_oleo': forms.NumberInput(attrs={'class': 'form-control text-bg-dark border-secondary', 'min': '0'}),
-            'km_troca_oleo': forms.NumberInput(attrs={'class': 'form-control text-bg-dark border-secondary', 'min': '0'}),
+            'km_atual': forms.TextInput(attrs={'class': 'form-control text-bg-dark border-secondary mascara-dinheiro', 'placeholder': '0,00'}),
+            'km_proximo_oleo': forms.TextInput(attrs={'class': 'form-control text-bg-dark border-secondary mascara-dinheiro', 'placeholder': '0,00'}),
+            'km_troca_oleo': forms.TextInput(attrs={'class': 'form-control text-bg-dark border-secondary mascara-dinheiro', 'placeholder': '0,00'}),
         }
