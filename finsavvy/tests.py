@@ -474,5 +474,43 @@ class MonetaryMaskAndSanitizationTests(TestCase):
         self.assertEqual(form.cleaned_data['valor_por_litro'], 5.0)
 
 
+class LandingPageUITests(TestCase):
+    def test_landing_page_renders_successfully_with_ctas(self):
+        response = self.client.get(reverse('landing_page'))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Começar a Poupar')
+        self.assertContains(response, 'Entrar na minha conta')
+        self.assertContains(response, 'FinSavvy')
+
+
+class AuthViewsUITests(TestCase):
+    def test_login_view_renders_fluid_card_and_particles(self):
+        response = self.client.get(reverse('account_login'))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Bem-vindo de volta')
+        self.assertContains(response, 'form-floating')
+        self.assertContains(response, 'particles-js')
+
+    def test_signup_view_renders_fluid_card_and_particles(self):
+        response = self.client.get(reverse('account_signup'))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Crie sua conta')
+        self.assertContains(response, 'form-floating')
+        self.assertContains(response, 'particles-js')
+
+    def test_login_submission_error_renders_alerts_and_particles(self):
+        response = self.client.post(reverse('account_login'), {
+            'login': 'usuario_inexistente@finsavvy.com',
+            'password': 'senhaerrada'
+        })
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'particles-js')
+        self.assertContains(response, 'alert-danger')
+
+
+
+
+
+
 
 

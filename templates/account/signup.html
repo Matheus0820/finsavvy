@@ -10,14 +10,18 @@
 <!-- Google Font Poppins -->
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
 
-<div class="container-fluid bg-dark min-vh-100 d-flex justify-content-center align-items-center py-4 px-3"
-    style="font-family:'Poppins',sans-serif;">
-    <div class="card bg-dark text-white border border-secondary border-opacity-25 shadow-lg rounded-4" style="max-width: 420px; width: 100%;">
+<div class="d-flex vh-100 justify-content-center align-items-center position-relative overflow-hidden px-3"
+    style="font-family:'Poppins',sans-serif; background-color: #0f172a;">
+
+    <!-- Particles.js background -->
+    <div id="particles-js" style="position: absolute; width: 100%; height: 100%; z-index: 0; top: 0; left: 0; background-color: #0f172a;"></div>
+
+    <div class="card shadow-lg border-0 rounded-4 bg-dark text-white w-100 m-3" style="max-width: 420px; z-index: 1; background-color: rgba(15, 23, 42, 0.85) !important; backdrop-filter: blur(10px); border: 1px solid rgba(6, 182, 212, 0.2) !important;">
         <div class="card-body p-4 p-md-5">
 
             <!-- Logo -->
             <div class="text-center mb-4">
-                <img src="{% static 'finsavvy/imagens/FinSavvy_logo.png' %}" alt="Logo FinSavvy" width="80" height="80" class="mb-3 img-fluid">
+                <img src="{% static 'finsavvy/imagens/FinSavvy_logo.png' %}" alt="Logo FinSavvy" width="70" height="70" class="mb-3 img-fluid">
                 <h3 class="fw-bold text-white mb-1">Crie sua conta</h3>
                 <p class="text-white-50 small">Comece a gerenciar suas finanças hoje</p>
             </div>
@@ -52,38 +56,38 @@
             <form method="post" action="{{ signup_url }}">
                 {% csrf_token %}
 
-                <div class="mb-3">
-                    <label for="id_first_name" class="form-label text-white-50 small">{% trans 'Nome' %}</label>
+                <div class="form-floating mb-3">
                     <input type="text" name="first_name" id="id_first_name"
-                        class="form-control form-control-lg bg-dark text-white border-secondary shadow-none"
-                        placeholder="Seu nome" required>
+                        class="form-control bg-dark text-white border-secondary shadow-none rounded-3"
+                        placeholder="Seu nome" required style="color-scheme: dark;">
+                    <label for="id_first_name" class="text-white-50">{% trans 'Nome' %}</label>
                 </div>
 
-                <div class="mb-3">
-                    <label for="id_email" class="form-label text-white-50 small">{% trans 'E-mail' %}</label>
+                <div class="form-floating mb-3">
                     <input type="email" name="email" id="id_email"
-                        class="form-control form-control-lg bg-dark text-white border-secondary shadow-none"
-                        placeholder="seu@email.com" required>
+                        class="form-control bg-dark text-white border-secondary shadow-none rounded-3"
+                        placeholder="seu@email.com" required style="color-scheme: dark;">
+                    <label for="id_email" class="text-white-50">{% trans 'E-mail' %}</label>
                 </div>
 
-                <div class="mb-3">
-                    <label for="id_password1" class="form-label text-white-50 small">{% trans 'Senha' %}</label>
+                <div class="form-floating mb-3">
                     <input type="password" name="password1" id="id_password1"
-                        class="form-control form-control-lg bg-dark text-white border-secondary shadow-none"
-                        placeholder="••••••••" required>
+                        class="form-control bg-dark text-white border-secondary shadow-none rounded-3"
+                        placeholder="••••••••" required style="color-scheme: dark;">
+                    <label for="id_password1" class="text-white-50">{% trans 'Senha' %}</label>
                 </div>
 
-                <div class="mb-3">
-                    <label for="id_password2" class="form-label text-white-50 small">{% trans 'Confirme a senha' %}</label>
+                <div class="form-floating mb-3">
                     <input type="password" name="password2" id="id_password2"
-                        class="form-control form-control-lg bg-dark text-white border-secondary shadow-none"
-                        placeholder="••••••••" required>
+                        class="form-control bg-dark text-white border-secondary shadow-none rounded-3"
+                        placeholder="••••••••" required style="color-scheme: dark;">
+                    <label for="id_password2" class="text-white-50">{% trans 'Confirme a senha' %}</label>
                 </div>
 
                 {{ redirect_field }}
 
                 <div class="d-grid mt-4 mb-3">
-                    <button type="submit" class="btn btn-info btn-lg fw-semibold text-dark shadow-sm">
+                    <button type="submit" class="btn btn-info btn-lg fw-semibold text-dark shadow-sm rounded-3">
                         {% trans "Cadastrar" %}
                     </button>
                 </div>
@@ -103,7 +107,7 @@
             <div class="d-grid">
                 <a href="{% provider_login_url 'google' %}"
                     class="btn btn-outline-light btn-lg d-flex align-items-center justify-content-center gap-2 py-2 fw-medium fs-6 rounded-3">
-                    <img src="https://www.svgrepo.com/show/475656/google-color.svg" width="22" height="22"
+                    <img src="https://www.svgrepo.com/show/475656/google-color.svg" width="20" height="20"
                         alt="Google icon">
                     <span>Cadastrar com o Google</span>
                 </a>
@@ -115,7 +119,34 @@
 </div>
 
 <!-- Bootstrap Bundle JS -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/js/bootstrap.bundle.min.js"
-    integrity="sha384-ENjdO4Dr2bkBIFxQpeoG6VZGF9Xb2ntKf6AB5N1QKjJKFhCXQ4m+AMvyTG2xZ6v9"
-    crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/js/bootstrap.bundle.min.js"></script>
+<!-- Particles.js CDN -->
+<script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
+<script>
+    particlesJS("particles-js", {
+        "particles": {
+            "number": { "value": 60, "density": { "enable": true, "value_area": 800 } },
+            "color": { "value": "#06b6d4" },
+            "shape": { "type": "circle" },
+            "opacity": { "value": 0.5, "random": false },
+            "size": { "value": 3, "random": true },
+            "line_linked": { "enable": true, "distance": 150, "color": "#06b6d4", "opacity": 0.4, "width": 1 },
+            "move": { "enable": true, "speed": 2, "direction": "none", "random": false, "straight": false, "out_mode": "out", "bounce": false }
+        },
+        "interactivity": {
+            "detect_on": "canvas",
+            "events": {
+                "onhover": { "enable": true, "mode": "grab" },
+                "onclick": { "enable": true, "mode": "push" },
+                "resize": true
+            },
+            "modes": {
+                "grab": { "distance": 140, "line_linked": { "opacity": 0.8 } },
+                "push": { "particles_nb": 4 }
+            }
+        },
+        "retina_detect": true
+    });
+</script>
 {% endblock content %}
+
