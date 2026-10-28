@@ -45,15 +45,24 @@
                         {{ form.tipo_veiculo }}
                     </div>
                     <div class="mb-3">
-                        <label for="{{ form.km_atual.id_for_label }}" class="form-label text-secondary small fw-semibold">KM Atual</label>
-                        {{ form.km_atual }}
+                        <label for="id_km_atual" class="form-label text-secondary small fw-semibold">KM Atual</label>
+                        <div class="input-group">
+                            <input type="text" class="form-control bg-dark text-white border-secondary mascara-dinheiro" id="id_km_atual" name="km_atual" value="{{ form.km_atual.value|default:'0,00' }}" autocomplete="off">
+                            <span class="input-group-text bg-dark border-secondary text-secondary">km</span>
+                        </div>
+                        {% if form.km_atual.errors %}
+                            <div class="text-danger small mt-1">{{ form.km_atual.errors.0 }}</div>
+                        {% endif %}
                     </div>
                     <div class="mb-4">
-                        <label for="{{ form.capacidade_tanque.id_for_label }}" class="form-label text-secondary small fw-semibold">Capacidade do Tanque (Litros)</label>
+                        <label for="id_capacidade_tanque" class="form-label text-secondary small fw-semibold">Capacidade do Tanque (Litros)</label>
                         <div class="input-group">
-                            {{ form.capacidade_tanque }}
+                            <input type="text" class="form-control bg-dark text-white border-secondary mascara-dinheiro" id="id_capacidade_tanque" name="capacidade_tanque" value="{{ form.capacidade_tanque.value|default:'0,00' }}" autocomplete="off">
                             <span class="input-group-text bg-dark border-secondary text-secondary">L</span>
                         </div>
+                        {% if form.capacidade_tanque.errors %}
+                            <div class="text-danger small mt-1">{{ form.capacidade_tanque.errors.0 }}</div>
+                        {% endif %}
                     </div>
 
                     <div class="d-flex justify-content-end gap-2">
@@ -73,35 +82,49 @@
 {% block extra_js %}
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        const inputTanque = document.getElementById('id_capacidade_tanque');
-        if (inputTanque) {
-            let valorInicial = inputTanque.value.trim();
-            if (!valorInicial || valorInicial === '0' || valorInicial === '0.0' || valorInicial === '0,0') {
-                inputTanque.value = '';
-            } else {
-                inputTanque.value = valorInicial.replace('.', ',');
-            }
-
-            inputTanque.addEventListener('input', function(e) {
-                let v = this.value.replace(/[^0-9,]/g, '');
-                let partes = v.split(',');
-                if (partes.length > 2) {
-                    v = partes[0] + ',' + partes.slice(1).join('');
+        function aplicarMascaraMoeda(inputId) {
+            const inputValor = document.getElementById(inputId);
+            if (inputValor) {
+                function formatarMoeda(valorStr) {
+                    let apenasDigitos = String(valorStr).replace(/\D/g, '');
+                    if (apenasDigitos === '') apenasDigitos = '0';
+                    let numero = parseInt(apenasDigitos, 10);
+                    let formatado = (numero / 100).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+                    return formatado;
                 }
-                this.value = v;
-            });
 
-            const form = inputTanque.closest('form');
-            if (form) {
-                form.addEventListener('submit', function(e) {
-                    let val = inputTanque.value.trim();
-                    if (val) {
-                        val = val.replace(/\./g, '').replace(',', '.');
-                        inputTanque.value = val;
+                if (inputValor.value && inputValor.value !== '0,00' && inputValor.value !== '') {
+                    let valClean = String(inputValor.value).replace('R$', '').trim();
+                    if (!valClean.includes(',') && !valClean.includes('.')) {
+                        inputValor.value = formatarMoeda(valClean);
+                    } else if (valClean.includes('.') && !valClean.includes(',')) {
+                        let num = Math.round(parseFloat(valClean) * 100);
+                        inputValor.value = (num / 100).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+                    } else {
+                        inputValor.value = formatarMoeda(valClean);
                     }
+                } else {
+                    inputValor.value = '0,00';
+                }
+
+                inputValor.addEventListener('input', function(e) {
+                    let formatted = formatarMoeda(this.value);
+                    this.value = formatted;
                 });
+
+                const form = inputValor.closest('form');
+                if (form) {
+                    form.addEventListener('submit', function() {
+                        let val = inputValor.value;
+                        val = val.replace(/\./g, '').replace(',', '.');
+                        inputValor.value = val;
+                    });
+                }
             }
         }
+
+        aplicarMascaraMoeda('id_km_atual');
+        aplicarMascaraMoeda('id_capacidade_tanque');
     });
 </script>
 {% endblock %}

@@ -217,7 +217,7 @@ ItemCompraFormSet = inlineformset_factory(
 )
 
 class FormVeiculo(MonetaryMaskMixin, forms.ModelForm):
-    monetary_fields = ('capacidade_tanque',)
+    monetary_fields = ('km_atual', 'capacidade_tanque')
 
     class Meta:
         model = Veiculo
@@ -227,7 +227,7 @@ class FormVeiculo(MonetaryMaskMixin, forms.ModelForm):
             'modelo': forms.TextInput(attrs={'class': 'form-control text-bg-dark border-secondary'}),
             'placa': forms.TextInput(attrs={'class': 'form-control text-bg-dark border-secondary'}),
             'tipo_veiculo': forms.Select(attrs={'class': 'form-select text-bg-dark border-secondary'}),
-            'km_atual': forms.NumberInput(attrs={'class': 'form-control text-bg-dark border-secondary', 'min': '0'}),
+            'km_atual': forms.TextInput(attrs={'class': 'form-control text-bg-dark border-secondary mascara-dinheiro', 'placeholder': '0,00'}),
             'capacidade_tanque': forms.TextInput(attrs={'class': 'form-control text-bg-dark border-secondary mascara-dinheiro', 'placeholder': '0,00'}),
         }
 
