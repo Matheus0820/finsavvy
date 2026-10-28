@@ -50,37 +50,15 @@
                             <div class="text-danger small mt-1">{{ form.valor.errors.0 }}</div>
                         {% endif %}
                     </div>
-                    <div class="row g-3 mb-4">
-                        <div class="col-md-4">
-                            <label for="id_km_atual" class="form-label text-secondary small fw-semibold">KM Atual</label>
-                            <div class="input-group">
-                                <input type="text" class="form-control bg-dark text-white border-secondary mascara-dinheiro" id="id_km_atual" name="km_atual" value="{{ form.km_atual.value|default:'0,00' }}" autocomplete="off">
-                                <span class="input-group-text bg-dark border-secondary text-secondary">km</span>
-                            </div>
-                            {% if form.km_atual.errors %}
-                                <div class="text-danger small mt-1">{{ form.km_atual.errors.0 }}</div>
-                            {% endif %}
+                    <div class="mb-4">
+                        <label for="id_km_atual" class="form-label text-secondary small fw-semibold">KM Atual</label>
+                        <div class="input-group">
+                            <input type="text" class="form-control bg-dark text-white border-secondary mascara-dinheiro" id="id_km_atual" name="km_atual" value="{{ form.km_atual.value|default:'0,00' }}" autocomplete="off">
+                            <span class="input-group-text bg-dark border-secondary text-secondary">km</span>
                         </div>
-                        <div class="col-md-4">
-                            <label for="id_km_troca_oleo" class="form-label text-secondary small fw-semibold">KM Troca de Óleo</label>
-                            <div class="input-group">
-                                <input type="text" class="form-control bg-dark text-white border-secondary mascara-dinheiro" id="id_km_troca_oleo" name="km_troca_oleo" value="{{ form.km_troca_oleo.value|default:'0,00' }}" autocomplete="off">
-                                <span class="input-group-text bg-dark border-secondary text-secondary">km</span>
-                            </div>
-                            {% if form.km_troca_oleo.errors %}
-                                <div class="text-danger small mt-1">{{ form.km_troca_oleo.errors.0 }}</div>
-                            {% endif %}
-                        </div>
-                        <div class="col-md-4">
-                            <label for="id_km_proximo_oleo" class="form-label text-secondary small fw-semibold">Próxima Troca (KM)</label>
-                            <div class="input-group">
-                                <input type="text" class="form-control bg-dark text-white border-secondary mascara-dinheiro" id="id_km_proximo_oleo" name="km_proximo_oleo" value="{{ form.km_proximo_oleo.value|default:'0,00' }}" autocomplete="off">
-                                <span class="input-group-text bg-dark border-secondary text-secondary">km</span>
-                            </div>
-                            {% if form.km_proximo_oleo.errors %}
-                                <div class="text-danger small mt-1">{{ form.km_proximo_oleo.errors.0 }}</div>
-                            {% endif %}
-                        </div>
+                        {% if form.km_atual.errors %}
+                            <div class="text-danger small mt-1">{{ form.km_atual.errors.0 }}</div>
+                        {% endif %}
                     </div>
 
                     <div class="d-flex justify-content-end gap-2">
@@ -143,8 +121,6 @@
 
         aplicarMascaraMoeda('id_valor');
         aplicarMascaraMoeda('id_km_atual');
-        aplicarMascaraMoeda('id_km_troca_oleo');
-        aplicarMascaraMoeda('id_km_proximo_oleo');
     });
 </script>
 {% endblock %}
