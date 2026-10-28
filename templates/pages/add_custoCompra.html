@@ -638,7 +638,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 inputValor.value = formatarMoedaStr(valClean);
             } else if (valClean.includes('.') && !valClean.includes(',')) {
                 let num = Math.round(parseFloat(valClean) * 100);
-                inputValor.value = (num / 100).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+                inputValor.value = formatarMoedaStr(String(num));
             } else {
                 inputValor.value = formatarMoedaStr(valClean);
             }
