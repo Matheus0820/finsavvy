@@ -5,7 +5,7 @@
 {% block content %}
 <div class="d-flex justify-content-between align-items-center mb-4">
     <div>
-        <h2 class="fw-bold text-white mb-1"><i class="bi bi-receipt text-primary me-2"></i>{% if object %}Editar Compra{% else %}Nova Compra{% endif %}</h2>
+        <h2 class="fw-bold text-body mb-1"><i class="bi bi-receipt text-primary me-2"></i>{% if object %}Editar Compra{% else %}Nova Compra{% endif %}</h2>
         <p class="text-secondary mb-0">Preencha os dados do custo de compra ou importe via QR-Code de cupom fiscal.</p>
     </div>
     <div>
@@ -16,9 +16,9 @@
 </div>
 
 <!-- Card de Importação Inteligente de NFC-e / QR-Code -->
-<div class="card bg-dark border-secondary shadow-sm mb-4" style="border-radius: 12px; border-color: #2d2d2d !important;">
-    <div class="card-header bg-dark border-secondary py-3 d-flex align-items-center justify-content-between">
-        <span class="text-white fw-semibold small d-flex align-items-center">
+<div class="card bg-body-tertiary border-secondary shadow-sm mb-4" style="border-radius: 12px; border-color: #2d2d2d !important;">
+    <div class="card-header bg-body-tertiary border-secondary py-3 d-flex align-items-center justify-content-between">
+        <span class="text-body fw-semibold small d-flex align-items-center">
             <i class="bi bi-qr-code-scan me-2" style="color: #00e0c1; font-size: 1.1rem;"></i>
             Importação Inteligente via Cupom Fiscal (NFC-e / QR-Code)
         </span>
@@ -39,7 +39,7 @@
             </div>
             <div class="col-md-5">
                 <div class="input-group">
-                    <input type="file" id="input_qr_arquivo" class="form-control text-bg-dark border-secondary form-control-sm" accept="image/*">
+                    <input type="file" id="input_qr_arquivo" class="form-control text-bg-body-tertiary border-secondary form-control-sm" accept="image/*">
                     <button type="button" id="btn_processar_arquivo" class="btn btn-outline-secondary btn-sm" title="Processar imagem enviada">
                         <i class="bi bi-upload me-1"></i> Ler Foto
                     </button>
@@ -62,22 +62,22 @@
     {% csrf_token %}
 
     {% if form.errors %}
-        <div class="alert alert-danger bg-danger text-white border-0 mb-4 py-2">
+        <div class="alert alert-danger bg-danger text-body border-0 mb-4 py-2">
             <strong>Atenção:</strong> Por favor, corrija os erros no formulário da compra.
             {{ form.errors }}
         </div>
     {% endif %}
 
     {% if itens_formset.non_form_errors %}
-        <div class="alert alert-danger bg-danger text-white border-0 mb-4 py-2">
+        <div class="alert alert-danger bg-danger text-body border-0 mb-4 py-2">
             <strong>Atenção nos itens:</strong> {{ itens_formset.non_form_errors }}
         </div>
     {% endif %}
 
     <!-- Seção 1: Dados Principais da Compra -->
-    <div class="card bg-dark border-secondary shadow-sm mb-4" style="border-radius: 12px; border-color: #2d2d2d !important;">
-        <div class="card-header bg-dark border-secondary py-3">
-            <h5 class="card-title text-white mb-0 fw-semibold fs-6">
+    <div class="card bg-body-tertiary border-secondary shadow-sm mb-4" style="border-radius: 12px; border-color: #2d2d2d !important;">
+        <div class="card-header bg-body-tertiary border-secondary py-3">
+            <h5 class="card-title text-body mb-0 fw-semibold fs-6">
                 <i class="bi bi-shop me-2" style="color: #00e0c1;"></i>Dados Gerais da Compra
             </h5>
         </div>
@@ -100,8 +100,8 @@
                         Valor Total (R$)
                     </label>
                     <div class="input-group">
-                        <span class="input-group-text bg-dark border-secondary text-secondary">R$</span>
-                        <input type="text" class="form-control bg-dark text-white border-secondary mascara-dinheiro" id="id_valor_total" name="valor_total" value="{{ form.valor_total.value|default:'0,00' }}" autocomplete="off" readonly="readonly">
+                        <span class="input-group-text bg-body-tertiary border-secondary text-secondary">R$</span>
+                        <input type="text" class="form-control bg-body-tertiary text-body border-secondary mascara-dinheiro" id="id_valor_total" name="valor_total" value="{{ form.valor_total.value|default:'0,00' }}" autocomplete="off" readonly="readonly">
                     </div>
                     {% if form.valor_total.errors %}
                         <div class="text-danger small mt-1">{{ form.valor_total.errors.0 }}</div>
@@ -127,10 +127,10 @@
     </div>
 
     <!-- Seção 2: Itens Detalhados da Compra (Master-Detail Formset) -->
-    <div class="card bg-dark border-secondary shadow-sm mb-4" style="border-radius: 12px; border-color: #2d2d2d !important;">
-        <div class="card-header bg-dark border-secondary py-3 d-flex align-items-center justify-content-between">
+    <div class="card bg-body-tertiary border-secondary shadow-sm mb-4" style="border-radius: 12px; border-color: #2d2d2d !important;">
+        <div class="card-header bg-body-tertiary border-secondary py-3 d-flex align-items-center justify-content-between">
             <div class="d-flex align-items-center">
-                <h5 class="card-title text-white mb-0 fw-semibold fs-6">
+                <h5 class="card-title text-body mb-0 fw-semibold fs-6">
                     <i class="bi bi-basket me-2 text-warning"></i>Itens da Compra
                 </h5>
                 <span class="badge bg-secondary-subtle text-secondary ms-2" id="badge-total-itens">
@@ -145,7 +145,7 @@
             {{ itens_formset.management_form }}
 
             <div class="table-responsive">
-                <table class="table table-dark table-hover mb-0 align-middle" id="tabela-itens-compra">
+                <table class="table  table-hover mb-0 align-middle" id="tabela-itens-compra">
                     <thead>
                         <tr class="text-secondary small border-secondary">
                             <th scope="col" class="ps-3" style="width: 5%;">#</th>
@@ -198,7 +198,7 @@
                     </tbody>
                     <tfoot>
                         <tr class="border-secondary text-secondary">
-                            <td colspan="4" class="text-end fw-semibold pe-3 text-white">Soma dos Itens:</td>
+                            <td colspan="4" class="text-end fw-semibold pe-3 text-body">Soma dos Itens:</td>
                             <td class="fw-bold text-primary" id="footer-soma-itens">R$ 0,00</td>
                             <td></td>
                         </tr>
@@ -224,16 +224,16 @@
         <td class="ps-3 text-secondary item-num">#</td>
         <td>
             <input type="hidden" name="itens-__prefix__-id" id="id_itens-__prefix__-id">
-            <input type="text" name="itens-__prefix__-descricao" class="form-control text-bg-dark border-secondary item-descricao" placeholder="Ex: Arroz 5kg, Detergente..." id="id_itens-__prefix__-descricao">
+            <input type="text" name="itens-__prefix__-descricao" class="form-control text-bg-body-tertiary border-secondary item-descricao" placeholder="Ex: Arroz 5kg, Detergente..." id="id_itens-__prefix__-descricao">
         </td>
         <td>
-            <input type="number" name="itens-__prefix__-quantidade" step="0.001" min="0" placeholder="1" class="form-control text-bg-dark border-secondary item-qtd" id="id_itens-__prefix__-quantidade" value="1">
+            <input type="number" name="itens-__prefix__-quantidade" step="0.001" min="0" placeholder="1" class="form-control text-bg-body-tertiary border-secondary item-qtd" id="id_itens-__prefix__-quantidade" value="1">
         </td>
         <td>
-            <input type="text" name="itens-__prefix__-valor_unitario" placeholder="0,00" class="form-control text-bg-dark border-secondary item-unitario mascara-dinheiro" id="id_itens-__prefix__-valor_unitario" autocomplete="off" value="0,00">
+            <input type="text" name="itens-__prefix__-valor_unitario" placeholder="0,00" class="form-control text-bg-body-tertiary border-secondary item-unitario mascara-dinheiro" id="id_itens-__prefix__-valor_unitario" autocomplete="off" value="0,00">
         </td>
         <td>
-            <input type="text" name="itens-__prefix__-valor_total_item" readonly="readonly" placeholder="0,00" class="form-control text-bg-dark border-secondary item-total mascara-dinheiro" id="id_itens-__prefix__-valor_total_item" autocomplete="off" value="0,00">
+            <input type="text" name="itens-__prefix__-valor_total_item" readonly="readonly" placeholder="0,00" class="form-control text-bg-body-tertiary border-secondary item-total mascara-dinheiro" id="id_itens-__prefix__-valor_total_item" autocomplete="off" value="0,00">
         </td>
         <td class="text-center pe-3">
             <input type="checkbox" name="itens-__prefix__-DELETE" id="id_itens-__prefix__-DELETE" class="d-none">
@@ -247,7 +247,7 @@
 <!-- Modal: Leitor de QR-Code via Câmera (html5-qrcode) -->
 <div class="modal fade" id="modalCameraScanner" tabindex="-1" aria-labelledby="modalCameraScannerLabel" aria-hidden="true" data-bs-backdrop="static">
     <div class="modal-dialog modal-dialog-centered modal-lg">
-        <div class="modal-content text-bg-dark border-secondary" style="border-radius: 14px;">
+        <div class="modal-content text-bg-body-tertiary border-secondary" style="border-radius: 14px;">
             <div class="modal-header border-secondary py-3">
                 <h5 class="modal-title fs-5 d-flex align-items-center" id="modalCameraScannerLabel">
                     <i class="bi bi-camera-video text-info me-2"></i> Leitor de QR-Code da NFC-e

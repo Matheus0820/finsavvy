@@ -17,7 +17,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@700&display=swap" rel="stylesheet">
 </head>
 
-<body style="height: 100% !important;" class="bg-dark">
+<body style="height: 100% !important;" class="bg-body-tertiary">
     <div class="d-flex" style="width: 100% !important; height: 100% !important;">
         <div class="d-flex flex-column flex-shrink-0 bg-info bg-opacity-75"
             style="width: 4.5rem; height: 100% !important;">
@@ -29,44 +29,44 @@
 
             <ul class="nav nav-pills nav-flush flex-column mb-auto text-center">
                 <li class="nav-item">
-                    <a href="{% url 'dashboard' %}" class="nav-link {% if request.path == '/dashboard' %} active {% endif %} py-3 border-bottom rounded-0 text-light"
+                    <a href="{% url 'dashboard' %}" class="nav-link {% if request.path == '/dashboard' %} active {% endif %} py-3 border-bottom rounded-0 text-body"
                         aria-current="page" data-bs-toggle="tooltip" data-bs-placement="right" aria-label="Dashboard"
                         data-bs-original-title="Dashboard">
                         <i class="bi bi-speedometer2" style="font-size: 1.5rem;"></i>
                     </a>
                 </li>
                 <li>
-                    <a href="{% url 'list_veiculo' %}" class="nav-link py-3 border-bottom rounded-0 text-light" data-bs-toggle="tooltip"
+                    <a href="{% url 'list_veiculo' %}" class="nav-link py-3 border-bottom rounded-0 text-body" data-bs-toggle="tooltip"
                         data-bs-placement="right" aria-label="Veículos" data-bs-original-title="Veículos">
                         <i class="bi bi-truck" style="font-size: 1.5rem;"></i>
                     </a>
                 </li>
                 <li>
-                    <a href="{% url 'list_custosVariaveis' %}" class="nav-link py-3 border-bottom rounded-0 text-light" data-bs-toggle="tooltip"
+                    <a href="{% url 'list_custosVariaveis' %}" class="nav-link py-3 border-bottom rounded-0 text-body" data-bs-toggle="tooltip"
                         data-bs-placement="right" aria-label="Custos Variáveis" data-bs-original-title="Custos Variáveis">
                         <i class="bi bi-cash-stack" style="font-size: 1.5rem;"></i>
                     </a>
                 </li>
                 <li>
-                    <a href="{% url 'list_custoCompra' %}" class="nav-link py-3 border-bottom rounded-0 text-light" data-bs-toggle="tooltip"
+                    <a href="{% url 'list_custoCompra' %}" class="nav-link py-3 border-bottom rounded-0 text-body" data-bs-toggle="tooltip"
                         data-bs-placement="right" aria-label="Custos Compras" data-bs-original-title="Custos Compras">
                         <i class="bi bi-receipt" style="font-size: 1.5rem;"></i>
                     </a>
                 </li>
                 <li>
-                    <a href="{% url 'list_custoCombustivel' %}" class="nav-link py-3 border-bottom rounded-0 text-light" data-bs-toggle="tooltip"
+                    <a href="{% url 'list_custoCombustivel' %}" class="nav-link py-3 border-bottom rounded-0 text-body" data-bs-toggle="tooltip"
                         data-bs-placement="right" aria-label="Combustível" data-bs-original-title="Combustível">
                         <i class="bi bi-fuel-pump" style="font-size: 1.5rem;"></i>
                     </a>
                 </li>
                 <li>
-                    <a href="{% url 'list_manutencao' %}" class="nav-link py-3 border-bottom rounded-0 text-light" data-bs-toggle="tooltip"
+                    <a href="{% url 'list_manutencao' %}" class="nav-link py-3 border-bottom rounded-0 text-body" data-bs-toggle="tooltip"
                         data-bs-placement="right" aria-label="Manutenções" data-bs-original-title="Manutenções">
                         <i class="bi bi-tools" style="font-size: 1.5rem;"></i>
                     </a>
                 </li>
                 <li>
-                    <a href="{% url 'list_custosFixos' %}" class="nav-link py-3 border-bottom rounded-0 text-light" data-bs-toggle="tooltip"
+                    <a href="{% url 'list_custosFixos' %}" class="nav-link py-3 border-bottom rounded-0 text-body" data-bs-toggle="tooltip"
                         data-bs-placement="right" aria-label="Gastos fixos" data-bs-original-title="Gastos fixos">
                         <i class="bi bi-pin-angle" style="font-size: 1.5rem;"></i>
                     </a>
@@ -83,10 +83,10 @@
                 </h1>
                 <div class="dropstart">
                     <a href="#"
-                       class="text-white d-flex align-items-center justify-content-center p-2 link-body-emphasis text-decoration-none dropdown-toggle"
+                       class="text-body d-flex align-items-center justify-content-center p-2 link-body-emphasis text-decoration-none dropdown-toggle"
                        data-bs-toggle="dropdown" aria-expanded="false">
                         <div class="text-end me-2">
-                            <span class="d-block text-white fw-bold" style="font-size: small; font-family: 'Poppins', sans-serif;">
+                            <span class="d-block text-body fw-bold" style="font-size: small; font-family: 'Poppins', sans-serif;">
                                 {{ user.first_name.split.0|default:user.username.split.0 }}
                             </span>
                             <span class="d-block text-secondary" style="font-size: 0.75rem; font-family: 'Poppins', sans-serif;">
@@ -112,7 +112,7 @@
                   <!-- Modal -->
                 <div class="modal fade" id="modalsair" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="modalsairLabel" aria-hidden="true">
                 <div class="modal-dialog">
-                    <div class="modal-content text-bg-dark">
+                    <div class="modal-content text-bg-body-tertiary">
                         <div class="modal-header">
                             <h1 class="modal-title fs-5" id="modalsairLabel">Você realmente deseja sair??</h1>
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>

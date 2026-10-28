@@ -18,14 +18,14 @@
     <!-- Particles.js background -->
     <div id="particles-js" style="position: absolute; width: 100%; height: 100%; z-index: 0; top: 0; left: 0; background-color: #0f172a;"></div>
 
-    <div class="card shadow-lg border-0 rounded-4 bg-dark text-white w-100 m-3" style="max-width: 420px; z-index: 1; background-color: rgba(15, 23, 42, 0.85) !important; backdrop-filter: blur(10px); border: 1px solid rgba(6, 182, 212, 0.2) !important;">
+    <div class="card shadow-lg border-0 rounded-4 bg-body-tertiary text-body w-100 m-3" style="max-width: 420px; z-index: 1; background-color: rgba(15, 23, 42, 0.85) !important; backdrop-filter: blur(10px); border: 1px solid rgba(6, 182, 212, 0.2) !important;">
         <div class="card-body p-4 p-md-5">
 
             <div class="text-center mb-4">
                 <img src="{% static 'finsavvy/imagens/FinSavvy_logo.png' %}" alt="Logo FinSavvy" width="70" height="70"
                     class="mb-3 img-fluid">
-                <h3 class="fw-bold text-white mb-1">Bem-vindo de volta</h3>
-                <p class="text-white-50 small">Entre na sua conta para continuar</p>
+                <h3 class="fw-bold text-body mb-1">Bem-vindo de volta</h3>
+                <p class="text-body-50 small">Entre na sua conta para continuar</p>
             </div>
 
             {% if messages %}
@@ -41,7 +41,7 @@
             {% endif %}
 
             {% if form.errors %}
-            <div class="alert alert-danger bg-danger bg-opacity-25 border-danger text-white small p-3 rounded-3 mb-4">
+            <div class="alert alert-danger bg-danger bg-opacity-25 border-danger text-body small p-3 rounded-3 mb-4">
                 {% for field in form %}
                     {% for error in field.errors %}
                         <p class="mb-1">• {{ error }}</p>
@@ -59,16 +59,16 @@
 
                 <div class="form-floating mb-3">
                     <input type="email" name="login" id="id_login"
-                        class="form-control bg-dark text-white border-secondary shadow-none rounded-3"
+                        class="form-control bg-body-tertiary text-body border-secondary shadow-none rounded-3"
                         placeholder="seu@email.com" required style="color-scheme: dark;">
-                    <label for="id_login" class="text-white-50">{% trans 'E-mail' %}</label>
+                    <label for="id_login" class="text-body-50">{% trans 'E-mail' %}</label>
                 </div>
 
                 <div class="form-floating mb-3">
                     <input type="password" name="password" id="id_password"
-                        class="form-control bg-dark text-white border-secondary shadow-none rounded-3" placeholder="••••••••"
+                        class="form-control bg-body-tertiary text-body border-secondary shadow-none rounded-3" placeholder="••••••••"
                         required style="color-scheme: dark;">
-                    <label for="id_password" class="text-white-50">{% trans 'Senha' %}</label>
+                    <label for="id_password" class="text-body-50">{% trans 'Senha' %}</label>
                 </div>
 
                 {{ redirect_field }}
@@ -81,14 +81,14 @@
             </form>
 
             <div class="d-flex justify-content-between align-items-center mb-4">
-                <a href="{{ password_reset_url }}" class="text-white-50 text-decoration-none small">{% trans "Esqueci minha senha" %}</a>
+                <a href="{{ password_reset_url }}" class="text-body-50 text-decoration-none small">{% trans "Esqueci minha senha" %}</a>
                 <a href="{{ signup_url }}" class="text-info text-decoration-none small fw-semibold">{% trans "Criar conta" %}</a>
             </div>
 
             {% if SOCIALACCOUNT_ENABLED %}
             <div class="position-relative text-center my-4">
                 <hr class="border-secondary opacity-50">
-                <span class="position-absolute top-50 start-50 translate-middle px-2 bg-dark text-white-50 small">ou</span>
+                <span class="position-absolute top-50 start-50 translate-middle px-2 bg-body-tertiary text-body-50 small">ou</span>
             </div>
 
             <div class="d-grid">

@@ -5,7 +5,7 @@
 {% block content %}
 <div class="d-flex justify-content-between align-items-center mb-4">
     <div>
-        <h2 class="fw-bold text-white mb-1"><i class="bi bi-receipt text-primary me-2"></i>Custos de Compras</h2>
+        <h2 class="fw-bold text-body mb-1"><i class="bi bi-receipt text-primary me-2"></i>Custos de Compras</h2>
         <p class="text-secondary mb-0">Gerencie suas compras e despesas de suprimentos.</p>
     </div>
     <div>
@@ -15,11 +15,11 @@
     </div>
 </div>
 
-<div class="card bg-dark border-secondary shadow-sm">
+<div class="card bg-body-tertiary border-secondary shadow-sm">
     <div class="card-body p-0">
         {% if object_list %}
         <div class="table-responsive">
-            <table class="table table-dark table-hover mb-0 align-middle">
+            <table class="table  table-hover mb-0 align-middle">
                 <thead>
                     <tr class="text-secondary small border-secondary">
                         <th scope="col" class="ps-3">#</th>
@@ -33,7 +33,7 @@
                    {% for obj in object_list %}
                     <tr class="border-secondary">
                         <th scope="row" class="ps-3 text-secondary">{{ forloop.counter }}</th>
-                        <td class="text-white fw-medium">
+                        <td class="text-body fw-medium">
                             {{ obj.nome }}
                             {% if obj.qr_data %}
                                 <span class="badge bg-info-subtle text-info ms-1" title="Cupom Fiscal / NFC-e registrado" style="font-size: 0.72rem;">
@@ -54,13 +54,13 @@
                             <!-- Modal -->
                             <div class="modal fade" id="ModalRemoveCustoCompra{{ obj.id }}" tabindex="-1" aria-labelledby="ModalRemoveCustoCompraLabel{{ obj.id }}" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
                                 <div class="modal-dialog modal-dialog-centered">
-                                    <div class="modal-content text-bg-dark border-secondary">
+                                    <div class="modal-content text-bg-body-tertiary border-secondary">
                                         <div class="modal-header border-secondary">
                                             <h1 class="modal-title fs-5" id="ModalRemoveCustoCompraLabel{{ obj.id }}">Confirmar exclusão</h1>
                                             <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                                         </div>
                                         <div class="modal-body text-secondary">
-                                            Deseja realmente remover o custo de compra <strong class="text-white">{{ obj.nome }}</strong>?
+                                            Deseja realmente remover o custo de compra <strong class="text-body">{{ obj.nome }}</strong>?
                                         </div>
                                         <div class="modal-footer border-secondary">
                                             <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>

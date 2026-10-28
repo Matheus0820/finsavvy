@@ -5,7 +5,7 @@
 {% block content %}
 <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
     <div>
-        <h2 class="fw-bold text-white mb-1">
+        <h2 class="fw-bold text-body mb-1">
             <i class="bi bi-bar-chart-line text-info me-2"></i>Relatórios e Estatísticas
         </h2>
         <p class="text-secondary mb-0">Consolidação e análise de despesas por competência e categoria.</p>
@@ -23,12 +23,12 @@
 <!-- Navegação por Abas -->
 <ul class="nav nav-tabs border-secondary mb-4" id="relatoriosTabs" role="tablist">
     <li class="nav-item" role="presentation">
-        <button class="nav-link active text-white fw-semibold border-secondary bg-dark" id="despesas-tab" data-bs-toggle="tab" data-bs-target="#despesas-pane" type="button" role="tab" aria-controls="despesas-pane" aria-selected="true">
+        <button class="nav-link active text-body fw-semibold border-secondary bg-body-tertiary" id="despesas-tab" data-bs-toggle="tab" data-bs-target="#despesas-pane" type="button" role="tab" aria-controls="despesas-pane" aria-selected="true">
             <i class="bi bi-wallet2 me-2 text-info"></i>Despesas & Lançamentos
         </button>
     </li>
     <li class="nav-item" role="presentation">
-        <button class="nav-link text-white fw-semibold border-secondary bg-dark" id="veiculos-tab" data-bs-toggle="tab" data-bs-target="#veiculos-pane" type="button" role="tab" aria-controls="veiculos-pane" aria-selected="false">
+        <button class="nav-link text-body fw-semibold border-secondary bg-body-tertiary" id="veiculos-tab" data-bs-toggle="tab" data-bs-target="#veiculos-pane" type="button" role="tab" aria-controls="veiculos-pane" aria-selected="false">
             <i class="bi bi-speedometer2 me-2 text-warning"></i>Estatísticas Veiculares & Eficiência
         </button>
     </li>
@@ -38,7 +38,7 @@
     <!-- ABA 1: DESPESAS & LANÇAMENTOS -->
     <div class="tab-pane fade show active" id="despesas-pane" role="tabpanel" aria-labelledby="despesas-tab" tabindex="0">
         <!-- Filtros de Competência e Categoria -->
-        <div class="card bg-dark border-secondary shadow-sm mb-4">
+        <div class="card bg-body-tertiary border-secondary shadow-sm mb-4">
             <div class="card-body">
                 <form method="GET" action="{% url 'relatorios' %}" class="row g-3 align-items-end">
                     <!-- Mês -->
@@ -46,7 +46,7 @@
                         <label for="id_mes" class="form-label text-secondary small fw-semibold">
                             <i class="bi bi-calendar-month me-1 text-info"></i>Mês
                         </label>
-                        <select name="mes" id="id_mes" class="form-select bg-dark text-white border-secondary">
+                        <select name="mes" id="id_mes" class="form-select bg-body-tertiary text-body border-secondary">
                             <option value="todos" {% if mes_selecionado == 'todos' %}selected{% endif %}>Todos os Meses</option>
                             {% for num, nome in meses_disponiveis %}
                             <option value="{{ num }}" {% if mes_selecionado == num %}selected{% endif %}>{{ nome }}</option>
@@ -59,7 +59,7 @@
                         <label for="id_ano" class="form-label text-secondary small fw-semibold">
                             <i class="bi bi-calendar me-1 text-info"></i>Ano
                         </label>
-                        <select name="ano" id="id_ano" class="form-select bg-dark text-white border-secondary">
+                        <select name="ano" id="id_ano" class="form-select bg-body-tertiary text-body border-secondary">
                             {% for a in anos_disponiveis %}
                             <option value="{{ a }}" {% if ano_selecionado == a %}selected{% endif %}>{{ a }}</option>
                             {% endfor %}
@@ -71,7 +71,7 @@
                         <label for="id_categoria" class="form-label text-secondary small fw-semibold">
                             <i class="bi bi-tags me-1 text-info"></i>Categoria
                         </label>
-                        <select name="categoria" id="id_categoria" class="form-select bg-dark text-white border-secondary">
+                        <select name="categoria" id="id_categoria" class="form-select bg-body-tertiary text-body border-secondary">
                             <option value="todas" {% if not categoria_selecionada %}selected{% endif %}>Todas as Categorias</option>
                             {% for cat in categorias %}
                             <option value="{{ cat.id }}" {% if categoria_selecionada == cat.id %}selected{% endif %}>
@@ -98,7 +98,7 @@
         <div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-3 mb-4">
             <!-- Total Geral -->
             <div class="col">
-                <div class="card bg-dark border-secondary h-100 shadow-sm">
+                <div class="card bg-body-tertiary border-secondary h-100 shadow-sm">
                     <div class="card-body">
                         <div class="d-flex align-items-center justify-content-between mb-2">
                             <span class="text-secondary small fw-semibold text-uppercase">Total Filtrado</span>
@@ -106,7 +106,7 @@
                                 <i class="bi bi-cash-coin fs-5"></i>
                             </div>
                         </div>
-                        <h3 class="fw-bold text-white mb-0">R$ {{ total_geral|floatformat:2 }}</h3>
+                        <h3 class="fw-bold text-body mb-0">R$ {{ total_geral|floatformat:2 }}</h3>
                         <span class="text-secondary small">{{ quantidade_itens }} lançamento{{ quantidade_itens|pluralize }}</span>
                     </div>
                 </div>
@@ -114,7 +114,7 @@
 
             <!-- Custos Variáveis -->
             <div class="col">
-                <div class="card bg-dark border-secondary h-100 shadow-sm">
+                <div class="card bg-body-tertiary border-secondary h-100 shadow-sm">
                     <div class="card-body">
                         <div class="d-flex align-items-center justify-content-between mb-2">
                             <span class="text-secondary small fw-semibold text-uppercase">Custos Variáveis</span>
@@ -122,7 +122,7 @@
                                 <i class="bi bi-cash-stack fs-5"></i>
                             </div>
                         </div>
-                        <h3 class="fw-bold text-white mb-0">R$ {{ total_custos_variaveis|floatformat:2 }}</h3>
+                        <h3 class="fw-bold text-body mb-0">R$ {{ total_custos_variaveis|floatformat:2 }}</h3>
                         <span class="text-success small">Categorizados</span>
                     </div>
                 </div>
@@ -130,7 +130,7 @@
 
             <!-- Custos Fixos -->
             <div class="col">
-                <div class="card bg-dark border-secondary h-100 shadow-sm">
+                <div class="card bg-body-tertiary border-secondary h-100 shadow-sm">
                     <div class="card-body">
                         <div class="d-flex align-items-center justify-content-between mb-2">
                             <span class="text-secondary small fw-semibold text-uppercase">Custos Fixos</span>
@@ -138,7 +138,7 @@
                                 <i class="bi bi-pin-angle fs-5"></i>
                             </div>
                         </div>
-                        <h3 class="fw-bold text-white mb-0">R$ {{ total_custos_fixos|floatformat:2 }}</h3>
+                        <h3 class="fw-bold text-body mb-0">R$ {{ total_custos_fixos|floatformat:2 }}</h3>
                         <span class="text-warning small">Recorrentes mensais</span>
                     </div>
                 </div>
@@ -146,7 +146,7 @@
 
             <!-- Despesas Veiculares -->
             <div class="col">
-                <div class="card bg-dark border-secondary h-100 shadow-sm">
+                <div class="card bg-body-tertiary border-secondary h-100 shadow-sm">
                     <div class="card-body">
                         <div class="d-flex align-items-center justify-content-between mb-2">
                             <span class="text-secondary small fw-semibold text-uppercase">Veículos & Manut.</span>
@@ -154,7 +154,7 @@
                                 <i class="bi bi-truck fs-5"></i>
                             </div>
                         </div>
-                        <h3 class="fw-bold text-white mb-0">R$ {{ total_veiculos|floatformat:2 }}</h3>
+                        <h3 class="fw-bold text-body mb-0">R$ {{ total_veiculos|floatformat:2 }}</h3>
                         <span class="text-danger small">Combustível + Manutenções</span>
                     </div>
                 </div>
@@ -162,9 +162,9 @@
         </div>
 
         <!-- Tabela Consolidada de Gastos -->
-        <div class="card bg-dark border-secondary shadow-sm mb-4">
-            <div class="card-header bg-dark border-secondary d-flex justify-content-between align-items-center py-3">
-                <h5 class="fw-semibold text-white mb-0">
+        <div class="card bg-body-tertiary border-secondary shadow-sm mb-4">
+            <div class="card-header bg-body-tertiary border-secondary d-flex justify-content-between align-items-center py-3">
+                <h5 class="fw-semibold text-body mb-0">
                     <i class="bi bi-table text-info me-2"></i>Tabela Consolidada de Gastos
                 </h5>
                 <span class="badge bg-secondary">{{ quantidade_itens }} registro{{ quantidade_itens|pluralize }}</span>
@@ -172,7 +172,7 @@
             <div class="card-body p-0">
                 {% if gastos_consolidados %}
                 <div class="table-responsive">
-                    <table class="table table-dark table-hover mb-0 align-middle">
+                    <table class="table  table-hover mb-0 align-middle">
                         <thead>
                             <tr class="text-secondary small border-secondary">
                                 <th scope="col" class="ps-3" style="width: 60px;">#</th>
@@ -191,12 +191,12 @@
                                     {% if gasto.data %}
                                         <i class="bi bi-calendar-event me-1"></i>{{ gasto.data|date:"d/m/Y" }}
                                     {% else %}
-                                        <span class="badge bg-dark border border-secondary text-secondary">Mensal</span>
+                                        <span class="badge bg-body-tertiary border border-secondary text-secondary">Mensal</span>
                                     {% endif %}
                                 </td>
-                                <td class="text-white fw-medium">{{ gasto.nome }}</td>
+                                <td class="text-body fw-medium">{{ gasto.nome }}</td>
                                 <td>
-                                    <span class="badge bg-secondary bg-opacity-25 text-light border border-secondary">
+                                    <span class="badge bg-secondary bg-opacity-25 text-body border border-secondary">
                                         {{ gasto.tipo }}
                                     </span>
                                 </td>
@@ -213,7 +213,7 @@
                         </tbody>
                         <tfoot class="border-secondary">
                             <tr class="table-active">
-                                <td colspan="5" class="ps-3 fw-bold text-white text-uppercase small">Total da Competência</td>
+                                <td colspan="5" class="ps-3 fw-bold text-body text-uppercase small">Total da Competência</td>
                                 <td class="text-end pe-3 fw-bold text-info fs-6">R$ {{ total_geral|floatformat:2 }}</td>
                             </tr>
                         </tfoot>
@@ -222,7 +222,7 @@
                 {% else %}
                 <div class="text-center py-5">
                     <i class="bi bi-folder-x fs-1 text-secondary mb-3 d-block"></i>
-                    <h6 class="text-white fw-medium">Nenhum gasto encontrado</h6>
+                    <h6 class="text-body fw-medium">Nenhum gasto encontrado</h6>
                     <p class="text-secondary small mb-3">Não há lançamentos registrados para os filtros selecionados.</p>
                     <a href="{% url 'relatorios' %}" class="btn btn-sm btn-outline-info">
                         <i class="bi bi-arrow-counterclockwise me-1"></i>Limpar Filtros
@@ -239,7 +239,7 @@
         <div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-3 mb-4">
             <!-- Consumo Médio Geral -->
             <div class="col">
-                <div class="card bg-dark border-secondary h-100 shadow-sm">
+                <div class="card bg-body-tertiary border-secondary h-100 shadow-sm">
                     <div class="card-body">
                         <div class="d-flex align-items-center justify-content-between mb-2">
                             <span class="text-secondary small fw-semibold text-uppercase">Consumo Médio</span>
@@ -247,7 +247,7 @@
                                 <i class="bi bi-speedometer2 fs-5"></i>
                             </div>
                         </div>
-                        <h3 class="fw-bold text-white mb-0">
+                        <h3 class="fw-bold text-body mb-0">
                             {% if metricas_veiculares.consumo_medio_frota > 0 %}
                                 {{ metricas_veiculares.consumo_medio_frota }} <span class="fs-6 text-secondary fw-normal">km/L</span>
                             {% else %}
@@ -261,7 +261,7 @@
 
             <!-- Custo por Km -->
             <div class="col">
-                <div class="card bg-dark border-secondary h-100 shadow-sm">
+                <div class="card bg-body-tertiary border-secondary h-100 shadow-sm">
                     <div class="card-body">
                         <div class="d-flex align-items-center justify-content-between mb-2">
                             <span class="text-secondary small fw-semibold text-uppercase">Custo / Km</span>
@@ -269,7 +269,7 @@
                                 <i class="bi bi-coin fs-5"></i>
                             </div>
                         </div>
-                        <h3 class="fw-bold text-white mb-0">
+                        <h3 class="fw-bold text-body mb-0">
                             {% if metricas_veiculares.custo_km_frota > 0 %}
                                 R$ {{ metricas_veiculares.custo_km_frota }} <span class="fs-6 text-secondary fw-normal">/km</span>
                             {% else %}
@@ -283,7 +283,7 @@
 
             <!-- Preço Médio por Litro -->
             <div class="col">
-                <div class="card bg-dark border-secondary h-100 shadow-sm">
+                <div class="card bg-body-tertiary border-secondary h-100 shadow-sm">
                     <div class="card-body">
                         <div class="d-flex align-items-center justify-content-between mb-2">
                             <span class="text-secondary small fw-semibold text-uppercase">Preço Médio Litro</span>
@@ -291,7 +291,7 @@
                                 <i class="bi bi-fuel-pump fs-5"></i>
                             </div>
                         </div>
-                        <h3 class="fw-bold text-white mb-0">
+                        <h3 class="fw-bold text-body mb-0">
                             {% if metricas_veiculares.preco_medio_litro > 0 %}
                                 R$ {{ metricas_veiculares.preco_medio_litro }} <span class="fs-6 text-secondary fw-normal">/L</span>
                             {% else %}
@@ -305,7 +305,7 @@
 
             <!-- Gasto Total Veicular -->
             <div class="col">
-                <div class="card bg-dark border-secondary h-100 shadow-sm">
+                <div class="card bg-body-tertiary border-secondary h-100 shadow-sm">
                     <div class="card-body">
                         <div class="d-flex align-items-center justify-content-between mb-2">
                             <span class="text-secondary small fw-semibold text-uppercase">Total Veículos</span>
@@ -313,7 +313,7 @@
                                 <i class="bi bi-truck fs-5"></i>
                             </div>
                         </div>
-                        <h3 class="fw-bold text-white mb-0">R$ {{ metricas_veiculares.total_gasto_frota|floatformat:2 }}</h3>
+                        <h3 class="fw-bold text-body mb-0">R$ {{ metricas_veiculares.total_gasto_frota|floatformat:2 }}</h3>
                         <span class="text-secondary small">{{ metricas_veiculares.total_veiculos }} veículo{{ metricas_veiculares.total_veiculos|pluralize }} monitorado{{ metricas_veiculares.total_veiculos|pluralize }}</span>
                     </div>
                 </div>
@@ -321,9 +321,9 @@
         </div>
 
         <!-- Gráfico de Evolução do Consumo & Abastecimentos -->
-        <div class="card bg-dark border-secondary shadow-sm mb-4">
-            <div class="card-header bg-dark border-secondary d-flex justify-content-between align-items-center py-3">
-                <h5 class="fw-semibold text-white mb-0">
+        <div class="card bg-body-tertiary border-secondary shadow-sm mb-4">
+            <div class="card-header bg-body-tertiary border-secondary d-flex justify-content-between align-items-center py-3">
+                <h5 class="fw-semibold text-body mb-0">
                     <i class="bi bi-graph-up text-warning me-2"></i>Evolução de Abastecimentos & Preço Médio
                 </h5>
                 <span class="badge bg-secondary bg-opacity-25 text-warning border border-warning border-opacity-25">Série Temporal</span>
@@ -336,9 +336,9 @@
         </div>
 
         <!-- Tabela de Eficiência por Veículo -->
-        <div class="card bg-dark border-secondary shadow-sm mb-4">
-            <div class="card-header bg-dark border-secondary d-flex justify-content-between align-items-center py-3">
-                <h5 class="fw-semibold text-white mb-0">
+        <div class="card bg-body-tertiary border-secondary shadow-sm mb-4">
+            <div class="card-header bg-body-tertiary border-secondary d-flex justify-content-between align-items-center py-3">
+                <h5 class="fw-semibold text-body mb-0">
                     <i class="bi bi-speedometer text-info me-2"></i>Desempenho Individual por Veículo
                 </h5>
                 <span class="badge bg-secondary">{{ metricas_veiculares.total_veiculos }} veículo{{ metricas_veiculares.total_veiculos|pluralize }}</span>
@@ -346,7 +346,7 @@
             <div class="card-body p-0">
                 {% if metricas_veiculares.estatisticas_veiculos %}
                 <div class="table-responsive">
-                    <table class="table table-dark table-hover mb-0 align-middle">
+                    <table class="table  table-hover mb-0 align-middle">
                         <thead>
                             <tr class="text-secondary small border-secondary">
                                 <th scope="col" class="ps-3">Veículo</th>
@@ -364,16 +364,16 @@
                         <tbody class="table-group-divider border-secondary">
                             {% for v in metricas_veiculares.estatisticas_veiculos %}
                             <tr class="border-secondary">
-                                <td class="ps-3 text-white fw-medium">
+                                <td class="ps-3 text-body fw-medium">
                                     <i class="bi bi-car-front text-info me-2"></i>{{ v.veiculo_nome }}
                                 </td>
                                 <td>
-                                    <span class="badge bg-secondary bg-opacity-25 text-light border border-secondary">
+                                    <span class="badge bg-secondary bg-opacity-25 text-body border border-secondary">
                                         {{ v.tipo }}
                                     </span>
                                 </td>
                                 <td class="text-secondary">{{ v.km_atual }} km</td>
-                                <td class="text-center text-white">{{ v.total_abastecimentos }}</td>
+                                <td class="text-center text-body">{{ v.total_abastecimentos }}</td>
                                 <td class="text-end text-secondary">{{ v.total_litros }} L</td>
                                 <td class="text-end fw-semibold {% if v.consumo_medio > 0 %}text-success{% else %}text-secondary{% endif %}">
                                     {% if v.consumo_medio > 0 %}{{ v.consumo_medio }} km/L{% else %}—{% endif %}
@@ -399,7 +399,7 @@
                                 <td class="text-end fw-semibold {% if v.custo_por_km > 0 %}text-warning{% else %}text-secondary{% endif %}">
                                     {% if v.custo_por_km > 0 %}R$ {{ v.custo_por_km }}/km{% else %}—{% endif %}
                                 </td>
-                                <td class="text-end pe-3 fw-bold text-white">
+                                <td class="text-end pe-3 fw-bold text-body">
                                     R$ {{ v.total_gasto|floatformat:2 }}
                                 </td>
                             </tr>
@@ -410,7 +410,7 @@
                 {% else %}
                 <div class="text-center py-5">
                     <i class="bi bi-truck fs-1 text-secondary mb-3 d-block"></i>
-                    <h6 class="text-white fw-medium">Nenhum veículo cadastrado</h6>
+                    <h6 class="text-body fw-medium">Nenhum veículo cadastrado</h6>
                     <p class="text-secondary small mb-3">Cadastre seus veículos para acompanhar médias de consumo e custo por km.</p>
                     <a href="{% url 'add_veiculo' %}" class="btn btn-sm btn-info text-dark fw-semibold">
                         <i class="bi bi-plus-circle me-1"></i>Cadastrar Veículo
