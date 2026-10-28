@@ -15,7 +15,8 @@ class FormRenda(MonetaryMaskMixin, forms.ModelForm):
             }),
             'valor': forms.TextInput(attrs={
                 'class': 'form-control bg-body text-body border-secondary mascara-dinheiro',
-                'placeholder': '0,00'
+                'placeholder': '0,00',
+                'id': 'id_valor'
             }),
             'tipo_renda': forms.Select(attrs={
                 'class': 'form-select bg-body text-body border-secondary'
