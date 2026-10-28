@@ -5,3 +5,4 @@ dj-database-url
 psycopg2-binary
 requests
 beautifulsoup4
+whitenoise==6.6.0
