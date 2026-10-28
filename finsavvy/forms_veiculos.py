@@ -4,18 +4,18 @@ from .models import Veiculo
 class FormVeiculo(forms.ModelForm):
     capacidade_tanque = forms.CharField(
         required=True,
-        widget=forms.TextInput(attrs={'class': 'form-control text-bg-dark', 'id': 'id_capacidade_tanque', 'autocomplete': 'off'})
+        widget=forms.TextInput(attrs={'class': 'form-control bg-body text-body', 'id': 'id_capacidade_tanque', 'autocomplete': 'off'})
     )
 
     class Meta:
         model = Veiculo
         fields = ('marca', 'modelo', 'placa', 'tipo_veiculo', 'km_atual', 'capacidade_tanque')
         widgets = {
-            'marca': forms.TextInput(attrs={'class': 'form-control text-bg-dark'}),
-            'modelo': forms.TextInput(attrs={'class': 'form-control text-bg-dark'}),
-            'placa': forms.TextInput(attrs={'class': 'form-control text-bg-dark'}),
-            'tipo_veiculo': forms.Select(attrs={'class': 'form-select text-bg-dark'}),
-            'km_atual': forms.NumberInput(attrs={'class': 'form-control text-bg-dark'}),
+            'marca': forms.TextInput(attrs={'class': 'form-control bg-body text-body'}),
+            'modelo': forms.TextInput(attrs={'class': 'form-control bg-body text-body'}),
+            'placa': forms.TextInput(attrs={'class': 'form-control bg-body text-body'}),
+            'tipo_veiculo': forms.Select(attrs={'class': 'form-select bg-body text-body'}),
+            'km_atual': forms.NumberInput(attrs={'class': 'form-control bg-body text-body'}),
         }
 
     def clean_capacidade_tanque(self):

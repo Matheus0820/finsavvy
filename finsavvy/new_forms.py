@@ -20,7 +20,7 @@ class FormCategoria(forms.ModelForm):
         fields = ('nome', 'cor')
         widgets = {
             'nome': forms.TextInput(attrs={
-                'class': 'form-control text-bg-dark border-secondary',
+                'class': 'form-control bg-body text-body border-secondary',
                 'placeholder': 'Ex: Alimentação, Transporte, Lazer...',
                 'autofocus': True,
             }),
@@ -39,15 +39,15 @@ class FormCustoVariavel(MonetaryMaskMixin, forms.ModelForm):
         queryset=Categoria.objects.all().order_by('nome'),
         required=False,
         empty_label='Selecione uma categoria (opcional)',
-        widget=forms.Select(attrs={'class': 'form-select text-bg-dark border-secondary'})
+        widget=forms.Select(attrs={'class': 'form-select bg-body text-body border-secondary'})
     )
 
     class Meta:
         model = CustoVariavel
         fields = ('nome', 'valor', 'categoria')
         widgets = {
-            'nome': forms.TextInput(attrs={'class': 'form-control text-bg-dark border-secondary', 'placeholder': 'Ex: Almoço, Supermercado...'}),
-            'valor': forms.TextInput(attrs={'class': 'form-control text-bg-dark border-secondary mascara-dinheiro', 'placeholder': '0,00'}),
+            'nome': forms.TextInput(attrs={'class': 'form-control bg-body text-body border-secondary', 'placeholder': 'Ex: Almoço, Supermercado...'}),
+            'valor': forms.TextInput(attrs={'class': 'form-control bg-body text-body border-secondary mascara-dinheiro', 'placeholder': '0,00'}),
         }
 
 class FormCustoCompra(MonetaryMaskMixin, forms.ModelForm):
@@ -56,7 +56,7 @@ class FormCustoCompra(MonetaryMaskMixin, forms.ModelForm):
     imagem_qr = forms.FileField(
         required=False,
         label="Foto / Imagem do QR-Code (opcional)",
-        widget=forms.FileInput(attrs={'class': 'form-control text-bg-dark border-secondary', 'accept': 'image/*'})
+        widget=forms.FileInput(attrs={'class': 'form-control bg-body text-body border-secondary', 'accept': 'image/*'})
     )
 
     class Meta:
@@ -64,20 +64,20 @@ class FormCustoCompra(MonetaryMaskMixin, forms.ModelForm):
         fields = ('estabelecimento', 'data', 'valor_total', 'qr_code_url')
         widgets = {
             'estabelecimento': forms.TextInput(attrs={
-                'class': 'form-control text-bg-dark border-secondary',
+                'class': 'form-control bg-body text-body border-secondary',
                 'placeholder': 'Ex: Supermercado Araújo, Posto Central...'
             }),
             'data': forms.DateInput(attrs={
-                'class': 'form-control text-bg-dark border-secondary',
+                'class': 'form-control bg-body text-body border-secondary',
                 'type': 'date'
             }),
             'valor_total': forms.TextInput(attrs={
-                'class': 'form-control text-bg-dark border-secondary mascara-dinheiro',
+                'class': 'form-control bg-body text-body border-secondary mascara-dinheiro',
                 'placeholder': '0,00',
                 'readonly': 'readonly'
             }),
             'qr_code_url': forms.URLInput(attrs={
-                'class': 'form-control text-bg-dark border-secondary',
+                'class': 'form-control bg-body text-body border-secondary',
                 'placeholder': 'URL da NFC-e consultada (opcional)'
             }),
         }
@@ -159,21 +159,21 @@ class FormItemCompra(MonetaryMaskMixin, forms.ModelForm):
         fields = ('descricao', 'quantidade', 'valor_unitario', 'valor_total_item')
         widgets = {
             'descricao': forms.TextInput(attrs={
-                'class': 'form-control text-bg-dark border-secondary item-descricao',
+                'class': 'form-control bg-body text-body border-secondary item-descricao',
                 'placeholder': 'Ex: Arroz 5kg, Detergente...'
             }),
             'quantidade': forms.NumberInput(attrs={
-                'class': 'form-control text-bg-dark border-secondary item-qtd',
+                'class': 'form-control bg-body text-body border-secondary item-qtd',
                 'step': '0.001',
                 'min': '0',
                 'placeholder': '1'
             }),
             'valor_unitario': forms.TextInput(attrs={
-                'class': 'form-control text-bg-dark border-secondary item-unitario mascara-dinheiro',
+                'class': 'form-control bg-body text-body border-secondary item-unitario mascara-dinheiro',
                 'placeholder': '0,00'
             }),
             'valor_total_item': forms.TextInput(attrs={
-                'class': 'form-control text-bg-dark border-secondary item-total mascara-dinheiro',
+                'class': 'form-control bg-body text-body border-secondary item-total mascara-dinheiro',
                 'readonly': 'readonly',
                 'placeholder': '0,00'
             }),
@@ -224,12 +224,12 @@ class FormVeiculo(MonetaryMaskMixin, forms.ModelForm):
         model = Veiculo
         fields = ('marca', 'modelo', 'placa', 'tipo_veiculo', 'km_atual', 'capacidade_tanque')
         widgets = {
-            'marca': forms.TextInput(attrs={'class': 'form-control text-bg-dark border-secondary'}),
-            'modelo': forms.TextInput(attrs={'class': 'form-control text-bg-dark border-secondary'}),
-            'placa': forms.TextInput(attrs={'class': 'form-control text-bg-dark border-secondary'}),
-            'tipo_veiculo': forms.Select(attrs={'class': 'form-select text-bg-dark border-secondary'}),
-            'km_atual': forms.TextInput(attrs={'class': 'form-control text-bg-dark border-secondary mascara-dinheiro', 'placeholder': '0,00'}),
-            'capacidade_tanque': forms.TextInput(attrs={'class': 'form-control text-bg-dark border-secondary mascara-dinheiro', 'placeholder': '0,00'}),
+            'marca': forms.TextInput(attrs={'class': 'form-control bg-body text-body border-secondary'}),
+            'modelo': forms.TextInput(attrs={'class': 'form-control bg-body text-body border-secondary'}),
+            'placa': forms.TextInput(attrs={'class': 'form-control bg-body text-body border-secondary'}),
+            'tipo_veiculo': forms.Select(attrs={'class': 'form-select bg-body text-body border-secondary'}),
+            'km_atual': forms.TextInput(attrs={'class': 'form-control bg-body text-body border-secondary mascara-dinheiro', 'placeholder': '0,00'}),
+            'capacidade_tanque': forms.TextInput(attrs={'class': 'form-control bg-body text-body border-secondary mascara-dinheiro', 'placeholder': '0,00'}),
         }
 
 class FormCustoCombustivel(MonetaryMaskMixin, forms.ModelForm):
@@ -239,11 +239,11 @@ class FormCustoCombustivel(MonetaryMaskMixin, forms.ModelForm):
         model = CustoCombustivel
         fields = ('veiculo', 'data', 'valor_abastecido', 'valor_por_litro', 'km_atual', 'tanque_cheio')
         widgets = {
-            'veiculo': forms.Select(attrs={'class': 'form-select text-bg-dark border-secondary'}),
-            'data': forms.DateInput(format='%Y-%m-%d', attrs={'class': 'form-control text-bg-dark border-secondary', 'type': 'date'}),
-            'valor_abastecido': forms.TextInput(attrs={'class': 'form-control text-bg-dark border-secondary mascara-dinheiro', 'placeholder': '0,00'}),
-            'valor_por_litro': forms.TextInput(attrs={'class': 'form-control text-bg-dark border-secondary mascara-dinheiro', 'placeholder': '0,00'}),
-            'km_atual': forms.NumberInput(attrs={'class': 'form-control text-bg-dark border-secondary', 'min': '0'}),
+            'veiculo': forms.Select(attrs={'class': 'form-select bg-body text-body border-secondary'}),
+            'data': forms.DateInput(format='%Y-%m-%d', attrs={'class': 'form-control bg-body text-body border-secondary', 'type': 'date'}),
+            'valor_abastecido': forms.TextInput(attrs={'class': 'form-control bg-body text-body border-secondary mascara-dinheiro', 'placeholder': '0,00'}),
+            'valor_por_litro': forms.TextInput(attrs={'class': 'form-control bg-body text-body border-secondary mascara-dinheiro', 'placeholder': '0,00'}),
+            'km_atual': forms.NumberInput(attrs={'class': 'form-control bg-body text-body border-secondary', 'min': '0'}),
             'tanque_cheio': forms.CheckboxInput(attrs={'class': 'form-check-input', 'role': 'switch'}),
         }
 
@@ -289,11 +289,11 @@ class FormManutencao(MonetaryMaskMixin, forms.ModelForm):
         model = Manutencao
         fields = ('veiculo', 'tipo', 'descricao', 'valor', 'km_atual')
         widgets = {
-            'veiculo': forms.Select(attrs={'class': 'form-select text-bg-dark border-secondary'}),
-            'tipo': forms.TextInput(attrs={'class': 'form-control text-bg-dark border-secondary'}),
-            'descricao': forms.Textarea(attrs={'class': 'form-control text-bg-dark border-secondary', 'rows': 3}),
-            'valor': forms.TextInput(attrs={'class': 'form-control text-bg-dark border-secondary mascara-dinheiro', 'placeholder': '0,00'}),
-            'km_atual': forms.TextInput(attrs={'class': 'form-control text-bg-dark border-secondary mascara-dinheiro', 'placeholder': '0,00'}),
+            'veiculo': forms.Select(attrs={'class': 'form-select bg-body text-body border-secondary'}),
+            'tipo': forms.TextInput(attrs={'class': 'form-control bg-body text-body border-secondary'}),
+            'descricao': forms.Textarea(attrs={'class': 'form-control bg-body text-body border-secondary', 'rows': 3}),
+            'valor': forms.TextInput(attrs={'class': 'form-control bg-body text-body border-secondary mascara-dinheiro', 'placeholder': '0,00'}),
+            'km_atual': forms.TextInput(attrs={'class': 'form-control bg-body text-body border-secondary mascara-dinheiro', 'placeholder': '0,00'}),
         }
 
 
@@ -304,13 +304,13 @@ class FormTrocaOleo(MonetaryMaskMixin, forms.ModelForm):
         model = TrocaOleo
         fields = ('veiculo', 'data', 'km_atual', 'valor', 'tipo_oleo', 'intervalo_troca', 'observacao')
         widgets = {
-            'veiculo': forms.Select(attrs={'class': 'form-select text-bg-dark border-secondary'}),
-            'data': forms.DateInput(format='%Y-%m-%d', attrs={'class': 'form-control text-bg-dark border-secondary', 'type': 'date'}),
-            'km_atual': forms.TextInput(attrs={'class': 'form-control text-bg-dark border-secondary mascara-dinheiro', 'placeholder': '0,00'}),
-            'valor': forms.TextInput(attrs={'class': 'form-control text-bg-dark border-secondary mascara-dinheiro', 'placeholder': '0,00'}),
-            'tipo_oleo': forms.TextInput(attrs={'class': 'form-control text-bg-dark border-secondary', 'placeholder': 'Ex: 5W30 Sintético'}),
-            'intervalo_troca': forms.TextInput(attrs={'class': 'form-control text-bg-dark border-secondary mascara-dinheiro', 'placeholder': 'Ex: 10000'}),
-            'observacao': forms.Textarea(attrs={'class': 'form-control text-bg-dark border-secondary', 'rows': 2}),
+            'veiculo': forms.Select(attrs={'class': 'form-select bg-body text-body border-secondary'}),
+            'data': forms.DateInput(format='%Y-%m-%d', attrs={'class': 'form-control bg-body text-body border-secondary', 'type': 'date'}),
+            'km_atual': forms.TextInput(attrs={'class': 'form-control bg-body text-body border-secondary mascara-dinheiro', 'placeholder': '0,00'}),
+            'valor': forms.TextInput(attrs={'class': 'form-control bg-body text-body border-secondary mascara-dinheiro', 'placeholder': '0,00'}),
+            'tipo_oleo': forms.TextInput(attrs={'class': 'form-control bg-body text-body border-secondary', 'placeholder': 'Ex: 5W30 Sintético'}),
+            'intervalo_troca': forms.TextInput(attrs={'class': 'form-control bg-body text-body border-secondary mascara-dinheiro', 'placeholder': 'Ex: 10000'}),
+            'observacao': forms.Textarea(attrs={'class': 'form-control bg-body text-body border-secondary', 'rows': 2}),
         }
 
     def clean(self):

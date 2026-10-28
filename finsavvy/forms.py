@@ -10,10 +10,10 @@ class FormCustoFixo(MonetaryMaskMixin, forms.ModelForm):
         model = CustoFixo
         fields = ('nome', 'valor', 'dia_vencimento', 'data_vigencia')
         widgets = {
-            'nome': forms.TextInput(attrs={'class': 'form-control text-bg-dark', 'placeholder': 'Internet'}),
-            'valor': forms.TextInput(attrs={'class': 'form-control text-bg-dark mascara-dinheiro', 'placeholder': '0,00', 'id': 'id_valor'}),
-            'dia_vencimento': forms.NumberInput(attrs={'class': 'form-control text-bg-dark', 'min': '1', 'max': '31', 'placeholder': '5'}),
-            'data_vigencia': forms.DateInput(attrs={'class': 'form-control text-bg-dark', 'type': 'text', 'id': 'datepicker_vigencia', 'placeholder': 'dd/mm/aaaa', 'autocomplete': 'off'})
+            'nome': forms.TextInput(attrs={'class': 'form-control bg-body text-body', 'placeholder': 'Internet'}),
+            'valor': forms.TextInput(attrs={'class': 'form-control bg-body text-body mascara-dinheiro', 'placeholder': '0,00', 'id': 'id_valor'}),
+            'dia_vencimento': forms.NumberInput(attrs={'class': 'form-control bg-body text-body', 'min': '1', 'max': '31', 'placeholder': '5'}),
+            'data_vigencia': forms.DateInput(attrs={'class': 'form-control bg-body text-body', 'type': 'text', 'id': 'datepicker_vigencia', 'placeholder': 'dd/mm/aaaa', 'autocomplete': 'off'})
         }
 
     def clean_data_vigencia(self):
