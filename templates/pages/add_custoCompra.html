@@ -267,35 +267,9 @@
         width: 100% !important;
         max-width: 100% !important;
         height: auto !important;
-    }
-    #reader {
-        width: 100% !important;
-        border: none !important;
-    }
-    #reader video {
+        object-fit: cover !important;
         border-radius: 8px;
-        max-height: 400px;
-        object-fit: cover;
-    }
-    #reader button {
-        background-color: #00e0c1 !important;
-        color: #121212 !important;
-        border: none !important;
-        padding: 6px 14px !important;
-        border-radius: 6px !important;
-        font-weight: 500 !important;
-        margin: 4px !important;
-    }
-    #reader select {
-        background-color: #212529 !important;
-        color: #f8f9fa !important;
-        border: 1px solid #495057 !important;
-        padding: 4px 8px !important;
-        border-radius: 6px !important;
-        margin: 4px !important;
-    }
-    #reader a {
-        color: #00e0c1 !important;
+        display: block;
     }
     @media (max-width: 576px) {
         #modalCameraScanner .modal-dialog {
@@ -304,6 +278,10 @@
         }
         #modalCameraScanner .modal-body {
             padding: 1rem !important;
+        }
+        #qr-camera-container {
+            max-width: 100% !important;
+            min-height: 240px;
         }
     }
 </style>
@@ -322,8 +300,14 @@
                 <p class="text-secondary small mb-3">
                     Aponte a câmera para o QR-Code impresso no cupom fiscal. A detecção e consulta serão iniciadas automaticamente.
                 </p>
-                <div id="reader" class="mx-auto rounded overflow-hidden"></div>
-                <div id="qr-file-scan-worker" style="display:none;" aria-hidden="true"></div>
+                <div id="qr-camera-container" class="mx-auto rounded overflow-hidden position-relative">
+                    <div id="qr-camera-view" style="width: 100%;"></div>
+                </div>
+                <div id="camera-loading-spinner" class="mt-3 text-info small d-none">
+                    <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+                    Iniciando câmera...
+                </div>
+                <div id="camera-error-message" class="alert alert-warning small py-2 px-3 mt-3 d-none text-start" role="alert"></div>
 
                 <!-- Fallback manual caso a câmera falhe ou QR-code esteja ilegível -->
                 <div class="mt-4 pt-3 border-top border-secondary text-start">
@@ -349,7 +333,7 @@
 </div>
 
 <!-- Biblioteca html5-qrcode para leitura pela câmera -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js"></script>
+<script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
 
 <script>
 document.addEventListener('DOMContentLoaded', function () {
@@ -657,7 +641,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
             // 1. Tenta decodificar no próprio navegador usando ZXing / BarcodeDetector client-side
             if (typeof Html5Qrcode !== 'undefined') {
-                const scannerTemporario = new Html5Qrcode("qr-file-scan-worker", {
+                const scannerTemporario = new Html5Qrcode("qr-camera-view", {
                     formatsToSupport: (typeof Html5QrcodeSupportedFormats !== 'undefined') ? [Html5QrcodeSupportedFormats.QR_CODE] : undefined,
                     experimentalFeatures: { useBarCodeDetectorIfSupported: true },
                     verbose: false
@@ -723,30 +707,73 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
-    // Inicialização e gerenciamento da Câmera com Html5QrcodeScanner (openjavascript.info/2022/12/10/qr-code-scanner-with-html5-qrcode-js/)
-    function pararCamera() {
-        if (html5QrScanner) {
-            try {
-                html5QrScanner.clear();
-            } catch (e) {
-                console.warn('Erro ao limpar scanner:', e);
-            }
-            html5QrScanner = null;
+    // Inicialização e gerenciamento da Câmera com html5-qrcode
+    function exibirErroCamera(mensagem) {
+        if (spinnerCam) spinnerCam.classList.add('d-none');
+        if (cameraErrorMsg) {
+            cameraErrorMsg.innerHTML = `<i class="bi bi-exclamation-triangle-fill text-warning me-2"></i><span>${mensagem}</span>`;
+            cameraErrorMsg.classList.remove('d-none');
         }
     }
 
-    function iniciarCamera() {
-        pararCamera();
-
-        const readerEl = document.getElementById('reader');
-        if (readerEl) {
-            readerEl.innerHTML = '';
+    function limparErroCamera() {
+        if (cameraErrorMsg) {
+            cameraErrorMsg.innerHTML = '';
+            cameraErrorMsg.classList.add('d-none');
         }
+    }
 
-        if (typeof Html5QrcodeScanner === 'undefined') {
-            exibirFeedback('<i class="bi bi-exclamation-triangle-fill me-1"></i> Biblioteca de leitura não carregada.', 'danger');
+    function pararCamera() {
+        if (html5QrScanner) {
+            const scanner = html5QrScanner;
+            html5QrScanner = null;
+            const stopPromise = (typeof scanner.isScanning === 'boolean' ? scanner.isScanning : true)
+                ? scanner.stop()
+                : Promise.resolve();
+
+            return stopPromise.then(() => {
+                try { scanner.clear(); } catch (e) {}
+            }).catch(err => {
+                console.warn('Erro ao finalizar câmera:', err);
+                try { scanner.clear(); } catch (e) {}
+            });
+        }
+        return Promise.resolve();
+    }
+
+    function iniciarCamera() {
+        limparErroCamera();
+
+        if (typeof Html5Qrcode === 'undefined') {
+            exibirErroCamera('Biblioteca de leitura de câmera não carregada.');
             return;
         }
+
+        if (!window.isSecureContext && location.hostname !== 'localhost' && location.hostname !== '127.0.0.1') {
+            exibirErroCamera('O acesso à câmera exige conexão segura (HTTPS). No ambiente local por IP, utilize o leitor de imagem ou digite a chave/URL abaixo.');
+            return;
+        }
+
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+            exibirErroCamera('Seu navegador não tem suporte ou bloqueou o acesso à câmera neste contexto.');
+            return;
+        }
+
+        if (spinnerCam) spinnerCam.classList.remove('d-none');
+
+        const formats = (typeof Html5QrcodeSupportedFormats !== 'undefined')
+            ? [Html5QrcodeSupportedFormats.QR_CODE]
+            : undefined;
+
+        const config = {
+            fps: 15,
+            qrbox: function (viewfinderWidth, viewfinderHeight) {
+                const minEdge = Math.min(viewfinderWidth, viewfinderHeight);
+                const edge = Math.floor(minEdge * 0.82);
+                const tamanho = Math.max(200, Math.min(edge, 380));
+                return { width: tamanho, height: tamanho };
+            }
+        };
 
         function onScanSuccess(decodedText) {
             pararCamera();
@@ -762,22 +789,80 @@ document.addEventListener('DOMContentLoaded', function () {
             consultarNfceAjax(fd);
         }
 
-        function onScanError(errorMessage) {
-            // Callback silencioso por frame enquanto busca QR code
+        function onScanFailure(errorMessage) {
+            // Ignorado durante a busca contínua de frames
         }
 
-        try {
-            html5QrScanner = new Html5QrcodeScanner('reader', {
-                qrbox: {
-                    width: 250,
-                    height: 250
+        function tentarIniciarCom(videoConstraints) {
+            if (html5QrScanner) {
+                try { html5QrScanner.clear(); } catch (e) {}
+            }
+            html5QrScanner = new Html5Qrcode("qr-camera-view", {
+                formatsToSupport: formats,
+                experimentalFeatures: {
+                    useBarCodeDetectorIfSupported: true
                 },
-                fps: 20
+                verbose: false
             });
-            html5QrScanner.render(onScanSuccess, onScanError);
-        } catch (err) {
-            console.error('Falha ao iniciar Html5QrcodeScanner:', err);
+            return html5QrScanner.start(videoConstraints, config, onScanSuccess, onScanFailure);
         }
+
+        // Tentativa 1: câmera traseira (environment) com resolução ideal HD/Full HD para leitura de QR denso de NFC-e
+        const constraintsTraseiraHD = {
+            facingMode: "environment",
+            width: { ideal: 1920 },
+            height: { ideal: 1080 }
+        };
+
+        tentarIniciarCom(constraintsTraseiraHD)
+            .then(() => {
+                if (spinnerCam) spinnerCam.classList.add('d-none');
+            })
+            .catch(err => {
+                console.warn('Tentativa com resolução HD falhou, tentando modo básico:', err);
+                const errName = err ? (err.name || '') : '';
+                const errMsg = (typeof err === 'string' ? err : (err.message || '')).toLowerCase();
+
+                if (errName === 'NotAllowedError' || errName === 'PermissionDeniedError' || errMsg.includes('permission') || errMsg.includes('not allowed')) {
+                    exibirErroCamera('Permissão de acesso à câmera negada. Habilite a câmera nas permissões do navegador.');
+                    return;
+                }
+
+                // Tentativa 1b: câmera traseira sem restrição de resolução
+                tentarIniciarCom({ facingMode: "environment" })
+                    .then(() => {
+                        if (spinnerCam) spinnerCam.classList.add('d-none');
+                    })
+                    .catch(() => {
+                        // Tentativa 2: fallback para câmera do usuário / webcam integrada
+                        tentarIniciarCom({ facingMode: "user" })
+                            .then(() => {
+                                if (spinnerCam) spinnerCam.classList.add('d-none');
+                            })
+                            .catch(err2 => {
+                                console.warn('Tentativa com facingMode: "user" falhou:', err2);
+                                const errName2 = err2 ? (err2.name || '') : '';
+                                if (errName2 === 'NotAllowedError' || errName2 === 'PermissionDeniedError') {
+                                    exibirErroCamera('Permissão de acesso à câmera negada. Conceda permissão no navegador.');
+                                    return;
+                                }
+
+                                // Tentativa 3: enumeração de câmeras conectadas por ID
+                                Html5Qrcode.getCameras().then(cameras => {
+                                    if (cameras && cameras.length > 0) {
+                                        return tentarIniciarCom(cameras[0].id).then(() => {
+                                            if (spinnerCam) spinnerCam.classList.add('d-none');
+                                        });
+                                    } else {
+                                        exibirErroCamera('Nenhuma câmera conectada foi encontrada neste dispositivo.');
+                                    }
+                                }).catch(err3 => {
+                                    console.error('Falha geral ao acessar câmeras:', err3);
+                                    exibirErroCamera('Não foi possível acessar a câmera. Verifique se ela não está em uso por outro programa.');
+                                });
+                            });
+                    });
+            });
     }
 
     if (btnAbrirCamera && modalCameraInstance) {
@@ -794,6 +879,7 @@ document.addEventListener('DOMContentLoaded', function () {
         });
         modalCameraEl.addEventListener('hidden.bs.modal', function () {
             pararCamera();
+            limparErroCamera();
             if (inputQrManualModal) inputQrManualModal.value = '';
         });
     }
