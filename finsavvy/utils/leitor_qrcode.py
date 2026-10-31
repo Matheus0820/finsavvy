@@ -17,6 +17,14 @@ except ImportError:
     OPENCV_AVAILABLE = False
 
 
+TABELA_IBGE_UF = {
+    '11': 'RO', '12': 'AC', '13': 'AM', '14': 'RR', '15': 'PA', '16': 'AP', '17': 'TO',
+    '21': 'MA', '22': 'PI', '23': 'CE', '24': 'RN', '25': 'PB', '26': 'PE', '27': 'AL',
+    '28': 'SE', '29': 'BA', '31': 'MG', '32': 'ES', '33': 'RJ', '35': 'SP', '41': 'PR',
+    '42': 'SC', '43': 'RS', '50': 'MS', '51': 'MT', '52': 'GO', '53': 'DF'
+}
+
+
 def _tentar_decodificar_opencv(detector, imagem) -> Optional[str]:
     """Tenta decodificar o QR-Code com uma matriz do OpenCV."""
     try:
@@ -137,6 +145,7 @@ def extrair_dados_nfce(texto_qr: str) -> Dict[str, Any]:
         'valor': None,
         'nome': 'Compra NFC-e',
         'chave_acesso': None,
+        'uf': None,
         'qr_data': texto_qr or '',
         'mensagem': '',
     }
@@ -147,11 +156,23 @@ def extrair_dados_nfce(texto_qr: str) -> Dict[str, Any]:
 
     texto = texto_qr.strip()
 
-    # 1. Busca por chave de acesso de 44 dígitos
+    # 1. Busca por chave de acesso de 44 dígitos (direto ou sanitizado de pontuação/espaços)
+    chave_encontrada = None
     chave_match = re.search(r'\b(\d{44})\b', texto)
     if chave_match:
-        resultado['chave_acesso'] = chave_match.group(1)
-        resultado['nome'] = f"Compra NFC-e {chave_match.group(1)[:8]}..."
+        chave_encontrada = chave_match.group(1)
+    else:
+        apenas_digitos = re.sub(r'\D', '', texto)
+        if len(apenas_digitos) == 44:
+            chave_encontrada = apenas_digitos
+
+    if chave_encontrada:
+        resultado['chave_acesso'] = chave_encontrada
+        uf_codigo = chave_encontrada[:2]
+        uf_sigla = TABELA_IBGE_UF.get(uf_codigo)
+        resultado['uf'] = uf_sigla
+        sufixo_uf = f" {uf_sigla}" if uf_sigla else ""
+        resultado['nome'] = f"Compra NFC-e{sufixo_uf} {chave_encontrada[:8]}..."
 
     # 2. Se for URL (padrão SEFAZ)
     if 'http://' in texto.lower() or 'https://' in texto.lower() or '?' in texto:

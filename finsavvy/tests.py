@@ -460,6 +460,58 @@ class AuthViewsUITests(TestCase):
         self.assertContains(response, 'alert-danger')
 
 
+class NfceScannerTests(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(username='nfce_tester', password='testpass')
+        self.client.login(username='nfce_tester', password='testpass')
+        self.chave_sp = '35240512345678000190650010000000011000000010'
+        self.chave_rj = '33240512345678000190650010000000011000000015'
+
+    def test_extrair_dados_nfce_chave_44_digitos(self):
+        dados_sp = extrair_dados_nfce(self.chave_sp)
+        self.assertTrue(dados_sp['sucesso'])
+        self.assertEqual(dados_sp['chave_acesso'], self.chave_sp)
+        self.assertEqual(dados_sp['uf'], 'SP')
+        self.assertIn('SP', dados_sp['nome'])
+
+        dados_rj = extrair_dados_nfce(self.chave_rj)
+        self.assertTrue(dados_rj['sucesso'])
+        self.assertEqual(dados_rj['chave_acesso'], self.chave_rj)
+        self.assertEqual(dados_rj['uf'], 'RJ')
+
+    def test_consultar_nfce_chave_44_digitos_fallback(self):
+        res = consultar_nfce(self.chave_sp)
+        self.assertTrue(res['sucesso'])
+        self.assertEqual(res['chave_acesso'], self.chave_sp)
+        self.assertEqual(res['uf'], 'SP')
+        self.assertIn('Chave de acesso reconhecida', res['mensagem'])
+
+    def test_ler_nfce_ajax_chave_44_digitos(self):
+        response = self.client.post(reverse('api_ler_nfce'), {'qr_text': self.chave_sp})
+        self.assertEqual(response.status_code, 200)
+        json_data = response.json()
+        self.assertTrue(json_data.get('sucesso'))
+        self.assertEqual(json_data.get('chave_acesso'), self.chave_sp)
+        self.assertEqual(json_data.get('uf'), 'SP')
+
+    def test_ler_nfce_ajax_sem_parametros(self):
+        response = self.client.post(reverse('api_ler_nfce'), {})
+        self.assertEqual(response.status_code, 400)
+        json_data = response.json()
+        self.assertFalse(json_data.get('sucesso'))
+
+    def test_add_custo_compra_renders_scanner_modal_elements(self):
+        response = self.client.get(reverse('add_custoCompra'))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'id="modalCameraScanner"')
+        self.assertContains(response, 'id="btn-tirar-foto-nativa"')
+        self.assertContains(response, 'id="btn-toggle-camera-live"')
+        self.assertContains(response, 'id="qr-input-file"')
+        self.assertContains(response, 'capture="environment"')
+        self.assertContains(response, 'id="qr-camera-view"')
+
+
+
 
 
 

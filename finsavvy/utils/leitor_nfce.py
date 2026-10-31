@@ -276,6 +276,7 @@ def consultar_nfce(url_ou_chave: str, timeout: int = 10) -> Dict[str, Any]:
         'data_emissao': None,
         'valor_total': resultado_fallback.get('valor') or 0.0,
         'chave_acesso': resultado_fallback.get('chave_acesso') or '',
+        'uf': resultado_fallback.get('uf'),
         'itens': [],
         'url': url_ou_chave,
         'mensagem': '',
@@ -283,8 +284,14 @@ def consultar_nfce(url_ou_chave: str, timeout: int = 10) -> Dict[str, Any]:
 
     url = (url_ou_chave or '').strip()
     if not url.startswith('http://') and not url.startswith('https://'):
-        resultado_final['mensagem'] = "Identificador fornecido não é uma URL válida para consulta Web."
-        resultado_final['sucesso'] = bool(resultado_final['chave_acesso'] or resultado_final['valor_total'])
+        if resultado_final['chave_acesso']:
+            uf_sigla = resultado_fallback.get('uf')
+            uf_msg = f" (UF: {uf_sigla})" if uf_sigla else ""
+            resultado_final['sucesso'] = True
+            resultado_final['mensagem'] = f"Chave de acesso reconhecida com sucesso{uf_msg}."
+        else:
+            resultado_final['mensagem'] = "Identificador fornecido não é uma URL ou chave válida para consulta Web."
+            resultado_final['sucesso'] = bool(resultado_final['chave_acesso'] or resultado_final['valor_total'])
         return resultado_final
 
     try:

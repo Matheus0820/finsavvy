@@ -297,28 +297,63 @@
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Fechar" id="btn-fechar-modal-cam"></button>
             </div>
             <div class="modal-body p-4 text-center">
-                <p class="text-secondary small mb-3">
-                    Aponte a câmera para o QR-Code impresso no cupom fiscal. A detecção e consulta serão iniciadas automaticamente.
-                </p>
-                <div id="qr-camera-container" class="mx-auto rounded overflow-hidden position-relative">
-                    <div id="qr-camera-view" style="width: 100%;"></div>
+                <!-- Zona 1: Foto em Alta Resolução (A Bala de Prata - Recomendada) -->
+                <div class="card border-primary bg-primary bg-opacity-10 mb-4 text-start shadow-sm">
+                    <div class="card-body p-3">
+                        <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
+                            <div>
+                                <span class="badge text-bg-primary mb-1"><i class="bi bi-star-fill me-1"></i> Recomendado</span>
+                                <h6 class="mb-1 text-white fw-semibold">Tirar Foto em Alta Resolução</h6>
+                                <p class="text-secondary small mb-0">Usa o foco automático da câmera nativa do celular. Perfeito para QR-Codes pequenos, amassados ou papel térmico desgastado.</p>
+                            </div>
+                            <div>
+                                <input type="file" accept="image/*" capture="environment" id="qr-input-file" class="d-none">
+                                <button type="button" class="btn btn-primary px-3 py-2 fw-semibold shadow-sm d-flex align-items-center" id="btn-tirar-foto-nativa">
+                                    <i class="bi bi-camera-fill fs-5 me-2"></i> Tirar Foto Nativa
+                                </button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <div id="camera-loading-spinner" class="mt-3 text-info small d-none">
-                    <span class="spinner-border spinner-border-sm me-2" role="status"></span>
-                    Iniciando câmera...
-                </div>
-                <div id="camera-error-message" class="alert alert-warning small py-2 px-3 mt-3 d-none text-start" role="alert"></div>
 
-                <!-- Fallback manual caso a câmera falhe ou QR-code esteja ilegível -->
-                <div class="mt-4 pt-3 border-top border-secondary text-start">
-                    <label for="input-qr-manual-modal" class="form-label small text-secondary fw-semibold mb-1">
-                        <i class="bi bi-keyboard me-1"></i> Não conseguiu ler pela câmera? Insira a URL ou Chave da NFC-e:
-                    </label>
-                    <div class="input-group">
-                        <input type="text" id="input-qr-manual-modal" class="form-control text-bg-body-tertiary border-secondary" placeholder="Cole aqui a URL do QR-Code ou a chave de 44 dígitos...">
-                        <button type="button" class="btn btn-primary px-3" id="btn-buscar-manual-modal">
-                            <i class="bi bi-search me-1"></i> Buscar
+                <!-- Zona 2: Câmera ao Vivo (WebRTC) -->
+                <div class="card border-secondary text-bg-dark mb-4 text-center">
+                    <div class="card-header border-secondary d-flex justify-content-between align-items-center py-2 px-3">
+                        <span class="small fw-semibold text-secondary"><i class="bi bi-broadcast me-1"></i> Câmera ao Vivo (WebRTC)</span>
+                        <button type="button" class="btn btn-sm btn-outline-secondary" id="btn-toggle-camera-live">
+                            <i class="bi bi-pause-circle me-1" id="icon-toggle-cam"></i> <span id="label-toggle-cam">Pausar Câmera</span>
                         </button>
+                    </div>
+                    <div class="card-body p-3">
+                        <p class="text-secondary small mb-2">
+                            Aponte a câmera para o QR-Code impresso no cupom fiscal para leitura automática:
+                        </p>
+                        <div id="qr-camera-container" class="mx-auto rounded overflow-hidden position-relative">
+                            <div id="qr-camera-view" style="width: 100%;"></div>
+                        </div>
+                        <div id="camera-loading-spinner" class="mt-2 text-info small d-none">
+                            <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+                            Iniciando câmera...
+                        </div>
+                        <div id="camera-error-message" class="alert alert-warning small py-2 px-3 mt-2 d-none text-start" role="alert"></div>
+                    </div>
+                </div>
+
+                <!-- Zona 3: Fallback Manual com Chave de 44 Dígitos ou URL -->
+                <div class="card border-secondary text-bg-dark text-start">
+                    <div class="card-header border-secondary py-2 px-3">
+                        <span class="small fw-semibold text-secondary"><i class="bi bi-keyboard me-1"></i> Fallback Manual</span>
+                    </div>
+                    <div class="card-body p-3">
+                        <label for="input-qr-manual-modal" class="form-label small text-secondary fw-semibold mb-1">
+                            Cole a URL do cupom ou os 44 dígitos da chave de acesso:
+                        </label>
+                        <div class="input-group">
+                            <input type="text" id="input-qr-manual-modal" class="form-control text-bg-body-tertiary border-secondary" placeholder="Ex: 3523 0514 2642 ... ou https://..." autocomplete="off">
+                            <button type="button" class="btn btn-primary px-3" id="btn-buscar-manual-modal">
+                                <i class="bi bi-search me-1"></i> Buscar
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -363,6 +398,10 @@ document.addEventListener('DOMContentLoaded', function () {
     const cameraErrorMsg = document.getElementById('camera-error-message');
     const inputQrManualModal = document.getElementById('input-qr-manual-modal');
     const btnBuscarManualModal = document.getElementById('btn-buscar-manual-modal');
+    const btnTirarFotoNativa = document.getElementById('btn-tirar-foto-nativa');
+    const inputQrFile = document.getElementById('qr-input-file');
+    const btnToggleCameraLive = document.getElementById('btn-toggle-camera-live');
+    let isCameraLiveActive = true;
     let modalCameraInstance = null;
     let html5QrScanner = null;
 
@@ -378,6 +417,8 @@ document.addEventListener('DOMContentLoaded', function () {
             btnProcessarArquivo,
             btnProcessarUrl,
             btnBuscarManualModal,
+            btnTirarFotoNativa,
+            btnToggleCameraLive,
             btnAddItem
         ];
         botoes.forEach(btn => {
@@ -575,7 +616,13 @@ document.addEventListener('DOMContentLoaded', function () {
         // 1. Remove quebras de linha, tabulações e caracteres de controle invisíveis
         let limpo = rawUrl.replace(/[\r\n\t\x00-\x1f\x7f-\x9f]/g, '').trim();
 
-        // 2. Corrige protocolos duplicados ou aninhados comuns em leituras com erro de prefixo
+        // 2. Se for chave numérica de 44 dígitos (possivelmente com espaços ou traços)
+        const apenasDigitos = limpo.replace(/\D/g, '');
+        if (apenasDigitos.length === 44 && !limpo.toLowerCase().startsWith('http')) {
+            return apenasDigitos;
+        }
+
+        // 3. Corrige protocolos duplicados ou aninhados comuns em leituras com erro de prefixo
         limpo = limpo.replace(/^(?:https?:\/\/)+(https?:\/\/)/i, '$1');
         limpo = limpo.replace(/^http:\/\/http:\/\//i, 'http://');
         limpo = limpo.replace(/^https:\/\/https:\/\//i, 'https://');
@@ -707,6 +754,71 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
+    // Foto Nativa (A Bala de Prata para smartphones - foco e resolução nativos)
+    if (btnTirarFotoNativa && inputQrFile) {
+        btnTirarFotoNativa.addEventListener('click', function () {
+            pararCamera();
+            inputQrFile.click();
+        });
+
+        inputQrFile.addEventListener('change', function () {
+            if (!inputQrFile.files || inputQrFile.files.length === 0) return;
+            const arquivo = inputQrFile.files[0];
+
+            if (modalCameraInstance) {
+                modalCameraInstance.hide();
+            }
+
+            exibirFeedback('<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span> Processando foto nativa do cupom...', 'info');
+
+            // 1. Tenta decodificar no cliente com Html5Qrcode.scanFile
+            if (typeof Html5Qrcode !== 'undefined') {
+                const scannerTemporario = new Html5Qrcode("qr-camera-view", {
+                    formatsToSupport: (typeof Html5QrcodeSupportedFormats !== 'undefined') ? [Html5QrcodeSupportedFormats.QR_CODE] : undefined,
+                    experimentalFeatures: { useBarCodeDetectorIfSupported: true },
+                    verbose: false
+                });
+
+                scannerTemporario.scanFile(arquivo, false)
+                    .then(decodedText => {
+                        try { scannerTemporario.clear(); } catch (e) {}
+                        const textoSanitizado = higienizarUrlNfce(decodedText);
+                        if (inputQrCodeUrl) inputQrCodeUrl.value = textoSanitizado;
+                        const fd = new FormData();
+                        fd.append('qr_text', textoSanitizado);
+                        consultarNfceAjax(fd);
+                    })
+                    .catch(() => {
+                        try { scannerTemporario.clear(); } catch (e) {}
+                        // Fallback automático para o pipeline do servidor com OpenCV CLAHE/Otsu
+                        const fd = new FormData();
+                        fd.append('imagem', arquivo);
+                        consultarNfceAjax(fd);
+                    });
+            } else {
+                const fd = new FormData();
+                fd.append('imagem', arquivo);
+                consultarNfceAjax(fd);
+            }
+        });
+    }
+
+    // Controle de Pausa/Retomada da Câmera ao Vivo
+    if (btnToggleCameraLive) {
+        btnToggleCameraLive.addEventListener('click', function () {
+            if (isCameraLiveActive) {
+                pararCamera().then(() => {
+                    isCameraLiveActive = false;
+                    btnToggleCameraLive.innerHTML = '<i class="bi bi-play-fill me-1"></i> Retomar Câmera';
+                    btnToggleCameraLive.classList.remove('btn-outline-secondary');
+                    btnToggleCameraLive.classList.add('btn-outline-primary');
+                });
+            } else {
+                iniciarCamera();
+            }
+        });
+    }
+
     // Inicialização e gerenciamento da Câmera com html5-qrcode
     function exibirErroCamera(mensagem) {
         if (spinnerCam) spinnerCam.classList.add('d-none');
@@ -760,6 +872,12 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
         if (spinnerCam) spinnerCam.classList.remove('d-none');
+        isCameraLiveActive = true;
+        if (btnToggleCameraLive) {
+            btnToggleCameraLive.innerHTML = '<i class="bi bi-pause-fill me-1"></i> Pausar Câmera';
+            btnToggleCameraLive.classList.remove('btn-outline-primary');
+            btnToggleCameraLive.classList.add('btn-outline-secondary');
+        }
 
         const formats = (typeof Html5QrcodeSupportedFormats !== 'undefined')
             ? [Html5QrcodeSupportedFormats.QR_CODE]
@@ -769,8 +887,8 @@ document.addEventListener('DOMContentLoaded', function () {
             fps: 15,
             qrbox: function (viewfinderWidth, viewfinderHeight) {
                 const minEdge = Math.min(viewfinderWidth, viewfinderHeight);
-                const edge = Math.floor(minEdge * 0.82);
-                const tamanho = Math.max(200, Math.min(edge, 380));
+                const edge = Math.floor(minEdge * 0.75);
+                const tamanho = Math.max(200, Math.min(edge, 400));
                 return { width: tamanho, height: tamanho };
             }
         };
@@ -807,11 +925,12 @@ document.addEventListener('DOMContentLoaded', function () {
             return html5QrScanner.start(videoConstraints, config, onScanSuccess, onScanFailure);
         }
 
-        // Tentativa 1: câmera traseira (environment) com resolução ideal HD/Full HD para leitura de QR denso de NFC-e
+        // Tentativa 1: câmera traseira (environment) em 1080p ideal com foco contínuo para leitura de QR de NFC-e
         const constraintsTraseiraHD = {
             facingMode: "environment",
             width: { ideal: 1920 },
-            height: { ideal: 1080 }
+            height: { ideal: 1080 },
+            advanced: [{ focusMode: "continuous" }]
         };
 
         tentarIniciarCom(constraintsTraseiraHD)
@@ -881,8 +1000,22 @@ document.addEventListener('DOMContentLoaded', function () {
             pararCamera();
             limparErroCamera();
             if (inputQrManualModal) inputQrManualModal.value = '';
+            isCameraLiveActive = false;
         });
     }
+
+    // Liberação de hardware quando o aplicativo ou aba vai para segundo plano no celular
+    document.addEventListener('visibilitychange', function () {
+        if (document.hidden) {
+            pararCamera();
+            isCameraLiveActive = false;
+            if (btnToggleCameraLive) {
+                btnToggleCameraLive.innerHTML = '<i class="bi bi-play-fill me-1"></i> Retomar Câmera';
+                btnToggleCameraLive.classList.remove('btn-outline-secondary');
+                btnToggleCameraLive.classList.add('btn-outline-primary');
+            }
+        }
+    });
 
     // Aplicação de máscara monetária nos itens existentes e futuros
     function aplicarMascaraMoedaEmElemento(inputValor) {
