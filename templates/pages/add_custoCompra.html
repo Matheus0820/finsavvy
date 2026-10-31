@@ -525,8 +525,31 @@ document.addEventListener('DOMContentLoaded', function () {
         recalcularTotais();
     }
 
+    // Função utilitária para higienização e segurança de URLs e chaves da NFC-e
+    function higienizarUrlNfce(rawUrl) {
+        if (!rawUrl || typeof rawUrl !== 'string') return '';
+        // 1. Remove quebras de linha, tabulações e caracteres de controle invisíveis
+        let limpo = rawUrl.replace(/[\r\n\t\x00-\x1f\x7f-\x9f]/g, '').trim();
+
+        // 2. Corrige protocolos duplicados ou aninhados comuns em leituras com erro de prefixo
+        limpo = limpo.replace(/^(?:https?:\/\/)+(https?:\/\/)/i, '$1');
+        limpo = limpo.replace(/^http:\/\/http:\/\//i, 'http://');
+        limpo = limpo.replace(/^https:\/\/https:\/\//i, 'https://');
+        limpo = limpo.replace(/^http:\/\/https:\/\//i, 'https://');
+        limpo = limpo.replace(/^https:\/\/http:\/\//i, 'http://');
+
+        return limpo.trim();
+    }
+
     // Envio para o Endpoint AJAX /api/ler-nfce/
     function consultarNfceAjax(formData) {
+        if (formData.has('qr_text')) {
+            const rawQr = formData.get('qr_text');
+            if (typeof rawQr === 'string') {
+                formData.set('qr_text', higienizarUrlNfce(rawQr));
+            }
+        }
+
         alternarBotoesAcao(true);
         exibirFeedback('<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span> Consultando SEFAZ, aguarde...', 'info');
 
@@ -579,11 +602,13 @@ document.addEventListener('DOMContentLoaded', function () {
     const btnProcessarUrl = document.getElementById('btn_processar_url_manual');
     if (btnProcessarUrl && inputQrCodeUrl) {
         btnProcessarUrl.addEventListener('click', function () {
-            const texto = inputQrCodeUrl.value.trim();
+            const raw = inputQrCodeUrl.value;
+            const texto = higienizarUrlNfce(raw);
             if (!texto) {
                 exibirFeedback('<i class="bi bi-info-circle me-1"></i> Cole a URL ou chave da NFC-e no campo correspondente.', 'warning');
                 return;
             }
+            inputQrCodeUrl.value = texto;
             const fd = new FormData();
             fd.append('qr_text', texto);
             consultarNfceAjax(fd);
@@ -593,7 +618,8 @@ document.addEventListener('DOMContentLoaded', function () {
     // Fallback manual dentro do Modal de Câmera
     if (btnBuscarManualModal && inputQrManualModal) {
         btnBuscarManualModal.addEventListener('click', function () {
-            const texto = inputQrManualModal.value.trim();
+            const raw = inputQrManualModal.value;
+            const texto = higienizarUrlNfce(raw);
             if (!texto) {
                 exibirFeedback('<i class="bi bi-info-circle me-1"></i> Cole a URL ou chave da NFC-e no campo de busca.', 'warning');
                 return;
@@ -666,12 +692,13 @@ document.addEventListener('DOMContentLoaded', function () {
                 pararCamera();
                 if (modalCameraInstance) modalCameraInstance.hide();
 
+                const textoSanitizado = higienizarUrlNfce(decodedText);
                 exibirFeedback('<i class="bi bi-qr-code me-1"></i> QR-Code detectado! Buscando dados na SEFAZ...', 'info');
 
-                if (inputQrCodeUrl) inputQrCodeUrl.value = decodedText;
+                if (inputQrCodeUrl) inputQrCodeUrl.value = textoSanitizado;
 
                 const fd = new FormData();
-                fd.append('qr_text', decodedText);
+                fd.append('qr_text', textoSanitizado);
                 consultarNfceAjax(fd);
             },
             (errorMessage) => {
