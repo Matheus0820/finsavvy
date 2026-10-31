@@ -11,15 +11,28 @@ from typing import Optional, Dict, Any
 try:
     import cv2
     import numpy as np
-    from PIL import Image
+    from PIL import Image, ImageOps
     OPENCV_AVAILABLE = True
 except ImportError:
     OPENCV_AVAILABLE = False
 
 
+def _tentar_decodificar_opencv(detector, imagem) -> Optional[str]:
+    """Tenta decodificar o QR-Code com uma matriz do OpenCV."""
+    try:
+        data, _, _ = detector.detectAndDecode(imagem)
+        if data and data.strip():
+            return data.strip()
+    except Exception:
+        pass
+    return None
+
+
 def decodificar_imagem_qrcode(imagem_bytes_ou_arquivo) -> Optional[str]:
     """
     Decodifica o conteúdo de um QR-Code a partir de bytes de imagem ou arquivo em memória.
+    Aplica correção de orientação EXIF (fotos de smartphone), redimensionamento multi-escala
+    e filtros em cascata (CLAHE e Otsu) para notas fiscais térmicas e com sombras.
     Retorna o texto contido no QR-Code ou None se nenhum código for encontrado.
     """
     if not OPENCV_AVAILABLE:
@@ -34,20 +47,79 @@ def decodificar_imagem_qrcode(imagem_bytes_ou_arquivo) -> Optional[str]:
             conteudo = imagem_bytes_ou_arquivo
 
         pil_img = Image.open(io.BytesIO(conteudo))
+        # Normaliza a orientação da foto utilizando metadados EXIF
+        try:
+            pil_img = ImageOps.exif_transpose(pil_img)
+        except Exception:
+            pass
+
         pil_img = pil_img.convert('RGB')
         np_img = np.array(pil_img)
         bgr_img = cv2.cvtColor(np_img, cv2.COLOR_RGB2BGR)
 
         detector = cv2.QRCodeDetector()
-        data, _, _ = detector.detectAndDecode(bgr_img)
-        if data and data.strip():
-            return data.strip()
 
-        # Tentativa secundária com escala de cinza para melhor contraste
-        gray_img = cv2.cvtColor(bgr_img, cv2.COLOR_BGR2GRAY)
-        data_gray, _, _ = detector.detectAndDecode(gray_img)
-        if data_gray and data_gray.strip():
-            return data_gray.strip()
+        # Prepara escalas para testar (resoluções muito altas de celular dificultam a detecção)
+        h, w = bgr_img.shape[:2]
+        escalas_bgr = [bgr_img]
+
+        maior_dim = max(h, w)
+        if maior_dim > 1600:
+            fator_1 = 1280.0 / maior_dim
+            escalas_bgr.append(cv2.resize(bgr_img, (int(w * fator_1), int(h * fator_1)), interpolation=cv2.INTER_AREA))
+            fator_2 = 800.0 / maior_dim
+            escalas_bgr.append(cv2.resize(bgr_img, (int(w * fator_2), int(h * fator_2)), interpolation=cv2.INTER_AREA))
+        elif maior_dim > 1000:
+            fator = 800.0 / maior_dim
+            escalas_bgr.append(cv2.resize(bgr_img, (int(w * fator), int(h * fator)), interpolation=cv2.INTER_AREA))
+
+        for img in escalas_bgr:
+            # 1. BGR direto
+            res = _tentar_decodificar_opencv(detector, img)
+            if res:
+                return res
+
+            gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+            # 2. Escala de cinza
+            res = _tentar_decodificar_opencv(detector, gray)
+            if res:
+                return res
+
+            # 3. CLAHE (equalização adaptativa para papel térmico com sombras/desbotado)
+            try:
+                clahe = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(8, 8))
+                gray_clahe = clahe.apply(gray)
+                res = _tentar_decodificar_opencv(detector, gray_clahe)
+                if res:
+                    return res
+            except Exception:
+                pass
+
+            # 4. Binarização adaptativa Otsu
+            try:
+                blurred = cv2.GaussianBlur(gray, (5, 5), 0)
+                _, otsu = cv2.threshold(blurred, 0, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)
+                res = _tentar_decodificar_opencv(detector, otsu)
+                if res:
+                    return res
+
+                # Invertido (fundo escuro / código claro)
+                res = _tentar_decodificar_opencv(detector, cv2.bitwise_not(otsu))
+                if res:
+                    return res
+            except Exception:
+                pass
+
+        # Tentativa final: rotações de 90° caso a foto tenha sido tirada inclinada
+        for rot in [cv2.ROTATE_90_CLOCKWISE, cv2.ROTATE_180, cv2.ROTATE_90_COUNTERCLOCKWISE]:
+            img_rot = cv2.rotate(escalas_bgr[-1], rot)
+            res = _tentar_decodificar_opencv(detector, img_rot)
+            if res:
+                return res
+            gray_rot = cv2.cvtColor(img_rot, cv2.COLOR_BGR2GRAY)
+            res = _tentar_decodificar_opencv(detector, gray_rot)
+            if res:
+                return res
 
     except Exception:
         pass

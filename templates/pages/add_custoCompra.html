@@ -636,9 +636,39 @@ document.addEventListener('DOMContentLoaded', function () {
                 exibirFeedback('<i class="bi bi-info-circle me-1"></i> Selecione uma imagem com o QR-Code para processar.', 'warning');
                 return;
             }
-            const fd = new FormData();
-            fd.append('imagem', inputArquivo.files[0]);
-            consultarNfceAjax(fd);
+            const arquivo = inputArquivo.files[0];
+            exibirFeedback('<i class="spinner-border spinner-border-sm me-1"></i> Analisando imagem do cupom...', 'info');
+
+            // 1. Tenta decodificar no próprio navegador usando ZXing / BarcodeDetector client-side
+            if (typeof Html5Qrcode !== 'undefined') {
+                const scannerTemporario = new Html5Qrcode("qr-camera-view", {
+                    formatsToSupport: (typeof Html5QrcodeSupportedFormats !== 'undefined') ? [Html5QrcodeSupportedFormats.QR_CODE] : undefined,
+                    experimentalFeatures: { useBarCodeDetectorIfSupported: true },
+                    verbose: false
+                });
+
+                scannerTemporario.scanFile(arquivo, false)
+                    .then(decodedText => {
+                        try { scannerTemporario.clear(); } catch (e) {}
+                        const textoSanitizado = higienizarUrlNfce(decodedText);
+                        if (inputQrCodeUrl) inputQrCodeUrl.value = textoSanitizado;
+                        const fd = new FormData();
+                        fd.append('qr_text', textoSanitizado);
+                        consultarNfceAjax(fd);
+                    })
+                    .catch(() => {
+                        try { scannerTemporario.clear(); } catch (e) {}
+                        // Fallback: se o client-side não encontrar, envia a imagem para o processamento robusto do backend (OpenCV CLAHE/Otsu)
+                        const fd = new FormData();
+                        fd.append('imagem', arquivo);
+                        consultarNfceAjax(fd);
+                    });
+            } else {
+                // Fallback direto para o backend caso Html5Qrcode não esteja carregado
+                const fd = new FormData();
+                fd.append('imagem', arquivo);
+                consultarNfceAjax(fd);
+            }
         });
     }
 
@@ -736,11 +766,11 @@ document.addEventListener('DOMContentLoaded', function () {
             : undefined;
 
         const config = {
-            fps: 10,
+            fps: 15,
             qrbox: function (viewfinderWidth, viewfinderHeight) {
                 const minEdge = Math.min(viewfinderWidth, viewfinderHeight);
-                const edge = Math.floor(minEdge * 0.75);
-                const tamanho = Math.max(180, Math.min(edge, 300));
+                const edge = Math.floor(minEdge * 0.82);
+                const tamanho = Math.max(200, Math.min(edge, 380));
                 return { width: tamanho, height: tamanho };
             }
         };
@@ -769,18 +799,27 @@ document.addEventListener('DOMContentLoaded', function () {
             }
             html5QrScanner = new Html5Qrcode("qr-camera-view", {
                 formatsToSupport: formats,
+                experimentalFeatures: {
+                    useBarCodeDetectorIfSupported: true
+                },
                 verbose: false
             });
             return html5QrScanner.start(videoConstraints, config, onScanSuccess, onScanFailure);
         }
 
-        // Tentativa 1: câmera traseira (environment) sem restrições rígidas de resolução
-        tentarIniciarCom({ facingMode: "environment" })
+        // Tentativa 1: câmera traseira (environment) com resolução ideal HD/Full HD para leitura de QR denso de NFC-e
+        const constraintsTraseiraHD = {
+            facingMode: "environment",
+            width: { ideal: 1920 },
+            height: { ideal: 1080 }
+        };
+
+        tentarIniciarCom(constraintsTraseiraHD)
             .then(() => {
                 if (spinnerCam) spinnerCam.classList.add('d-none');
             })
             .catch(err => {
-                console.warn('Tentativa com facingMode: "environment" falhou:', err);
+                console.warn('Tentativa com resolução HD falhou, tentando modo básico:', err);
                 const errName = err ? (err.name || '') : '';
                 const errMsg = (typeof err === 'string' ? err : (err.message || '')).toLowerCase();
 
@@ -789,32 +828,39 @@ document.addEventListener('DOMContentLoaded', function () {
                     return;
                 }
 
-                // Tentativa 2: fallback para câmera do usuário / webcam integrada
-                tentarIniciarCom({ facingMode: "user" })
+                // Tentativa 1b: câmera traseira sem restrição de resolução
+                tentarIniciarCom({ facingMode: "environment" })
                     .then(() => {
                         if (spinnerCam) spinnerCam.classList.add('d-none');
                     })
-                    .catch(err2 => {
-                        console.warn('Tentativa com facingMode: "user" falhou:', err2);
-                        const errName2 = err2 ? (err2.name || '') : '';
-                        if (errName2 === 'NotAllowedError' || errName2 === 'PermissionDeniedError') {
-                            exibirErroCamera('Permissão de acesso à câmera negada. Conceda permissão no navegador.');
-                            return;
-                        }
+                    .catch(() => {
+                        // Tentativa 2: fallback para câmera do usuário / webcam integrada
+                        tentarIniciarCom({ facingMode: "user" })
+                            .then(() => {
+                                if (spinnerCam) spinnerCam.classList.add('d-none');
+                            })
+                            .catch(err2 => {
+                                console.warn('Tentativa com facingMode: "user" falhou:', err2);
+                                const errName2 = err2 ? (err2.name || '') : '';
+                                if (errName2 === 'NotAllowedError' || errName2 === 'PermissionDeniedError') {
+                                    exibirErroCamera('Permissão de acesso à câmera negada. Conceda permissão no navegador.');
+                                    return;
+                                }
 
-                        // Tentativa 3: enumeração de câmeras conectadas por ID
-                        Html5Qrcode.getCameras().then(cameras => {
-                            if (cameras && cameras.length > 0) {
-                                return tentarIniciarCom(cameras[0].id).then(() => {
-                                    if (spinnerCam) spinnerCam.classList.add('d-none');
+                                // Tentativa 3: enumeração de câmeras conectadas por ID
+                                Html5Qrcode.getCameras().then(cameras => {
+                                    if (cameras && cameras.length > 0) {
+                                        return tentarIniciarCom(cameras[0].id).then(() => {
+                                            if (spinnerCam) spinnerCam.classList.add('d-none');
+                                        });
+                                    } else {
+                                        exibirErroCamera('Nenhuma câmera conectada foi encontrada neste dispositivo.');
+                                    }
+                                }).catch(err3 => {
+                                    console.error('Falha geral ao acessar câmeras:', err3);
+                                    exibirErroCamera('Não foi possível acessar a câmera. Verifique se ela não está em uso por outro programa.');
                                 });
-                            } else {
-                                exibirErroCamera('Nenhuma câmera conectada foi encontrada neste dispositivo.');
-                            }
-                        }).catch(err3 => {
-                            console.error('Falha geral ao acessar câmeras:', err3);
-                            exibirErroCamera('Não foi possível acessar a câmera. Verifique se ela não está em uso por outro programa.');
-                        });
+                            });
                     });
             });
     }
