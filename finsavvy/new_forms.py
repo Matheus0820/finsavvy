@@ -73,8 +73,7 @@ class FormCustoCompra(MonetaryMaskMixin, forms.ModelForm):
             }),
             'valor_total': forms.TextInput(attrs={
                 'class': 'form-control bg-body text-body border-secondary mascara-dinheiro',
-                'placeholder': '0,00',
-                'readonly': 'readonly'
+                'placeholder': '0,00'
             }),
             'qr_code_url': forms.URLInput(attrs={
                 'class': 'form-control bg-body text-body border-secondary',

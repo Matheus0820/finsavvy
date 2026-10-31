@@ -96,12 +96,20 @@
                     {{ form.data }}
                 </div>
                 <div class="col-md-3">
-                    <label for="id_valor_total" class="form-label text-secondary small fw-semibold">
-                        Valor Total (R$)
-                    </label>
+                    <div class="d-flex justify-content-between align-items-center mb-1">
+                        <label for="id_valor_total" class="form-label text-secondary small fw-semibold mb-0">
+                            Valor Total (R$)
+                        </label>
+                        <span id="sefaz-lock-badge" class="badge bg-warning-subtle text-warning border border-warning d-none" style="font-size: 0.72rem;" title="Valor importado da SEFAZ protegido contra sobrescrita">
+                            <i class="bi bi-lock-fill me-1"></i>Fixado SEFAZ
+                        </span>
+                    </div>
                     <div class="input-group">
                         <span class="input-group-text bg-body-tertiary border-secondary text-secondary">R$</span>
-                        <input type="text" class="form-control bg-body-tertiary text-body border-secondary mascara-dinheiro" id="id_valor_total" name="valor_total" value="{{ form.valor_total.value|default:'0,00' }}" autocomplete="off" readonly="readonly">
+                        <input type="text" class="form-control bg-body-tertiary text-body border-secondary mascara-dinheiro" id="id_valor_total" name="valor_total" value="{{ form.valor_total.value|default:'0,00' }}" autocomplete="off">
+                        <button class="btn btn-outline-secondary d-none" type="button" id="btn-unlock-sefaz" title="Desbloquear para recalcular com itens">
+                            <i class="bi bi-unlock"></i>
+                        </button>
                     </div>
                     {% if form.valor_total.errors %}
                         <div class="text-danger small mt-1">{{ form.valor_total.errors.0 }}</div>
@@ -124,6 +132,22 @@
                 </div>
             </div>
         </div>
+    </div>
+
+    <!-- Alerta Informativo de Trava SEFAZ -->
+    <div id="alerta-trava-sefaz" class="alert alert-warning border-warning d-none align-items-center justify-content-between mb-4 shadow-sm" role="alert" style="border-radius: 12px;">
+        <div class="d-flex align-items-center">
+            <i class="bi bi-shield-lock-fill fs-4 text-warning me-3"></i>
+            <div>
+                <strong class="d-block mb-1 text-body">Valor Total Importado da SEFAZ (Fixado)</strong>
+                <span class="small text-secondary">
+                    O valor total (<span id="alerta-sefaz-valor" class="fw-semibold text-warning">R$ 0,00</span>) foi importado diretamente da SEFAZ. Como a listagem automática de itens foi bloqueada pelo portal do estado, você pode cadastrar itens manualmente para controle de estoque sem alterar o valor total da nota.
+                </span>
+            </div>
+        </div>
+        <button type="button" class="btn btn-sm btn-outline-warning ms-3 text-nowrap" id="btn-desbloquear-trava">
+            <i class="bi bi-unlock me-1"></i> Desbloquear Valor
+        </button>
     </div>
 
     <!-- Seção 2: Itens Detalhados da Compra (Master-Detail Formset) -->
@@ -389,6 +413,65 @@ document.addEventListener('DOMContentLoaded', function () {
     const footerSomaItens = document.getElementById('footer-soma-itens');
     const badgeTotalItens = document.getElementById('badge-total-itens');
 
+    // Elementos da Trava de Estado SEFAZ
+    const badgeSefazLock = document.getElementById('sefaz-lock-badge');
+    const btnUnlockSefaz = document.getElementById('btn-unlock-sefaz');
+    const alertaTravaSefaz = document.getElementById('alerta-trava-sefaz');
+    const alertaSefazValor = document.getElementById('alerta-sefaz-valor');
+    const btnDesbloquearTrava = document.getElementById('btn-desbloquear-trava');
+
+    function ativarTravaSefaz(valor) {
+        if (!inputValorTotal) return;
+        inputValorTotal.dataset.sefazLock = 'true';
+        if (valor !== undefined && valor !== null) {
+            inputValorTotal.value = formatarFloatPtBr(valor);
+        }
+        if (badgeSefazLock) badgeSefazLock.classList.remove('d-none');
+        if (btnUnlockSefaz) btnUnlockSefaz.classList.remove('d-none');
+        if (alertaTravaSefaz) {
+            alertaTravaSefaz.classList.remove('d-none');
+            alertaTravaSefaz.classList.add('d-flex');
+        }
+        if (alertaSefazValor) {
+            alertaSefazValor.textContent = formatarMoeda(valor || inputValorTotal.value);
+        }
+    }
+
+    function desativarTravaSefaz(recalcular = true) {
+        if (!inputValorTotal) return;
+        inputValorTotal.dataset.sefazLock = 'false';
+        if (badgeSefazLock) badgeSefazLock.classList.add('d-none');
+        if (btnUnlockSefaz) btnUnlockSefaz.classList.add('d-none');
+        if (alertaTravaSefaz) {
+            alertaTravaSefaz.classList.add('d-none');
+            alertaTravaSefaz.classList.remove('d-flex');
+        }
+        if (recalcular) {
+            recalcularTotais();
+        }
+    }
+
+    window.ativarTravaSefaz = ativarTravaSefaz;
+    window.desativarTravaSefaz = desativarTravaSefaz;
+
+    if (btnDesbloquearTrava) {
+        btnDesbloquearTrava.addEventListener('click', function () {
+            desativarTravaSefaz(true);
+        });
+    }
+    if (btnUnlockSefaz) {
+        btnUnlockSefaz.addEventListener('click', function () {
+            desativarTravaSefaz(true);
+        });
+    }
+    if (inputValorTotal) {
+        inputValorTotal.addEventListener('input', function (e) {
+            if (e.isTrusted && inputValorTotal.dataset.sefazLock === 'true') {
+                desativarTravaSefaz(false);
+            }
+        });
+    }
+
     // Elementos do Scanner de Câmera
     const btnAbrirCamera = document.getElementById('btn-abrir-camera');
     const modalCameraEl = document.getElementById('modalCameraScanner');
@@ -503,7 +586,9 @@ document.addEventListener('DOMContentLoaded', function () {
             footerSomaItens.textContent = formatarMoeda(somaGeral);
         }
 
-        if (inputValorTotal && somaGeral > 0) {
+        const isValorSefazTravado = inputValorTotal && inputValorTotal.dataset.sefazLock === 'true';
+
+        if (inputValorTotal && !isValorSefazTravado && somaGeral > 0) {
             inputValorTotal.value = formatarFloatPtBr(somaGeral);
             inputValorTotal.dispatchEvent(new Event('input', { bubbles: true }));
             inputValorTotal.dispatchEvent(new Event('change', { bubbles: true }));
@@ -633,8 +718,12 @@ document.addEventListener('DOMContentLoaded', function () {
             inputQrCodeUrl.dispatchEvent(new Event('change', { bubbles: true }));
         }
 
+        const temItensSefaz = dados.itens && Array.isArray(dados.itens) && dados.itens.length > 0;
+
         // Se houver lista de itens extraídos pela SEFAZ
-        if (dados.itens && Array.isArray(dados.itens) && dados.itens.length > 0) {
+        if (temItensSefaz) {
+            desativarTravaSefaz(false);
+
             // Remove linhas vazias ou pré-existentes não salvas se houver itens da nota
             const linhasAtuais = containerItens.querySelectorAll('.item-row');
             linhasAtuais.forEach(linha => {
@@ -660,8 +749,14 @@ document.addEventListener('DOMContentLoaded', function () {
             inputValorTotal.dispatchEvent(new Event('change', { bubbles: true }));
         }
 
+        if (!temItensSefaz && valorFinal !== undefined && valorFinal !== null && parseMoedaPtBr(valorFinal) > 0) {
+            ativarTravaSefaz(valorFinal);
+        }
+
         recalcularTotais();
     }
+
+    window.preencherDadosNfce = preencherDadosNfce;
 
     // Função utilitária para higienização e segurança de URLs e chaves da NFC-e
     function higienizarUrlNfce(rawUrl) {
