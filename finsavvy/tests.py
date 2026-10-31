@@ -5,7 +5,7 @@ from django.contrib.auth import get_user_model
 from django.urls import reverse
 from .models import CustoFixo, Veiculo, Categoria, CustoVariavel, CustoCombustivel, Manutencao, Aviso, CustoCompra, ItemCompra, Renda
 from .utils.leitor_qrcode import extrair_dados_nfce, decodificar_imagem_qrcode
-from .utils.leitor_nfce import parsear_html_nfce, consultar_nfce
+from .utils.leitor_nfce import parsear_html_nfce, consultar_nfce, obter_url_consulta_por_chave, URLS_BASE_SEFAZ_UF
 from .utils.calculos_veiculares import (
     calcular_consumo_medio,
     calcular_custo_por_km,
@@ -509,6 +509,65 @@ class NfceScannerTests(TestCase):
         self.assertContains(response, 'id="qr-input-file"')
         self.assertContains(response, 'capture="environment"')
         self.assertContains(response, 'id="qr-camera-view"')
+        self.assertContains(response, 'formatarFloatPtBr')
+        self.assertContains(response, 'parseMoedaPtBr')
+        self.assertContains(response, 'CAPTCHA/WAF')
+
+    def test_obter_url_consulta_por_chave_roteamento_uf(self):
+        # Chave SP (35)
+        url_sp = obter_url_consulta_por_chave('35230514264229000100650030001234561001234567')
+        self.assertIsNotNone(url_sp)
+        self.assertTrue(url_sp.startswith(URLS_BASE_SEFAZ_UF['35']))
+        self.assertIn('35230514264229000100650030001234561001234567', url_sp)
+
+        # Chave RJ (33)
+        url_rj = obter_url_consulta_por_chave('33230514264229000100650030001234561001234567')
+        self.assertIsNotNone(url_rj)
+        self.assertTrue(url_rj.startswith(URLS_BASE_SEFAZ_UF['33']))
+
+        # Chave RS (43)
+        url_rs = obter_url_consulta_por_chave('43230514264229000100650030001234561001234567')
+        self.assertIsNotNone(url_rs)
+        self.assertTrue(url_rs.startswith(URLS_BASE_SEFAZ_UF['43']))
+
+        # Chave inválida ou incompleta
+        self.assertIsNone(obter_url_consulta_por_chave('12345'))
+        self.assertIsNone(obter_url_consulta_por_chave(''))
+
+    def test_parsear_html_nfce_com_tabela_de_itens(self):
+        html_exemplo = """
+        <html>
+            <body>
+                <div class="txtTopo">Supermercado Modelo LTDA</div>
+                <div id="dataEmissao">Emissão: 15/05/2023 14:30:00</div>
+                <table class="table-striped">
+                    <tr id="Item + 1">
+                        <td class="fixo-prod-serv-descricao">Arroz Tipo 1 5kg</td>
+                        <td class="fixo-prod-serv-qtd">2.000</td>
+                        <td class="fixo-prod-serv-vl-unit">25.50</td>
+                        <td class="fixo-prod-serv-vl-tot">51.00</td>
+                    </tr>
+                    <tr id="Item + 2">
+                        <td class="fixo-prod-serv-descricao">Feijão Carioca 1kg</td>
+                        <td class="fixo-prod-serv-qtd">1.000</td>
+                        <td class="fixo-prod-serv-vl-unit">8.90</td>
+                        <td class="fixo-prod-serv-vl-tot">8.90</td>
+                    </tr>
+                </table>
+                <div class="txtMax">Total: R$ 59,90</div>
+            </body>
+        </html>
+        """
+        resultado = parsear_html_nfce(html_exemplo)
+        self.assertTrue(resultado['sucesso'])
+        self.assertEqual(len(resultado['itens']), 2)
+        self.assertEqual(resultado['itens'][0]['descricao'], 'Arroz Tipo 1 5kg')
+        self.assertEqual(resultado['itens'][0]['quantidade'], 2.0)
+        self.assertEqual(resultado['itens'][0]['valor_unitario'], 25.5)
+        self.assertEqual(resultado['itens'][0]['valor_total'], 51.0)
+        self.assertEqual(resultado['valor_total'], 59.9)
+        self.assertEqual(resultado['estabelecimento'], 'Supermercado Modelo LTDA')
+
 
 
 

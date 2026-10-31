@@ -9,6 +9,12 @@ from typing import Any, Dict, List, Optional
 import requests
 from bs4 import BeautifulSoup
 
+try:
+    from playwright.sync_api import sync_playwright
+    PLAYWRIGHT_AVAILABLE = True
+except ImportError:
+    PLAYWRIGHT_AVAILABLE = False
+
 from .leitor_qrcode import extrair_dados_nfce
 
 USER_AGENT_PADRAO = (
@@ -260,13 +266,140 @@ def parsear_html_nfce(html_conteudo: str, url_origem: str = "") -> Dict[str, Any
     return resultado
 
 
-def consultar_nfce(url_ou_chave: str, timeout: int = 10) -> Dict[str, Any]:
+URLS_BASE_SEFAZ_UF: Dict[str, str] = {
+    '11': 'https://www.sefin.ro.gov.br/nfce/qrcode?p=',
+    '12': 'http://hml.sefaz.ac.gov.br/nfce/qrcode?p=',
+    '13': 'http://sistemas.sefaz.am.gov.br/nfceweb/consultarNFCe.aspx?p=',
+    '14': 'https://www.sefaz.rr.gov.br/nfce/servlet/qrcode?p=',
+    '15': 'https://appnfc.sefa.pa.gov.br/portal/view/consultas/nfce/nfceForm.action?p=',
+    '16': 'https://www.sefaz.ap.gov.br/nfce/qrcode?p=',
+    '17': 'http://portal.sefaz.to.gov.br/nfce/qrcode?p=',
+    '21': 'http://nfce.sefaz.ma.gov.br/portal/consultarNFCe.form?p=',
+    '22': 'http://web.sefaz.pi.gov.br/nfce/qrcode?p=',
+    '23': 'http://nfce.sefaz.ce.gov.br/pages/ShowNFCe.html?p=',
+    '24': 'http://nfce.set.rn.gov.br/consultarNFCe.aspx?p=',
+    '25': 'https://www.sefaz.pb.gov.br/nfce/qrcode?p=',
+    '26': 'http://nfce.sefaz.pe.gov.br/nfce-web/consultarNFCe?p=',
+    '27': 'http://nfce.sefaz.al.gov.br/QRCode/consultarNFCe.aspx?p=',
+    '28': 'http://www.nfce.se.gov.br/portal/consultarNFCe.jsp?p=',
+    '29': 'http://nfe.sefaz.ba.gov.br/servicos/nfce/qrcode.aspx?p=',
+    '31': 'https://portalsped.fazenda.mg.gov.br/portalnfce/sistema/qrcode.xhtml?p=',
+    '32': 'http://app.sefaz.es.gov.br/ConsultaNFCe/qrcode.aspx?p=',
+    '33': 'http://www4.fazenda.rj.gov.br/consultaNFCe/QRCode?p=',
+    '35': 'https://www.nfce.fazenda.sp.gov.br/NFCeConsultaPublica/Paginas/ConsultaQRCode.aspx?p=',
+    '41': 'http://www.fazenda.pr.gov.br/nfce/qrcode?p=',
+    '42': 'https://sat.sef.sc.gov.br/nfce/consulta?p=',
+    '43': 'https://www.sefaz.rs.gov.br/NFCE/NFCE-COM.aspx?p=',
+    '50': 'http://www.dfe.ms.gov.br/nfce/qrcode?p=',
+    '51': 'http://www.sefaz.mt.gov.br/nfce/consultanfce?p=',
+    '52': 'http://nfe.sefaz.go.gov.br/nfeweb/sites/nfce/danfeNFCe?p=',
+    '53': 'http://dec.fazenda.df.gov.br/ConsultarNFCe.aspx?p=',
+}
+URL_BASE_PADRAO_SVRS = 'https://www.sefaz.rs.gov.br/NFCE/NFCE-COM.aspx?p='
+
+
+def obter_url_consulta_por_chave(chave: str) -> Optional[str]:
     """
-    Executa a requisição HTTP resiliente para o portal da SEFAZ apontado pela URL
+    A partir de uma chave de acesso de 44 dígitos, extrai os 2 primeiros dígitos
+    (código IBGE da UF) e constrói a URL oficial de consulta pública da NFC-e.
+    """
+    digitos = re.sub(r'\D', '', chave or '')
+    if len(digitos) != 44:
+        return None
+    uf_cod = digitos[:2]
+    url_base = URLS_BASE_SEFAZ_UF.get(uf_cod, URL_BASE_PADRAO_SVRS)
+    return f"{url_base}{digitos}"
+
+
+def _consultar_via_playwright(url: str, timeout: int = 15) -> Optional[str]:
+    """
+    Acessa a URL da SEFAZ utilizando navegador headless Playwright com bypass
+    de proteções básicas e espera de carregamento dinâmico de tabelas e DOM.
+    Retorna o HTML completo renderizado pelo navegador ou None em caso de falha/bloqueio.
+    """
+    if not PLAYWRIGHT_AVAILABLE:
+        return None
+
+    try:
+        with sync_playwright() as p:
+            browser = p.chromium.launch(
+                headless=True,
+                args=[
+                    '--no-sandbox',
+                    '--disable-setuid-sandbox',
+                    '--disable-dev-shm-usage',
+                    '--disable-gpu',
+                    '--disable-blink-features=AutomationControlled',
+                ]
+            )
+            context = browser.new_context(
+                user_agent=USER_AGENT_PADRAO,
+                viewport={'width': 1280, 'height': 800},
+                locale='pt-BR',
+                timezone_id='America/Sao_Paulo',
+            )
+            page = context.new_page()
+
+            timeout_ms = max(5000, timeout * 1000)
+            page.set_default_timeout(timeout_ms)
+
+            try:
+                page.goto(url, wait_until='domcontentloaded', timeout=timeout_ms)
+            except Exception:
+                pass
+
+            # Aguarda a tabela de itens ou valor total na DOM
+            seletores_tabela = [
+                '#tabResult tr',
+                'table.table-striped tr',
+                'table.tabelaItens tr',
+                '#conteudo table tr',
+                '.item',
+                '.totalNFe',
+                '.txtMax',
+                '#lblValorTotal'
+            ]
+            seletor_combinado = ', '.join(seletores_tabela)
+
+            try:
+                page.wait_for_selector(seletor_combinado, state='visible', timeout=4000)
+            except Exception:
+                try:
+                    page.wait_for_load_state('networkidle', timeout=3000)
+                except Exception:
+                    pass
+
+            html = page.content()
+            browser.close()
+            return html
+    except Exception:
+        return None
+
+
+def _consultar_via_requests(url: str, timeout: int = 10) -> Optional[str]:
+    """Fallback via HTTP clássico (requests) com headers de navegador padrão."""
+    try:
+        response = requests.get(
+            url,
+            headers=HEADERS_PADRAO,
+            timeout=timeout,
+            allow_redirects=True
+        )
+        response.raise_for_status()
+        if response.encoding and response.encoding.lower() in ('iso-8859-1', 'latin-1'):
+            return response.content.decode('latin-1', errors='replace')
+        return response.text
+    except Exception:
+        return None
+
+
+def consultar_nfce(url_ou_chave: str, timeout: int = 15) -> Dict[str, Any]:
+    """
+    Executa a requisição resiliente para o portal da SEFAZ apontado pela URL
     do QR-Code ou chave da NFC-e e realiza a extração completa dos dados e itens.
 
-    Em caso de falhas de rede, bloqueios ou timeout, realiza fallback automático
-    para os metadados contidos na própria URL do QR-Code.
+    Utiliza Playwright Headless para vencer proteções WAF e renderização via JavaScript,
+    com fallback automático para requests e metadados da chave/URL em caso de bloqueio.
     """
     resultado_fallback = extrair_dados_nfce(url_ou_chave)
 
@@ -283,58 +416,59 @@ def consultar_nfce(url_ou_chave: str, timeout: int = 10) -> Dict[str, Any]:
     }
 
     url = (url_ou_chave or '').strip()
+
+    # TASK 2: Se não for uma URL direta, mas houver chave de 44 dígitos,
+    # constrói a URL de consulta SEFAZ a partir do código IBGE da UF
+    if not url.startswith('http://') and not url.startswith('https://'):
+        if resultado_final['chave_acesso']:
+            url_gerada = obter_url_consulta_por_chave(resultado_final['chave_acesso'])
+            if url_gerada:
+                url = url_gerada
+                resultado_final['url'] = url_gerada
+        else:
+            resultado_final['mensagem'] = "Identificador fornecido não é uma URL ou chave válida para consulta Web."
+            resultado_final['sucesso'] = bool(resultado_final['chave_acesso'] or resultado_final['valor_total'])
+            return resultado_final
+
+    # Se ainda não tiver URL válida mesmo após a tentativa de roteamento
     if not url.startswith('http://') and not url.startswith('https://'):
         if resultado_final['chave_acesso']:
             uf_sigla = resultado_fallback.get('uf')
             uf_msg = f" (UF: {uf_sigla})" if uf_sigla else ""
             resultado_final['sucesso'] = True
             resultado_final['mensagem'] = f"Chave de acesso reconhecida com sucesso{uf_msg}."
-        else:
-            resultado_final['mensagem'] = "Identificador fornecido não é uma URL ou chave válida para consulta Web."
-            resultado_final['sucesso'] = bool(resultado_final['chave_acesso'] or resultado_final['valor_total'])
         return resultado_final
 
-    try:
-        response = requests.get(
-            url,
-            headers=HEADERS_PADRAO,
-            timeout=timeout,
-            allow_redirects=True
-        )
-        response.raise_for_status()
+    # 1. Tentativa com Playwright Headless (vence WAF e JS rendering)
+    html = _consultar_via_playwright(url, timeout=timeout)
 
-        # Detecção de encoding para caracteres acentuados da língua portuguesa
-        if response.encoding and response.encoding.lower() in ('iso-8859-1', 'latin-1'):
-            html = response.content.decode('latin-1', errors='replace')
-        else:
-            html = response.text
+    # 2. Fallback com requests se Playwright não retornar conteúdo
+    if not html:
+        html = _consultar_via_requests(url, timeout=min(timeout, 8))
 
+    if html:
         dados_html = parsear_html_nfce(html, url_origem=url)
 
-        if dados_html['sucesso']:
-            # Se o HTML não tinha chave de acesso mas a URL tinha, preserva a da URL
-            if not dados_html['chave_acesso'] and resultado_final['chave_acesso']:
+        if dados_html.get('sucesso'):
+            if not dados_html.get('chave_acesso') and resultado_final['chave_acesso']:
                 dados_html['chave_acesso'] = resultado_final['chave_acesso']
-            # Se o HTML não identificou o valor mas a URL sim, faz merge
-            if not dados_html['valor_total'] and resultado_final['valor_total']:
+            if not dados_html.get('valor_total') and resultado_final['valor_total']:
                 dados_html['valor_total'] = resultado_final['valor_total']
+            if not dados_html.get('uf') and resultado_final.get('uf'):
+                dados_html['uf'] = resultado_final['uf']
             return dados_html
         else:
-            # Layout não reconhecido: aplica os dados do fallback do QR-Code
-            resultado_final['mensagem'] = f"Página acessada, mas layout não identificado. {dados_html['mensagem']}"
+            # Layout não reconhecido no HTML: preserva dados do fallback
+            uf_sigla = resultado_final.get('uf')
+            uf_msg = f" (UF: {uf_sigla})" if uf_sigla else ""
+            prefixo = f"Chave de acesso reconhecida{uf_msg}. " if resultado_final.get('chave_acesso') else ""
+            resultado_final['mensagem'] = f"{prefixo}Página acessada, mas layout não identificado. {dados_html.get('mensagem', '')}".strip()
             resultado_final['sucesso'] = bool(resultado_final['chave_acesso'] or resultado_final['valor_total'])
             return resultado_final
 
-    except requests.exceptions.Timeout:
-        resultado_final['mensagem'] = "Tempo limite esgotado ao conectar ao portal da SEFAZ (Timeout)."
-        resultado_final['sucesso'] = bool(resultado_final['chave_acesso'] or resultado_final['valor_total'])
-        return resultado_final
-
-    except requests.exceptions.RequestException as exc:
-        resultado_final['mensagem'] = f"Falha na conexão com o portal da SEFAZ: {str(exc)}"
-        resultado_final['sucesso'] = bool(resultado_final['chave_acesso'] or resultado_final['valor_total'])
-        return resultado_final
-
-    except Exception as exc:
-        resultado_final['mensagem'] = f"Erro inesperado no processamento da NFC-e: {str(exc)}"
-        return resultado_final
+    # Falha na conexão de ambos os motores: preserva metadados com resiliência total
+    uf_sigla = resultado_fallback.get('uf')
+    uf_msg = f" (UF: {uf_sigla})" if uf_sigla else ""
+    resultado_final['sucesso'] = bool(resultado_final['chave_acesso'] or resultado_final['valor_total'])
+    resultado_final['mensagem'] = f"Chave identificada com sucesso{uf_msg}. Portal da SEFAZ indisponível ou protegido por CAPTCHA no momento."
+    return resultado_final

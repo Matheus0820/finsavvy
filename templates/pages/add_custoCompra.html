@@ -436,9 +436,29 @@ document.addEventListener('DOMContentLoaded', function () {
         feedback.classList.remove('d-none');
     }
 
-    // Formata valor monetário
+    // Extrai número float seguro de valor monetário em formato pt-BR ou número puro
+    function parseMoedaPtBr(val) {
+        if (val === null || val === undefined) return 0;
+        if (typeof val === 'number') return val;
+        const str = String(val).trim().replace(/[R$\s]/g, '');
+        if (!str) return 0;
+        const limpo = str.replace(/\./g, '').replace(',', '.');
+        const num = parseFloat(limpo);
+        return isNaN(num) ? 0 : num;
+    }
+
+    // Formata float para padrão brasileiro pt-BR (ex: 12,34)
+    function formatarFloatPtBr(val) {
+        if (val === null || val === undefined || val === '') return '';
+        const num = typeof val === 'number' ? val : parseMoedaPtBr(val);
+        if (isNaN(num)) return '';
+        return (num).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+
+    // Formata valor monetário com prefixo R$
     function formatarMoeda(val) {
-        return 'R$ ' + (parseFloat(val) || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        const num = typeof val === 'number' ? val : parseMoedaPtBr(val);
+        return 'R$ ' + (num || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     }
 
     // Converte data de dd/mm/aaaa para aaaa-mm-dd para campo type="date"
@@ -466,12 +486,12 @@ document.addEventListener('DOMContentLoaded', function () {
             const inputTot = row.querySelector('.item-total');
             const numEl = row.querySelector('.item-num');
 
-            const qtd = parseFloat(inputQtd ? inputQtd.value : 0) || 0;
-            const unit = parseFloat(inputUnit ? inputUnit.value : 0) || 0;
+            const qtd = inputQtd ? parseFloat(String(inputQtd.value).replace(',', '.')) || 0 : 0;
+            const unit = inputUnit ? parseMoedaPtBr(inputUnit.value) : 0;
             const totalItem = Math.round(qtd * unit * 100) / 100;
 
             if (inputTot) {
-                inputTot.value = totalItem > 0 ? totalItem.toFixed(2) : '';
+                inputTot.value = totalItem > 0 ? formatarFloatPtBr(totalItem) : '';
             }
 
             somaGeral += totalItem;
@@ -483,10 +503,10 @@ document.addEventListener('DOMContentLoaded', function () {
             footerSomaItens.textContent = formatarMoeda(somaGeral);
         }
 
-        if (inputValorTotal) {
-            if (somaGeral > 0 || rows.length > 0) {
-                inputValorTotal.value = somaGeral.toFixed(2);
-            }
+        if (inputValorTotal && somaGeral > 0) {
+            inputValorTotal.value = formatarFloatPtBr(somaGeral);
+            inputValorTotal.dispatchEvent(new Event('input', { bubbles: true }));
+            inputValorTotal.dispatchEvent(new Event('change', { bubbles: true }));
         }
 
         if (badgeTotalItens) {
@@ -517,7 +537,7 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 
-    // Adiciona uma nova linha vazia de item
+    // Adiciona uma nova linha de item com formatação pt-BR e disparo de eventos nativos
     function adicionarLinhaItem(dados = null) {
         if (!templateRow || !totalFormsInput) return null;
 
@@ -534,15 +554,35 @@ document.addEventListener('DOMContentLoaded', function () {
             const unit = newRow.querySelector('.item-unitario');
             const tot = newRow.querySelector('.item-total');
 
-            if (desc && dados.descricao) desc.value = dados.descricao;
-            if (qtd && dados.quantidade) qtd.value = dados.quantidade;
-            if (unit && dados.valor_unitario) unit.value = dados.valor_unitario;
-            if (tot && dados.valor_total) tot.value = dados.valor_total;
+            if (desc && dados.descricao !== undefined && dados.descricao !== null) {
+                desc.value = dados.descricao;
+                desc.dispatchEvent(new Event('input', { bubbles: true }));
+                desc.dispatchEvent(new Event('change', { bubbles: true }));
+            }
+            if (qtd && dados.quantidade !== undefined && dados.quantidade !== null) {
+                qtd.value = dados.quantidade;
+                qtd.dispatchEvent(new Event('input', { bubbles: true }));
+                qtd.dispatchEvent(new Event('change', { bubbles: true }));
+            }
+            if (unit && dados.valor_unitario !== undefined && dados.valor_unitario !== null) {
+                unit.value = formatarFloatPtBr(dados.valor_unitario);
+                unit.dispatchEvent(new Event('input', { bubbles: true }));
+                unit.dispatchEvent(new Event('change', { bubbles: true }));
+            }
+            if (tot && dados.valor_total !== undefined && dados.valor_total !== null) {
+                tot.value = formatarFloatPtBr(dados.valor_total);
+                tot.dispatchEvent(new Event('input', { bubbles: true }));
+                tot.dispatchEvent(new Event('change', { bubbles: true }));
+            }
         }
 
         containerItens.appendChild(newRow);
         vincularEventosLinha(newRow);
         totalFormsInput.value = currentTotal + 1;
+
+        if (typeof window.inicializarMascarasMoeda === 'function') {
+            window.inicializarMascarasMoeda();
+        }
 
         recalcularTotais();
         return newRow;
@@ -566,19 +606,31 @@ document.addEventListener('DOMContentLoaded', function () {
 
         if (dados.estabelecimento && inputEstabelecimento) {
             inputEstabelecimento.value = dados.estabelecimento;
+            inputEstabelecimento.dispatchEvent(new Event('input', { bubbles: true }));
+            inputEstabelecimento.dispatchEvent(new Event('change', { bubbles: true }));
         } else if (dados.nome && inputEstabelecimento) {
             inputEstabelecimento.value = dados.nome;
+            inputEstabelecimento.dispatchEvent(new Event('input', { bubbles: true }));
+            inputEstabelecimento.dispatchEvent(new Event('change', { bubbles: true }));
         }
 
         if (dados.data_emissao && inputData) {
             const dataIso = formatarDataIso(dados.data_emissao);
-            if (dataIso) inputData.value = dataIso;
+            if (dataIso) {
+                inputData.value = dataIso;
+                inputData.dispatchEvent(new Event('input', { bubbles: true }));
+                inputData.dispatchEvent(new Event('change', { bubbles: true }));
+            }
         }
 
         if (dados.url && inputQrCodeUrl) {
             inputQrCodeUrl.value = dados.url;
+            inputQrCodeUrl.dispatchEvent(new Event('input', { bubbles: true }));
+            inputQrCodeUrl.dispatchEvent(new Event('change', { bubbles: true }));
         } else if (dados.chave_acesso && inputQrCodeUrl) {
             inputQrCodeUrl.value = dados.chave_acesso;
+            inputQrCodeUrl.dispatchEvent(new Event('input', { bubbles: true }));
+            inputQrCodeUrl.dispatchEvent(new Event('change', { bubbles: true }));
         }
 
         // Se houver lista de itens extraídos pela SEFAZ
@@ -601,10 +653,11 @@ document.addEventListener('DOMContentLoaded', function () {
             });
         }
 
-        if (dados.valor_total && inputValorTotal) {
-            inputValorTotal.value = parseFloat(dados.valor_total).toFixed(2);
-        } else if (dados.valor && inputValorTotal) {
-            inputValorTotal.value = parseFloat(dados.valor).toFixed(2);
+        const valorFinal = dados.valor_total !== undefined && dados.valor_total !== null ? dados.valor_total : dados.valor;
+        if (valorFinal !== undefined && valorFinal !== null && inputValorTotal) {
+            inputValorTotal.value = formatarFloatPtBr(valorFinal);
+            inputValorTotal.dispatchEvent(new Event('input', { bubbles: true }));
+            inputValorTotal.dispatchEvent(new Event('change', { bubbles: true }));
         }
 
         recalcularTotais();
@@ -655,12 +708,17 @@ document.addEventListener('DOMContentLoaded', function () {
         .then(res => {
             if (res.status === 200 && res.body.sucesso) {
                 preencherDadosNfce(res.body);
-                const qtd = res.body.itens ? res.body.itens.length : 0;
-                exibirFeedback(`<i class="bi bi-check-circle me-1"></i> Sucesso! ${qtd} item(ns) e dados da NFC-e importados com sucesso.`, 'success');
+                const itens = res.body.itens;
+                const temItens = Array.isArray(itens) && itens.length > 0;
+                if (temItens) {
+                    exibirFeedback(`<i class="bi bi-check-circle me-1"></i> Sucesso! ${itens.length} item(ns) e dados da NFC-e importados com sucesso.`, 'success');
+                } else {
+                    exibirFeedback(`<i class="bi bi-exclamation-triangle me-1"></i> QR-Code lido com sucesso e valor total identificado! Porém, a SEFAZ deste estado bloqueou a listagem automática de itens (CAPTCHA/WAF). Você pode preencher os itens manualmente abaixo se desejar.`, 'warning');
+                }
             } else if (res.body && (res.body.valor || res.body.estabelecimento || res.body.chave_acesso)) {
                 // Fallback de metadados parciais
                 preencherDadosNfce(res.body);
-                exibirFeedback(`<i class="bi bi-exclamation-triangle me-1"></i> Dados parciais extraídos do QR-Code. ${res.body.mensagem || ''}`, 'warning');
+                exibirFeedback(`<i class="bi bi-exclamation-triangle me-1"></i> QR-Code lido com sucesso e valor total identificado! Porém, a SEFAZ deste estado bloqueou a listagem automática de itens (CAPTCHA/WAF). Você pode preencher os itens manualmente abaixo se desejar.`, 'warning');
             } else {
                 exibirFeedback(`<i class="bi bi-x-circle me-1"></i> ${res.body.mensagem || 'Não foi possível ler os dados da NFC-e.'}`, 'danger');
             }
