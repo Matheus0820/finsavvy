@@ -263,8 +263,7 @@
         max-width: 100% !important;
         overflow: hidden;
     }
-    #qr-camera-view video,
-    #qr-camera-view canvas {
+    #qr-camera-view video {
         width: 100% !important;
         max-width: 100% !important;
         height: auto !important;
@@ -308,6 +307,7 @@
                     <span class="spinner-border spinner-border-sm me-2" role="status"></span>
                     Iniciando câmera...
                 </div>
+                <div id="camera-error-message" class="alert alert-warning small py-2 px-3 mt-3 d-none text-start" role="alert"></div>
 
                 <!-- Fallback manual caso a câmera falhe ou QR-code esteja ilegível -->
                 <div class="mt-4 pt-3 border-top border-secondary text-start">
@@ -360,6 +360,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const btnFecharCam = document.getElementById('btn-fechar-modal-cam');
     const btnCancelarCam = document.getElementById('btn-cancelar-camera');
     const spinnerCam = document.getElementById('camera-loading-spinner');
+    const cameraErrorMsg = document.getElementById('camera-error-message');
     const inputQrManualModal = document.getElementById('input-qr-manual-modal');
     const btnBuscarManualModal = document.getElementById('btn-buscar-manual-modal');
     let modalCameraInstance = null;
@@ -676,26 +677,55 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
-    // Inicialização da Câmera com html5-qrcode
+    // Inicialização e gerenciamento da Câmera com html5-qrcode
+    function exibirErroCamera(mensagem) {
+        if (spinnerCam) spinnerCam.classList.add('d-none');
+        if (cameraErrorMsg) {
+            cameraErrorMsg.innerHTML = `<i class="bi bi-exclamation-triangle-fill text-warning me-2"></i><span>${mensagem}</span>`;
+            cameraErrorMsg.classList.remove('d-none');
+        }
+    }
+
+    function limparErroCamera() {
+        if (cameraErrorMsg) {
+            cameraErrorMsg.innerHTML = '';
+            cameraErrorMsg.classList.add('d-none');
+        }
+    }
+
     function pararCamera() {
         if (html5QrScanner) {
-            return html5QrScanner.stop().then(() => {
-                html5QrScanner.clear();
-                html5QrScanner = null;
+            const scanner = html5QrScanner;
+            html5QrScanner = null;
+            const stopPromise = (typeof scanner.isScanning === 'boolean' ? scanner.isScanning : true)
+                ? scanner.stop()
+                : Promise.resolve();
+
+            return stopPromise.then(() => {
+                try { scanner.clear(); } catch (e) {}
             }).catch(err => {
                 console.warn('Erro ao finalizar câmera:', err);
-                try {
-                    html5QrScanner.clear();
-                } catch (e) {}
-                html5QrScanner = null;
+                try { scanner.clear(); } catch (e) {}
             });
         }
         return Promise.resolve();
     }
 
     function iniciarCamera() {
+        limparErroCamera();
+
         if (typeof Html5Qrcode === 'undefined') {
-            exibirFeedback('<i class="bi bi-exclamation-triangle me-1"></i> Biblioteca de leitura de câmera não carregada.', 'danger');
+            exibirErroCamera('Biblioteca de leitura de câmera não carregada.');
+            return;
+        }
+
+        if (!window.isSecureContext && location.hostname !== 'localhost' && location.hostname !== '127.0.0.1') {
+            exibirErroCamera('O acesso à câmera exige conexão segura (HTTPS). No ambiente local por IP, utilize o leitor de imagem ou digite a chave/URL abaixo.');
+            return;
+        }
+
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+            exibirErroCamera('Seu navegador não tem suporte ou bloqueou o acesso à câmera neste contexto.');
             return;
         }
 
@@ -705,71 +735,105 @@ document.addEventListener('DOMContentLoaded', function () {
             ? [Html5QrcodeSupportedFormats.QR_CODE]
             : undefined;
 
-        html5QrScanner = new Html5Qrcode("qr-camera-view", {
-            formatsToSupport: formats,
-            verbose: false
-        });
-
         const config = {
-            fps: 15,
+            fps: 10,
             qrbox: function (viewfinderWidth, viewfinderHeight) {
                 const minEdge = Math.min(viewfinderWidth, viewfinderHeight);
                 const edge = Math.floor(minEdge * 0.75);
-                const tamanho = Math.max(220, Math.min(edge, 320));
+                const tamanho = Math.max(180, Math.min(edge, 300));
                 return { width: tamanho, height: tamanho };
-            },
-            aspectRatio: 1.777778
-        };
-
-        const videoConstraints = {
-            facingMode: "environment",
-            width: { ideal: 1280, min: 640 },
-            height: { ideal: 720, min: 480 }
-        };
-
-        html5QrScanner.start(
-            videoConstraints,
-            config,
-            (decodedText, decodedResult) => {
-                // QR-Code lido com sucesso
-                pararCamera();
-                if (modalCameraInstance) modalCameraInstance.hide();
-
-                const textoSanitizado = higienizarUrlNfce(decodedText);
-                exibirFeedback('<i class="bi bi-qr-code me-1"></i> QR-Code detectado! Buscando dados na SEFAZ...', 'info');
-
-                if (inputQrCodeUrl) inputQrCodeUrl.value = textoSanitizado;
-
-                const fd = new FormData();
-                fd.append('qr_text', textoSanitizado);
-                consultarNfceAjax(fd);
-            },
-            (errorMessage) => {
-                // scanning errors ignorados enquanto busca
             }
-        ).then(() => {
-            if (spinnerCam) spinnerCam.classList.add('d-none');
-        }).catch(err => {
-            if (spinnerCam) spinnerCam.classList.add('d-none');
-            console.error('Falha ao abrir câmera:', err);
-            exibirFeedback('<i class="bi bi-x-circle me-1"></i> Não foi possível acessar a câmera. Verifique as permissões.', 'danger');
+        };
+
+        function onScanSuccess(decodedText) {
             pararCamera();
             if (modalCameraInstance) modalCameraInstance.hide();
-        });
+
+            const textoSanitizado = higienizarUrlNfce(decodedText);
+            exibirFeedback('<i class="bi bi-qr-code me-1"></i> QR-Code detectado! Buscando dados na SEFAZ...', 'info');
+
+            if (inputQrCodeUrl) inputQrCodeUrl.value = textoSanitizado;
+
+            const fd = new FormData();
+            fd.append('qr_text', textoSanitizado);
+            consultarNfceAjax(fd);
+        }
+
+        function onScanFailure(errorMessage) {
+            // Ignorado durante a busca contínua de frames
+        }
+
+        function tentarIniciarCom(videoConstraints) {
+            if (html5QrScanner) {
+                try { html5QrScanner.clear(); } catch (e) {}
+            }
+            html5QrScanner = new Html5Qrcode("qr-camera-view", {
+                formatsToSupport: formats,
+                verbose: false
+            });
+            return html5QrScanner.start(videoConstraints, config, onScanSuccess, onScanFailure);
+        }
+
+        // Tentativa 1: câmera traseira (environment) sem restrições rígidas de resolução
+        tentarIniciarCom({ facingMode: "environment" })
+            .then(() => {
+                if (spinnerCam) spinnerCam.classList.add('d-none');
+            })
+            .catch(err => {
+                console.warn('Tentativa com facingMode: "environment" falhou:', err);
+                const errName = err ? (err.name || '') : '';
+                const errMsg = (typeof err === 'string' ? err : (err.message || '')).toLowerCase();
+
+                if (errName === 'NotAllowedError' || errName === 'PermissionDeniedError' || errMsg.includes('permission') || errMsg.includes('not allowed')) {
+                    exibirErroCamera('Permissão de acesso à câmera negada. Habilite a câmera nas permissões do navegador.');
+                    return;
+                }
+
+                // Tentativa 2: fallback para câmera do usuário / webcam integrada
+                tentarIniciarCom({ facingMode: "user" })
+                    .then(() => {
+                        if (spinnerCam) spinnerCam.classList.add('d-none');
+                    })
+                    .catch(err2 => {
+                        console.warn('Tentativa com facingMode: "user" falhou:', err2);
+                        const errName2 = err2 ? (err2.name || '') : '';
+                        if (errName2 === 'NotAllowedError' || errName2 === 'PermissionDeniedError') {
+                            exibirErroCamera('Permissão de acesso à câmera negada. Conceda permissão no navegador.');
+                            return;
+                        }
+
+                        // Tentativa 3: enumeração de câmeras conectadas por ID
+                        Html5Qrcode.getCameras().then(cameras => {
+                            if (cameras && cameras.length > 0) {
+                                return tentarIniciarCom(cameras[0].id).then(() => {
+                                    if (spinnerCam) spinnerCam.classList.add('d-none');
+                                });
+                            } else {
+                                exibirErroCamera('Nenhuma câmera conectada foi encontrada neste dispositivo.');
+                            }
+                        }).catch(err3 => {
+                            console.error('Falha geral ao acessar câmeras:', err3);
+                            exibirErroCamera('Não foi possível acessar a câmera. Verifique se ela não está em uso por outro programa.');
+                        });
+                    });
+            });
     }
 
     if (btnAbrirCamera && modalCameraInstance) {
         btnAbrirCamera.addEventListener('click', function () {
             modalCameraInstance.show();
-            setTimeout(iniciarCamera, 300);
         });
     }
 
     if (btnFecharCam) btnFecharCam.addEventListener('click', pararCamera);
     if (btnCancelarCam) btnCancelarCam.addEventListener('click', pararCamera);
     if (modalCameraEl) {
+        modalCameraEl.addEventListener('shown.bs.modal', function () {
+            iniciarCamera();
+        });
         modalCameraEl.addEventListener('hidden.bs.modal', function () {
             pararCamera();
+            limparErroCamera();
             if (inputQrManualModal) inputQrManualModal.value = '';
         });
     }
