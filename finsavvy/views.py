@@ -150,6 +150,11 @@ def dashboard(request):
     total_geral = total_custos_fixos + total_custos_variaveis + total_compras + total_combustivel + total_manutencao + total_troca_oleo
     total_veiculos = Veiculo.objects.filter(user=user).count()
 
+    # Budget consumption percentage for progress bar (Hick Law: fewer choices at top)
+    total_receita = total_rendas
+    total_despesas = total_geral
+    gasto_percentual = (total_receita > 0) and round((total_despesas / total_receita) * 100, 1) or 0
+
     recent_variaveis = cv_qs.order_by('-id')[:5]
     recent_compras = cc_qs.order_by('-id')[:5]
     recent_manutencoes = manut_qs.order_by('-id')[:5]
@@ -168,6 +173,7 @@ def dashboard(request):
         'total_renda_variavel': total_renda_variavel,
         'total_geral': total_geral,
         'total_veiculos': total_veiculos,
+        'gasto_percentual': gasto_percentual,
         'recent_variaveis': recent_variaveis,
         'recent_compras': recent_compras,
         'recent_manutencoes': recent_manutencoes,

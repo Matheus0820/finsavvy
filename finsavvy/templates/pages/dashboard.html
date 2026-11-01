@@ -15,16 +15,16 @@
     </div>
 </div>
 
-<!-- KPI Cards Row -->
-<div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-4 mb-4">
+<!-- KPI Cards Row (Miller Law: perfect Grid) -->
+<div class="row g-3">
     <!-- Total Rendas -->
-    <div class="col">
-        <div class="card bg-body-tertiary border shadow-sm h-100">
+    <div class="col-12 col-md-4">
+        <div class="card bg-body border shadow-sm h-100">
             <div class="card-body">
                 <div class="d-flex align-items-center justify-content-between mb-3">
                     <span class="text-secondary small fw-semibold text-uppercase">Total de Rendas</span>
                     <div class="p-2 bg-success bg-opacity-10 text-success rounded-3">
-                        <i class="bi bi-wallet2 fs-5"></i>
+                        <i data-lucide="wallet" class="text-success fs-5"></i>
                     </div>
                 </div>
                 <h3 class="fw-bold text-body mb-1">R$ {{ total_rendas|floatformat:2 }}</h3>
@@ -36,30 +36,14 @@
         </div>
     </div>
 
-    <!-- Total Geral -->
-    <div class="col">
-        <div class="card bg-body-tertiary border shadow-sm h-100">
-            <div class="card-body">
-                <div class="d-flex align-items-center justify-content-between mb-3">
-                    <span class="text-secondary small fw-semibold text-uppercase">Total de Gastos</span>
-                    <div class="p-2 bg-info bg-opacity-10 text-info rounded-3">
-                        <i class="bi bi-wallet2 fs-5"></i>
-                    </div>
-                </div>
-                <h3 class="fw-bold text-body mb-1">R$ {{ total_geral|floatformat:2 }}</h3>
-                <span class="text-success small"><i class="bi bi-arrow-up-right"></i> Consolidado geral</span>
-            </div>
-        </div>
-    </div>
-
     <!-- Custos Fixos -->
-    <div class="col">
-        <div class="card bg-body-tertiary border shadow-sm h-100">
+    <div class="col-12 col-md-4">
+        <div class="card bg-body border shadow-sm h-100">
             <div class="card-body">
                 <div class="d-flex align-items-center justify-content-between mb-3">
                     <span class="text-secondary small fw-semibold text-uppercase">Custos Fixos</span>
                     <div class="p-2 bg-warning bg-opacity-10 text-warning rounded-3">
-                        <i class="bi bi-pin-angle fs-5"></i>
+                        <i data-lucide="credit-card" class="text-warning fs-5"></i>
                     </div>
                 </div>
                 <h3 class="fw-bold text-body mb-1">R$ {{ total_custos_fixos|floatformat:2 }}</h3>
@@ -69,38 +53,60 @@
     </div>
 
     <!-- Custos Variáveis -->
-    <div class="col">
-        <div class="card bg-body-tertiary border shadow-sm h-100">
+    <div class="col-12 col-md-4">
+        <div class="card bg-body border shadow-sm h-100">
             <div class="card-body">
                 <div class="d-flex align-items-center justify-content-between mb-3">
                     <span class="text-secondary small fw-semibold text-uppercase">Custos Variáveis</span>
-                    <div class="p-2 bg-success bg-opacity-10 text-success rounded-3">
-                        <i class="bi bi-cash-stack fs-5"></i>
+                    <div class="p-2 bg-danger bg-opacity-10 text-danger rounded-3">
+                        <i data-lucide="trending-down" class="text-danger fs-5"></i>
                     </div>
                 </div>
                 <h3 class="fw-bold text-body mb-1">R$ {{ total_custos_variaveis|floatformat:2 }}</h3>
-                <div class="d-flex justify-content-between align-items-center">
-                    <a href="{% url 'list_custosVariaveis' %}" class="text-success small text-decoration-none">Ver detalhes <i class="bi bi-chevron-right small"></i></a>
-                    <a href="{% url 'list_categoria' %}" class="text-secondary small text-decoration-none" title="Gerenciar Categorias"><i class="bi bi-tags me-1"></i>Categorias</a>
-                </div>
+                <a href="{% url 'list_custosVariaveis' %}" class="text-danger small text-decoration-none">Ver detalhes <i class="bi bi-chevron-right small"></i></a>
             </div>
         </div>
     </div>
 
-    <!-- Compras -->
-    <div class="col">
-        <div class="card bg-body-tertiary border shadow-sm h-100">
+    <!-- Saldo Atual (Sobra do Mês) - Von Restorff Destaque Único -->
+    <div class="col-12 col-md-4">
+        <div class="card bg-dark text-white shadow-lg h-100 rounded-4 border border-secondary">
             <div class="card-body">
                 <div class="d-flex align-items-center justify-content-between mb-3">
-                    <span class="text-secondary small fw-semibold text-uppercase">Compras</span>
-                    <div class="p-2 bg-primary bg-opacity-10 text-primary rounded-3">
-                        <i class="bi bi-receipt fs-5"></i>
+                    <span class="text-info small fw-semibold text-uppercase">Saldo Atual</span>
+                    <div class="p-2 bg-primary bg-opacity-20 text-primary rounded-3">
+                        <i data-lucide="piggy-bank" class="text-primary fs-5"></i>
                     </div>
                 </div>
-                <h3 class="fw-bold text-body mb-1">R$ {{ total_compras|floatformat:2 }}</h3>
-                <a href="{% url 'list_custoCompra' %}" class="text-primary small text-decoration-none">Ver detalhes <i class="bi bi-chevron-right small"></i></a>
+                <h3 class="fw-bold text-white mb-1">R$ {{ saldo_atual|default:total_rendas|add:"-"|add:total_custos_fixos|add:total_custos_variaveis|floatformat:2 }}</h3>
+                <p class="text-white-50 small mb-0">Rendas menos custos deste mês</p>
             </div>
         </div>
+    </div>
+</div>
+
+<!-- Fitts Law: FAB quick-action buttons -->
+<div class="row g-3 mt-4">
+    <div class="col-12">
+        <a href="{% url 'add_renda' %}" class="btn btn-success w-100 fs-5 rounded-4">
+            <i data-lucide="plus" class="me-2 fs-5"></i>+ Renda
+        </a>
+        <a href="{% url 'add_custovariavel' %}" class="btn btn-danger w-100 fs-5 rounded-4 mt-2">
+            <i data-lucide="plus" class="me-2 fs-5"></i>+ Despesa
+        </a>
+    </div>
+</div>
+
+<!-- Zeigarnik & Meta Law: Budget Consumption Progress Bar -->
+<div class="row g-3 mb-4">
+    <div class="col-12">
+        <h5 class="fw-bold text-body mb-3"><i data-lucide="trending-up" class="text-success me-2 small"></i>Consumo do Orçamento</h5>
+        <div class="progress" style="height: 2rem;">
+            <div class="progress-bar {% if gasto_percentual < 70 %}bg-success{% elif gasto_percentual <= 90 %}bg-warning{% else %}bg-danger{% endif %}" role="progressbar" style="width: {{ gasto_percentual }}%" aria-valuenow="{{ gasto_percentual }}" aria-valuemin="0" aria-valuemax="100">
+                {{ gasto_percentual }}%
+            </div>
+        </div>
+        <p class="text-secondary small mb-0 mt-2">Você já consumido {{ gasto_percentual }}% da sua renda neste mês.</p>
     </div>
 </div>
 
