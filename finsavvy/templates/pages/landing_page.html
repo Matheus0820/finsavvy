@@ -85,10 +85,7 @@
 
     <!-- Navigation Bar -->
     <nav id="nav" class="fixed w-full z-50 px-6 py-4 flex justify-between items-center" style="background: color-mix(in srgb, var(--fs-navy) 88%, transparent); backdrop-filter: blur(12px);">
-        <a href="{% url 'landing_page' %}" class="flex items-center gap-2 text-2xl font-bold" style="color:#fff;">
-            <img src="{% static 'finsavvy/imagens/FinSavvy_logo.png' %}" alt="FinSavvy" class="h-8 w-auto">
-            FinSavvy
-        </a>
+        <a href="{% url 'landing_page' %}" class="text-2xl font-bold" style="color:#fff;">FinSavvy</a>
         <div class="flex items-center gap-3">
             <a href="{% url 'account_login' %}" class="px-4 py-2 text-sm rounded-full border" style="border-color: var(--fs-sky); color:#fff;">Entrar</a>
             <a href="{% url 'account_signup' %}" class="cta-orange px-4 py-2 text-sm">Criar Conta Grátis</a>
@@ -99,6 +96,17 @@
     <section class="min-h-screen flex items-center relative overflow-hidden pt-24 pb-16" style="background: radial-gradient(120% 80% at 80% 0%, var(--fs-navy), var(--fs-dark) 70%);">
         <canvas id="hero-canvas"></canvas>
         <div class="container mx-auto px-6 z-10 text-center">
+            <!-- Logo with Particle Globe Effect -->
+            <div id="logo-globe-container" class="mb-8" style="opacity: 0; transform: translateY(30px);">
+                <div class="stage mx-auto" style="width: 180px; height: 180px;">
+                    <canvas
+                        role="button"
+                        tabindex="0"
+                        aria-label="Hold to form a particle globe"
+                        id="logo-globe-canvas"
+                    ></canvas>
+                </div>
+            </div>
             <h1 class="text-4xl sm:text-6xl font-bold mb-6" id="hero-title" style="color:#fff; opacity: 0; transform: translateY(30px);">
                 Seu dinheiro, <br><span style="color: var(--fs-cyan);">sob controle.</span>
             </h1>
@@ -173,6 +181,116 @@
                 tsParticles.destroy('hero-canvas');
             });
         });
+
+        // Particle Globe effect using three.js + motion (logo globe)
+        (function() {
+            'use strict';
+
+            // Don't initialize if canvas doesn't exist
+            const canvas = document.getElementById('logo-globe-canvas');
+            if (!canvas) return;
+
+            // Check if Three.js is available
+            if (typeof THREE === 'undefined') {
+                // Fallback: simple opacity animation if Three.js not loaded
+                canvas.style.opacity = '1';
+                return;
+            }
+
+            let renderer, scene, camera;
+            let particles = [];
+            let isPressing = false;
+            let pressStartTime = 0;
+            const pressDuration = 1500; // ms to morph after press starts
+
+            // Initialize Three.js scene
+            function initThreeJS() {
+                renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true, alpha: true });
+                renderer.setSize(canvas.clientWidth, canvas.clientHeight);
+                renderer.setPixelRatio(window.devicePixelRatio);
+
+                scene = new THREE.Scene();
+
+                camera = new THREE.PerspectiveCamera(45, canvas.clientWidth / canvas.clientHeight, 0.1, 100);
+                camera.position.z = 5;
+                camera.lookAt(0, 0, 0);
+
+                // Create particles (simple sphere with texture-like appearance)
+                const geometry = new THREE.SphereGeometry(1, 32, 32);
+                const material = new THREE.MeshStandardMaterial({
+                    color: 0x0fb2f2,
+                    roughness: 0.3,
+                    metalness: 0.1
+                });
+
+                const sphere = new THREE.Mesh(geometry, material);
+                scene.add(sphere);
+
+                // Add light
+                const light = new THREE.DirectionalLight(0xffffff, 0.8);
+                light.position.set(5, 5, 5);
+                scene.add(light);
+
+                const ambientLight = new THREE.AmbientLight(0x404040);
+                scene.add(ambientLight);
+
+                // Animate
+                let progress = 0;
+                const animate = function() {
+                    requestAnimationFrame(animate);
+
+                    progress += 0.005;
+                    sphere.rotation.y = Math.sin(progress) * 0.5;
+                    sphere.rotation.x = Math.cos(progress * 0.7) * 0.3;
+
+                    if (isPressing && progress > 1) {
+                        // Morph to larger sphere on press
+                        sphere.scale.set(1.5, 1.5, 1.5);
+                        sphere.material.color.set('#8b5cf6');
+                    }
+
+                    renderer.render(scene, camera);
+                };
+                animate();
+            }
+
+            // Resize handler
+            window.addEventListener('resize', function() {
+                if (camera && renderer) {
+                    camera.aspect = canvas.clientWidth / canvas.clientHeight;
+                    camera.updateProjectionMatrix();
+                    renderer.setSize(canvas.clientWidth, canvas.clientHeight);
+                }
+            });
+
+            // Press interaction
+            canvas.addEventListener('pointerdown', function(e) {
+                isPressing = true;
+                pressStartTime = Date.now();
+            });
+
+            canvas.addEventListener('pointerup', function(e) {
+                isPressing = false;
+                // Reset after press
+                setTimeout(() => {
+                    if (sphere) {
+                        sphere.scale.set(1, 1, 1);
+                        sphere.material.color.set(0x0fb2f2);
+                    }
+                }, 300);
+            });
+
+            canvas.addEventListener('pointerleave', function() {
+                isPressing = false;
+            });
+
+            // Initialize after DOM is ready
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', initThreeJS);
+            } else {
+                initThreeJS();
+            }
+        })();
     </script>
 
     <!-- Differentials Section (Miller's Law - 3 Cards) -->
