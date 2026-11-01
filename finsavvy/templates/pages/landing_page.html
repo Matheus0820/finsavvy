@@ -55,7 +55,7 @@
             color: var(--fs-dark);
             transition: all 0.3s ease;
             opacity: 0;
-            transform: translateY(20px);
+            transform: translateY(40px);
         }
         .fs-card.visible {
             opacity: 1;
@@ -252,6 +252,18 @@
                 revealObserver.observe(card);
             });
 
+            // Reveal section title on load
+            const diffTitle = document.getElementById('diff-title');
+            if (diffTitle) {
+                anime({
+                    targets: diffTitle,
+                    opacity: [0, 1],
+                    translateY: ['20px', 0],
+                    duration: 800,
+                    easing: 'easeOutExpo'
+                });
+            }
+
             // Hover lift effect on cards
             differentialCards.forEach(card => {
                 card.addEventListener('mouseenter', function() {
@@ -333,6 +345,26 @@
                 document.head.appendChild(style);
                 footerCTA.classList.add('pulse-float');
             }
+
+            // Reveal progress strip and footer elements via IntersectionObserver
+            const revealEls = document.querySelectorAll('#progress-text, #progress-bar-container, #progress-steps, #footer-title, #footer-cta');
+            const revealObserver2 = new IntersectionObserver(function(entries, observer) {
+                entries.forEach((entry, index) => {
+                    if (entry.isIntersecting) {
+                        anime({
+                            targets: entry.target,
+                            opacity: [0, 1],
+                            translateY: ['20px', 0],
+                            duration: 800,
+                            delay: index * 150,
+                            easing: 'easeOutExpo'
+                        });
+                        observer.unobserve(entry.target);
+                    }
+                });
+            }, { rootMargin: '0px 0px 100px 0px' });
+
+            revealEls.forEach(el => revealObserver2.observe(el));
         });
     </script>
 </body>
