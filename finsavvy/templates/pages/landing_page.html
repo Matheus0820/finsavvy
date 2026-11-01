@@ -17,6 +17,7 @@
     <script src="https://cdn.jsdelivr.net/npm/animejs@3.2.1/lib/anime.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@motionone/dom@10.3.0/dist/motion.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/tsparticles@3.0.0/dist/tsparticles.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap');
         :root {
@@ -44,6 +45,20 @@
             width: 100%;
             height: 100%;
             z-index: -1;
+        }
+        /* Logo globe canvas - positioned absolutely within stage container */
+        .stage {
+            position: relative;
+            width: 180px;
+            height: 180px;
+        }
+        #logo-globe-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
         }
         /* Base card styling for differentials */
         .fs-card {
@@ -97,7 +112,7 @@
         <canvas id="hero-canvas"></canvas>
         <div class="container mx-auto px-6 z-10 text-center">
             <!-- Logo with Particle Globe Effect -->
-            <div id="logo-globe-container" class="mb-8" style="opacity: 0; transform: translateY(30px);">
+            <div id="logo-globe-container" class="mb-8">
                 <div class="stage mx-auto" style="width: 180px; height: 180px;">
                     <canvas
                         role="button"
@@ -151,6 +166,11 @@
             if (typeof anime !== 'undefined') {
                 const tl = anime.timeline({ easing: 'easeOutExpo' });
                 tl.add({
+                    targets: '#logo-globe-container',
+                    opacity: [0, 1],
+                    translateY: ['30px', 0],
+                    duration: 800
+                }).add({
                     targets: '#hero-title',
                     opacity: [0, 1],
                     translateY: ['30px', 0],
@@ -182,8 +202,8 @@
             });
         });
 
-        // Particle Globe effect using three.js + motion (logo globe)
-        (function() {
+        // Particle Globe effect using three.js (logo globe)
+        document.addEventListener('DOMContentLoaded', function() {
             'use strict';
 
             // Don't initialize if canvas doesn't exist
@@ -197,11 +217,16 @@
                 return;
             }
 
-            let renderer, scene, camera;
-            let particles = [];
+            // Ensure canvas has proper dimensions and styling
+            canvas.style.position = 'absolute';
+            canvas.style.top = '0';
+            canvas.style.left = '0';
+            canvas.style.width = '100%';
+            canvas.style.height = '100%';
+            canvas.style.zIndex = '0';
+
+            let renderer, scene, camera, sphere;
             let isPressing = false;
-            let pressStartTime = 0;
-            const pressDuration = 1500; // ms to morph after press starts
 
             // Initialize Three.js scene
             function initThreeJS() {
@@ -210,12 +235,14 @@
                 renderer.setPixelRatio(window.devicePixelRatio);
 
                 scene = new THREE.Scene();
+                // Set background to match hero section (navy)
+                scene.background = new THREE.Color('#023373');
 
                 camera = new THREE.PerspectiveCamera(45, canvas.clientWidth / canvas.clientHeight, 0.1, 100);
                 camera.position.z = 5;
                 camera.lookAt(0, 0, 0);
 
-                // Create particles (simple sphere with texture-like appearance)
+                // Create particles (globe with particle-like appearance)
                 const geometry = new THREE.SphereGeometry(1, 32, 32);
                 const material = new THREE.MeshStandardMaterial({
                     color: 0x0fb2f2,
@@ -223,10 +250,10 @@
                     metalness: 0.1
                 });
 
-                const sphere = new THREE.Mesh(geometry, material);
+                sphere = new THREE.Mesh(geometry, material);
                 scene.add(sphere);
 
-                // Add light
+                // Add lights
                 const light = new THREE.DirectionalLight(0xffffff, 0.8);
                 light.position.set(5, 5, 5);
                 scene.add(light);
@@ -234,19 +261,27 @@
                 const ambientLight = new THREE.AmbientLight(0x404040);
                 scene.add(ambientLight);
 
-                // Animate
+                // Animate - particles always visible, press only speeds up rotation
                 let progress = 0;
+                let targetRotationY = 0;
+                let targetRotationX = 0;
                 const animate = function() {
                     requestAnimationFrame(animate);
 
-                    progress += 0.005;
-                    sphere.rotation.y = Math.sin(progress) * 0.5;
-                    sphere.rotation.x = Math.cos(progress * 0.7) * 0.3;
+                    progress += isPressing ? 0.02 : 0.005;
 
-                    if (isPressing && progress > 1) {
-                        // Morph to larger sphere on press
-                        sphere.scale.set(1.5, 1.5, 1.5);
-                        sphere.material.color.set('#8b5cf6');
+                    // Smooth rotation interpolation
+                    targetRotationY = Math.sin(progress) * (isPressing ? 1 : 0.5);
+                    targetRotationX = Math.cos(progress * 0.7) * (isPressing ? 0.5 : 0.3);
+
+                    sphere.rotation.y += (targetRotationY - sphere.rotation.y) * 0.1;
+                    sphere.rotation.x += (targetRotationX - sphere.rotation.x) * 0.1;
+
+                    // Color pulse on press
+                    if (isPressing) {
+                        sphere.material.color.setHSL(0.6, 0.8, 0.5); // Purple on press
+                    } else {
+                        sphere.material.color.setHSL(0.52, 0.8, 0.5); // Cyan default
                     }
 
                     renderer.render(scene, camera);
@@ -263,34 +298,22 @@
                 }
             });
 
-            // Press interaction
+            // Press interaction - only speeds up rotation, doesn't hide/show
             canvas.addEventListener('pointerdown', function(e) {
                 isPressing = true;
-                pressStartTime = Date.now();
             });
 
             canvas.addEventListener('pointerup', function(e) {
                 isPressing = false;
-                // Reset after press
-                setTimeout(() => {
-                    if (sphere) {
-                        sphere.scale.set(1, 1, 1);
-                        sphere.material.color.set(0x0fb2f2);
-                    }
-                }, 300);
             });
 
             canvas.addEventListener('pointerleave', function() {
                 isPressing = false;
             });
 
-            // Initialize after DOM is ready
-            if (document.readyState === 'loading') {
-                document.addEventListener('DOMContentLoaded', initThreeJS);
-            } else {
-                initThreeJS();
-            }
-        })();
+            // Initialize
+            initThreeJS();
+        });
     </script>
 
     <!-- Differentials Section (Miller's Law - 3 Cards) -->
