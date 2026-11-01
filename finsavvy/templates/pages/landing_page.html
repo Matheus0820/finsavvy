@@ -164,26 +164,34 @@
                 retina_detect: true
             });
 
-            // Anime.js stagger entrance for hero elements
-            const tl = anime.timeline({ easing: 'easeOutExpo' });
-            tl.add({
-                targets: '#hero-title',
-                opacity: [0, 1],
-                translateY: ['30px', 0],
-                duration: 800
-            }).add({
-                targets: '#hero-subtitle',
-                opacity: [0, 1],
-                translateY: ['30px', 0],
-                duration: 800,
-                delay: 300
-            }).add({
-                targets: '#hero-cta',
-                opacity: [0, 1],
-                translateY: ['30px', 0],
-                duration: 800,
-                delay: 600
-            });
+            // Anime.js stagger entrance for hero elements (guard if CDN fails)
+            if (typeof anime !== 'undefined') {
+                const tl = anime.timeline({ easing: 'easeOutExpo' });
+                tl.add({
+                    targets: '#hero-title',
+                    opacity: [0, 1],
+                    translateY: ['30px', 0],
+                    duration: 800
+                }).add({
+                    targets: '#hero-subtitle',
+                    opacity: [0, 1],
+                    translateY: ['30px', 0],
+                    duration: 800,
+                    delay: 300
+                }).add({
+                    targets: '#hero-cta',
+                    opacity: [0, 1],
+                    translateY: ['30px', 0],
+                    duration: 800,
+                    delay: 600
+                });
+            } else {
+                // Fallback: reveal immediately if anime CDN missing
+                ['#hero-title', '#hero-subtitle', '#hero-cta'].forEach(id => {
+                    const el = document.querySelector(id);
+                    if (el) { el.style.opacity = '1'; el.style.transform = 'translateY(0)'; }
+                });
+            }
 
             // Canvas cleanup on navigate away
             window.addEventListener('beforeunload', function() {
