@@ -5,51 +5,48 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>FinSavvy | Domine suas finanças</title>
     <meta name="description" content="Organize suas contas, acompanhe seu veículo e preveja seus gastos em um só lugar.">
-    {% load static %}
+    <!-- Open Graph tags -->
     <meta property="og:title" content="FinSavvy - O Controle Financeiro Inteligente">
     <meta property="og:description" content="Organize suas contas, acompanhe seu veículo e preveja seus gastos em um só lugar.">
-    {# og-image.jpg ainda não existe: gere 1200x630px em static/img/og-image.jpg antes de divulgar no WhatsApp/LinkedIn. #}
     <meta property="og:image" content="{% static 'img/og-image.jpg' %}">
     <meta property="og:type" content="website">
+    {% load static %}
     <link rel="icon" href="{% static 'finsavvy/imagens/FinSavvy_logo.png' %}" type="image/png">
+    <!-- SEO and Animation Libraries -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/lucide@latest/dist/umd/lucide.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/animejs@3.2.1/lib/anime.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@motionone/dom@10.3.0/dist/motion.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/tsparticles@3.0.0/dist/tsparticles.bundle.min.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap');
         :root {
-            --fs-navy: #023373;
-            --fs-blue: #0511F2;
-            --fs-sky: #0FB2F2;
-            --fs-cyan: #14D9D9;
-            --fs-orange: #FF9F43;
-            --fs-purple: #8B5CF6;
-            --fs-light: #F4F7FB;
-            --fs-dark: #0B1020;
+            /* Color palette with exact distribution percentages */
+            --fs-navy: #023373;      /* 25% - Navy backgrounds */
+            --fs-blue: #0511F2;      /* 20% - Blue details */
+            --fs-sky: #0FB2F2;       /* 20% - Sky details */
+            --fs-cyan: #14D9D9;      /* 20% - Cyan details */
+            --fs-orange: #FF9F43;    /* 10% - CTAs and highlights */
+            --fs-purple: #8B5CF6;    /* 10% - Purple accents */
+            --fs-light: #F4F7FB;     /* 45% - Neutrals, backgrounds */
+            --fs-dark: #0B1020;       /* 45% - Neutrals, text backgrounds */
         }
-        body { font-family: 'Poppins', sans-serif; overflow-x: hidden; }
-        .bg-mesh {
-            background-color: #0f172a;
-            background-image:
-                radial-gradient(at 0% 0%, hsla(210,100%,15%,1) 0, transparent 50%),
-                radial-gradient(at 50% 0%, hsla(220,100%,10%,1) 0, transparent 50%),
-                radial-gradient(at 100% 0%, hsla(230,100%,15%,1) 0, transparent 50%);
+        body {
+            font-family: 'Poppins', sans-serif;
+            overflow-x: hidden;
+            background: var(--fs-dark);
+            color: #fff;
         }
-        .flip-card-inner {
-            transition: transform 0.6s;
-            transform-style: preserve-3d;
+        /* Hero canvas for particle effects */
+        #hero-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
         }
-        .flip-card:hover .flip-card-inner {
-            transform: rotateY(180deg);
-        }
-        .flip-card-front, .flip-card-back {
-            -webkit-backface-visibility: hidden;
-            backface-visibility: hidden;
-        }
-        .flip-card-back {
-            transform: rotateY(180deg);
-        }
+        /* Base card styling for differentials */
         .fs-card {
             background: #fff;
             border: 1px solid var(--fs-sky);
@@ -57,37 +54,56 @@
             padding: 2rem 1.5rem;
             text-align: center;
             color: var(--fs-dark);
+            transition: all 0.3s ease;
+            opacity: 0;
+            transform: translateY(20px);
         }
-        .fs-card lucide-icon, .fs-card svg { color: var(--fs-sky); margin: 0 auto 1rem; }
+        .fs-card.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .fs-card lucide-icon, .fs-card svg {
+            color: var(--fs-sky);
+            margin: 0 auto 1rem;
+        }
+        /* Enhanced CTA button with hover effects */
         .cta-orange {
             background: var(--fs-orange);
             color: var(--fs-navy);
             font-weight: 700;
             border-radius: 9999px;
             display: inline-block;
+            transition: all 0.3s ease;
         }
-        .cta-orange:hover { filter: brightness(1.05); }
+        .cta-orange:hover {
+            filter: brightness(1.05);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(255, 159, 67, 0.4);
+        }
     </style>
 </head>
-<body style="background: var(--fs-dark); color: #fff;">
+<body>
 
+    <!-- Navigation Bar -->
     <nav id="nav" class="fixed w-full z-50 px-6 py-4 flex justify-between items-center" style="background: color-mix(in srgb, var(--fs-navy) 88%, transparent); backdrop-filter: blur(12px);">
         <a href="{% url 'landing_page' %}" class="text-2xl font-bold" style="color:#fff;">FinSavvy</a>
         <div class="flex items-center gap-3">
             <a href="{% url 'account_login' %}" class="px-4 py-2 text-sm rounded-full border" style="border-color: var(--fs-sky); color:#fff;">Entrar</a>
-            <a href="{% url 'account_signup' %}" class="cta-orange px-4 py-2 text-sm">Cadastre-se</a>
+            <a href="{% url 'account_signup' %}" class="cta-orange px-4 py-2 text-sm">Criar Conta Grátis</a>
         </div>
     </nav>
 
+    <!-- Hero Section with Particle Orb -->
     <section class="min-h-screen flex items-center relative overflow-hidden pt-24 pb-16" style="background: radial-gradient(120% 80% at 80% 0%, var(--fs-navy), var(--fs-dark) 70%);">
+        <canvas id="hero-canvas"></canvas>
         <div class="container mx-auto px-6 z-10 text-center">
-            <h1 class="text-4xl sm:text-6xl font-bold mb-6" id="hero-title" style="color:#fff;">
+            <h1 class="text-4xl sm:text-6xl font-bold mb-6" id="hero-title" style="color:#fff; opacity: 0; transform: translateY(30px);">
                 Seu dinheiro, <br><span style="color: var(--fs-cyan);">sob controle.</span>
             </h1>
-            <p class="text-lg md:text-2xl mb-10 max-w-2xl mx-auto" style="color: var(--fs-light);">
+            <p class="text-lg md:text-2xl mb-10 max-w-2xl mx-auto" id="hero-subtitle" style="color: var(--fs-light); opacity: 0; transform: translateY(30px);">
                 Organize suas contas, acompanhe seu veículo e preveja seus gastos em um só lugar.
             </p>
-            <div id="hero-cta" class="max-w-md mx-auto">
+            <div id="hero-cta" class="max-w-md mx-auto" style="opacity: 0; transform: translateY(30px);">
                 <a href="{% url 'account_signup' %}" class="cta-orange w-full sm:w-auto px-10 py-5 text-lg md:text-xl shadow-lg">
                     Criar Conta Grátis
                 </a>
@@ -95,41 +111,230 @@
         </div>
     </section>
 
+    <!-- Hero Particle Animation Script (tsParticles Orb + Anime.js) -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize tsParticles Particle Orb on hero canvas
+            tsParticles.load('hero-canvas', {
+                particles: {
+                    number: {
+                        value: 80,
+                        density: { enable: true, value_area: 800 }
+                    },
+                    color: { value: ['#0FB2F2', '#14D9D9', '#8B5CF6'] },
+                    shape: { type: 'circle' },
+                    opacity: {
+                        value: 0.5,
+                        random: false,
+                        anim: { enable: true, speed: 1, opacity_min: 0.1, sync: false }
+                    },
+                    size: {
+                        value: 3,
+                        random: true,
+                        anim: { enable: false, speed: 40, size_min: 0.1, sync: false }
+                    },
+                    line_linked: {
+                        enable: true,
+                        distance: 150,
+                        color: '#0FB2F2',
+                        opacity: 0.2,
+                        width: 1
+                    },
+                    move: {
+                        enable: true,
+                        speed: 2,
+                        direction: 'none',
+                        random: false,
+                        straight: false,
+                        out_mode: 'out',
+                        bounce: false
+                    }
+                },
+                interactivity: {
+                    detect_on: 'canvas',
+                    events: {
+                        onhover: { enable: true, mode: 'grab' },
+                        onclick: { enable: true, mode: 'push' },
+                        resize: true
+                    },
+                    modes: {
+                        grab: { distance: 140, line_linked: { opacity: 0.5 } },
+                        push: { particles_nb: 4 }
+                    }
+                },
+                retina_detect: true
+            });
+
+            // Anime.js stagger entrance for hero elements
+            const tl = anime.timeline({ easing: 'easeOutExpo' });
+            tl.add({
+                targets: '#hero-title',
+                opacity: [0, 1],
+                translateY: ['30px', 0],
+                duration: 800
+            }).add({
+                targets: '#hero-subtitle',
+                opacity: [0, 1],
+                translateY: ['30px', 0],
+                duration: 800,
+                delay: 300
+            }).add({
+                targets: '#hero-cta',
+                opacity: [0, 1],
+                translateY: ['30px', 0],
+                duration: 800,
+                delay: 600
+            });
+
+            // Canvas cleanup on navigate away
+            window.addEventListener('beforeunload', function() {
+                tsParticles.destroy('hero-canvas');
+            });
+        });
+    </script>
+
+    <!-- Differentials Section (Miller's Law - 3 Cards) -->
     <section id="diferenciais" class="py-20" style="background: var(--fs-light);">
         <div class="container mx-auto px-6 text-center mb-12">
-            <h2 class="text-3xl md:text-4xl font-bold" style="color: var(--fs-navy);">Três coisas. Só isso.</h2>
+            <h2 class="text-3xl md:text-4xl font-bold" style="color: var(--fs-navy); opacity: 0; transform: translateY(20px);" id="diff-title">Três coisas. Só isso.</h2>
         </div>
         <div class="container mx-auto px-6 grid md:grid-cols-3 gap-6 max-w-5xl">
-            <article class="fs-card">
-                <i data-lucide="wallet" data-lucide-animate="pulse" width="40" height="40"></i>
+            <article class="fs-card" data-diff="financas">
+                <lucide-icon name="wallet" width="48" height="48" style="color: var(--fs-sky);"></lucide-icon>
                 <h3 class="text-xl font-bold mb-2">Finanças</h3>
                 <p>Cada conta e cada gasto no mesmo lugar, sem planilha.</p>
             </article>
-            <article class="fs-card">
-                <i data-lucide="gauge" data-lucide-animate="pulse" width="40" height="40"></i>
+            <article class="fs-card" data-diff="veiculos">
+                <lucide-icon name="car" width="48" height="48" style="color: var(--fs-cyan);"></lucide-icon>
                 <h3 class="text-xl font-bold mb-2">Veículos</h3>
                 <p>Combustível, manutenção e custo por quilômetro.</p>
             </article>
-            <article class="fs-card">
-                <i data-lucide="trending-up" data-lucide-animate="draw" width="40" height="40"></i>
+            <article class="fs-card" data-diff="inteligencia">
+                <lucide-icon name="trending-up" width="48" height="48" style="color: var(--fs-blue);"></lucide-icon>
                 <h3 class="text-xl font-bold mb-2">Inteligência</h3>
                 <p>O gráfico sobe quando o padrão de gasto fica claro.</p>
             </article>
         </div>
     </section>
 
-    <section class="py-6 text-center text-sm md:text-base" style="background: var(--fs-navy); color: #fff;">
-        <p class="px-6">Faltam 2 passos para dominar seu dinheiro: 1. Crie sua conta → 2. Adicione sua primeira renda.</p>
+    <!-- Scroll Reveal Animation Script for Differentials -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Motion Scroll Reveal for differentials cards
+            const differentialCards = document.querySelectorAll('.fs-card');
+
+            const revealOptions = {
+                root: null,
+                rootMargin: '0px',
+                threshold: 0.1
+            };
+
+            const revealObserver = new IntersectionObserver(function(entries, observer) {
+                entries.forEach((entry, index) => {
+                    if (entry.isIntersecting) {
+                        // Staggered reveal with Anime.js
+                        const cardTl = anime.timeline({ easing: 'easeOutExpo' });
+                        cardTl.add({
+                            targets: entry.target,
+                            opacity: [0, 1],
+                            translateY: ['40px', 0],
+                            duration: 600,
+                            delay: index * 150
+                        });
+                        // Mark as visible
+                        entry.target.classList.add('visible');
+                        // Stop observing this card
+                        observer.unobserve(entry.target);
+                    }
+                });
+            }, revealOptions);
+
+            differentialCards.forEach(card => {
+                revealObserver.observe(card);
+            });
+
+            // Hover lift effect on cards
+            differentialCards.forEach(card => {
+                card.addEventListener('mouseenter', function() {
+                    this.style.transform = 'translateY(-10px)';
+                    this.style.boxShadow = '0 20px 40px rgba(0,0,0,0.15)';
+                });
+                card.addEventListener('mouseleave', function() {
+                    this.style.transform = 'translateY(0)';
+                    this.style.boxShadow = 'none';
+                });
+            });
+        });
+    </script>
+
+    <!-- Progress Strip (Zeigarnik Effect) -->
+    <section id="progress-strip" class="py-10 relative overflow-hidden" style="background: var(--fs-navy); color: #fff;">
+        <div class="container mx-auto px-6 text-center">
+            <p class="text-base md:text-lg mb-4" id="progress-text" style="opacity: 0; transform: translateY(20px);">Faltam 2 passos para dominar seu dinheiro</p>
+            <div class="max-w-md mx-auto" style="opacity: 0; transform: translateY(20px);" id="progress-bar-container">
+                <div class="h-3 rounded-full overflow-hidden" style="background: rgba(255,255,255,0.1);">
+                    <div id="progress-bar" class="h-full rounded-full" style="background: linear-gradient(90deg, var(--fs-cyan), var(--fs-orange)); width: 0%; transition: width 1.5s ease-out;"></div>
+                </div>
+                <p class="text-sm mt-2 text-center" style="color: var(--fs-sky);"><span id="progress-percent">0%</span> concluído</p>
+            </div>
+            <p class="text-sm mt-4" style="color: var(--fs-light); opacity: 0; transform: translateY(20px);" id="progress-steps">1. Crie sua conta → 2. Adicione sua primeira renda → 3. Veja a mágica acontecer</p>
+        </div>
     </section>
 
-    <footer class="py-16 text-center" style="background: var(--fs-dark);">
-        <h2 class="text-3xl md:text-4xl font-bold mb-8" style="color:#fff;">Pronto para assumir o controle?</h2>
-        <a href="{% url 'account_signup' %}" class="cta-orange w-full sm:w-auto px-10 py-5 text-lg md:text-xl">Criar Conta Grátis</a>
+    <!-- Conversion Footer (Hick's Law - Minimal Choices) -->
+    <footer class="py-16 relative" style="background: var(--fs-dark);">
+        <div class="container mx-auto px-6 text-center">
+            <h2 class="text-3xl md:text-4xl font-bold mb-8" style="color:#fff; opacity: 0; transform: translateY(20px);" id="footer-title">Pronto para assumir o controle?</h2>
+            <a href="{% url 'account_signup' %}" class="cta-orange w-full sm:w-auto px-10 py-5 text-lg md:text-xl" id="footer-cta" style="opacity: 0; transform: translateY(20px);">Criar Conta Grátis</a>
+        </div>
     </footer>
 
-    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
     <script>
+        // Initialize Lucide icons
         if (window.lucide) lucide.createIcons();
+
+        // Zeigarnik progress bar animation
+        document.addEventListener('DOMContentLoaded', function() {
+            const progressBar = document.getElementById('progress-bar');
+            const progressPercent = document.getElementById('progress-percent');
+
+            if (progressBar) {
+                const observer = new IntersectionObserver((entries) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            progressBar.style.width = '33%';
+                            progressPercent.textContent = '33%';
+                            observer.unobserve(entry.target);
+                        }
+                    });
+                }, { rootMargin: '0px 0px 200px 0px' });
+
+                observer.observe(document.getElementById('progress-strip'));
+            }
+        });
+    </script>
+
+    <script>
+        // Footer pulse float animation (Hick's Law)
+        document.addEventListener('DOMContentLoaded', function() {
+            const footerCTA = document.getElementById('footer-cta');
+
+            if (footerCTA) {
+                // Add pulse animation keyframes
+                const style = document.createElement('style');
+                style.textContent = `
+                    @keyframes pulse-float {
+                        0%, 100% { transform: translateY(0px); }
+                        50% { transform: translateY(-20px); }
+                    }
+                    .pulse-float {
+                        animation: pulse-float 3s ease-in-out infinite;
+                    }
+                `;
+                document.head.appendChild(style);
+                footerCTA.classList.add('pulse-float');
+            }
+        });
     </script>
 </body>
 </html>
