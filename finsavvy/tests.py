@@ -430,8 +430,9 @@ class LandingPageUITests(TestCase):
     def test_landing_page_renders_successfully_with_ctas(self):
         response = self.client.get(reverse('landing_page'))
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, 'Começar a Poupar')
-        self.assertContains(response, 'Entrar na minha conta')
+        self.assertContains(response, 'Criar Conta Grátis')
+        self.assertContains(response, 'og:title')
+        self.assertContains(response, '--fs-navy')
         self.assertContains(response, 'FinSavvy')
 
 
