@@ -147,6 +147,9 @@ def dashboard(request):
     total_renda_fixa = renda_qs.filter(tipo_renda='FIXA').aggregate(total=Sum('valor'))['total'] or 0
     total_renda_variavel = renda_qs.filter(tipo_renda='VARIAVEL').aggregate(total=Sum('valor'))['total'] or 0
 
+    # Calcula saldo_atual (rendas - custos do mês) para exibição no dashboard
+    saldo_atual = total_rendas - (total_custos_fixos + total_custos_variaveis + total_compras + total_combustivel + total_manutencao + total_troca_oleo)
+
     total_geral = total_custos_fixos + total_custos_variaveis + total_compras + total_combustivel + total_manutencao + total_troca_oleo
     total_veiculos = Veiculo.objects.filter(user=user).count()
 

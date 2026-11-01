@@ -7,7 +7,17 @@
       "Bash(git add:*)",
       "Bash(git checkout:*)",
       "Bash(git push:*)",
-      "Bash(git commit:*)"
+      "Bash(git commit:*)",
+      "Bash(pip install:*)",
+      "Bash(playwright install:*)",
+      "Bash(where python:*)",
+      "Bash(git reset:*)",
+      "Read(//d/Documents/Projetos profissionais/Clients/finsavvy/**)",
+      "Bash(\"C:/Users/Theus/AppData/Local/Temp/check_console.py\")",
+      "Bash(rm \"C:/Users/Theus/AppData/Local/Temp/check_console.py\")",
+      "Bash(\"C:/Users/Theus/AppData/Local/Temp/test_live.py\")",
+      "Bash(rm \"C:/Users/Theus/AppData/Local/Temp/test_live.py\")",
+      "mcp__plugin_playwright_playwright__browser_evaluate"
     ]
   }
 }

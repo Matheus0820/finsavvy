@@ -78,7 +78,7 @@
                         <i data-lucide="piggy-bank" class="text-primary fs-5"></i>
                     </div>
                 </div>
-                <h3 class="fw-bold text-white mb-1">R$ {{ saldo_atual|default:total_rendas|add:"-"|add:total_custos_fixos|add:total_custos_variaveis|floatformat:2 }}</h3>
+                <h3 class="fw-bold mb-1 text-white {% if saldo_atual > 0 %}text-success{% elif saldo_atual < 0 %}text-danger{% else %}text-muted{% endif %}">R$ {{ saldo_atual|floatformat:2 }}</h3>
                 <p class="text-white-50 small mb-0">Rendas menos custos deste mês</p>
             </div>
         </div>
