@@ -425,7 +425,7 @@
 
             // Sincronizar ao carregar e ao mudar de aba
             document.addEventListener('show.bs.offcanvas', function (e) {
-                if (e.target && e.target.target === '#sidebarMobile') {
+                if (e.target && e.target.id === 'sidebarMobile') {
                     setTimeout(syncMobileMenu, 100);
                 }
             });
