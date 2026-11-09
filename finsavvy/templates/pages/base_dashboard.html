@@ -390,7 +390,10 @@
                 toggle.addEventListener('click', function (e) {
                     var targetId = this.getAttribute('data-bs-target') || this.getAttribute('href');
                     if (targetId && targetId.startsWith('#')) {
-                        var targetEl = document.querySelector(targetId);
+                        // Escopo ao <li> do clique (template incluído 2x → IDs duplicados).
+                        // document.querySelector(targetId) sempre retornaria a primeira
+                        // ocorrência do documento (desktop), ignorando o mobile.
+                        var targetEl = this.closest('li').querySelector(targetId);
                         if (targetEl) {
                             e.preventDefault();
                             // Toggle show class
