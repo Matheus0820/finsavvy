@@ -1,0 +1,59 @@
+{% load static %}
+<ul class="nav nav-pills flex-column mb-auto overflow-y-auto">
+    <li class="nav-item mb-2">
+        <a href="{% url 'dashboard' %}" class="nav-link d-flex align-items-center py-2 px-3">
+            <i class="bi bi-speedometer2 fs-5 me-3 text-info"></i>
+            <span>Dashboard</span>
+        </a>
+    </li>
+    <li class="nav-item mb-2">
+        <a href="{% url 'list_renda' %}" class="nav-link d-flex align-items-center py-2 px-3">
+            <i class="bi bi-wallet2 fs-5 me-3 text-success"></i>
+            <span>Rendas</span>
+        </a>
+    </li>
+    <li class="nav-item mb-2">
+        <a href="{% url 'list_custosFixos' %}" class="nav-link d-flex align-items-center py-2 px-3">
+            <i class="bi bi-pin-angle fs-5 me-3 text-warning"></i>
+            <span>Custos Fixos</span>
+        </a>
+    </li>
+    <li class="nav-item mb-2">
+        <a class="nav-link submenu-toggle d-flex align-items-center justify-content-between py-2 px-3 {% if 'custosvariaveis' in request.path or 'custosvariaveis' in request.resolver_match.url_name %}active{% endif %}" data-bs-toggle="collapse" data-bs-target="#custosVariaveisSubmenu" href="#custosVariaveisSubmenu" role="button" aria-expanded="{% if 'custosvariaveis' in request.path or 'custosvariaveis' in request.resolver_match.url_name %}true{% else %}false{% endif %}" aria-controls="custosVariaveisSubmenu">
+            <div class="d-flex align-items-center">
+                <i class="bi bi-cash-stack fs-5 me-3 text-success"></i>
+                <span>Custos Variáveis</span>
+            </div>
+            <i class="bi bi-chevron-down small"></i>
+        </a>
+        <div class="collapse {% if 'custosvariaveis' in request.path or 'custosvariaveis' in request.resolver_match.url_name %}show{% endif %} ps-3 mt-1" id="custosVariaveisSubmenu">
+            <ul class="nav flex-column border-start border-secondary ms-3 ps-2">
+                <li class="nav-item"><a href="{% url 'list_custosVariaveis' %}" class="sub-nav-link {% if request.resolver_match.url_name == 'list_custosVariaveis' or request.resolver_match.url_name == 'add_custoVariavel' or request.resolver_match.url_name == 'edit_custoVariavel' %}active{% endif %}"><i class="bi bi-cash-stack me-2 text-success"></i> Custos Variáveis</a></li>
+                <li class="nav-item"><a href="{% url 'list_categoria' %}" class="sub-nav-link {% if 'categoria' in request.resolver_match.url_name %}active{% endif %}"><i class="bi bi-tags me-2 text-info"></i> Categorias</a></li>
+            </ul>
+        </div>
+    </li>
+    <li class="nav-item mb-2">
+        <a href="{% url 'list_custoCompra' %}" class="nav-link d-flex align-items-center py-2 px-3">
+            <i class="bi bi-receipt fs-5 me-3 text-primary"></i>
+            <span>Compras</span>
+        </a>
+    </li>
+    <li class="nav-item mb-2">
+        <a class="nav-link submenu-toggle d-flex align-items-center justify-content-between py-2 px-3 {% if 'veiculos' in request.path or 'combustiveis' in request.path or 'manutencoes' in request.path %}active{% endif %}" data-bs-toggle="collapse" data-bs-target="#veiculosSubmenu" href="#veiculosSubmenu" role="button" aria-expanded="{% if 'veiculos' in request.path or 'combustiveis' in request.path or 'manutencoes' in request.path %}true{% else %}false{% endif %}" aria-controls="veiculosSubmenu">
+            <div class="d-flex align-items-center">
+                <i class="bi bi-truck fs-5 me-3 text-danger"></i>
+                <span>Veículos</span>
+            </div>
+            <i class="bi bi-chevron-down small"></i>
+        </a>
+        <div class="collapse {% if 'veiculos' in request.path or 'combustiveis' in request.path or 'manutencoes' in request.path %}show{% endif %} ps-3 mt-1" id="veculosSubmenu">
+            <ul class="nav flex-column border-start border-secondary ms-3 ps-2">
+                <li class="nav-item"><a href="{% url 'list_veiculo' %}" class="sub-nav-link {% if request.resolver_match.url_name == 'list_veiculo' %}active{% endif %}"><i class="bi bi-truck me-2 text-danger"></i> Veículos</a></li>
+                <li class="nav-item"><a href="{% url 'list_custoCombustivel' %}" class="sub-nav-link {% if request.resolver_match.url_name == 'list_custoCombustivel' %}active{% endif %}"><i class="bi bi-fuel-pump me-2 text-warning"></i> Combustível</a></li>
+                <li class="nav-item"><a href="{% url 'list_manutencao' %}" class="sub-nav-link {% if request.resolver_match.url_name == 'list_manutencao' %}active{% endif %}"><i class="bi bi-tools me-2 text-info"></i> Manutenções</a></li>
+                <li class="nav-item"><a href="{% url 'list_troca_oleo' %}" class="sub-nav-link {% if 'trocas-oleo' in request.path or 'oleo' in request.path %}active{% endif %}"><i class="bi bi-droplet-half me-2 text-info"></i> Troca de Óleo</a></li>
+            </ul>
+        </div>
+    </li>
+</ul>
