@@ -47,7 +47,7 @@
             </div>
             <i class="bi bi-chevron-down small"></i>
         </a>
-        <div class="collapse {% if 'veiculos' in request.path or 'combustiveis' in request.path or 'manutencoes' in request.path %}show{% endif %} ps-3 mt-1" id="veculosSubmenu">
+        <div class="collapse {% if 'veiculos' in request.path or 'combustiveis' in request.path or 'manutencoes' in request.path %}show{% endif %} ps-3 mt-1" id="veiculosSubmenu">
             <ul class="nav flex-column border-start border-secondary ms-3 ps-2">
                 <li class="nav-item"><a href="{% url 'list_veiculo' %}" class="sub-nav-link {% if request.resolver_match.url_name == 'list_veiculo' %}active{% endif %}"><i class="bi bi-truck me-2 text-danger"></i> Veículos</a></li>
                 <li class="nav-item"><a href="{% url 'list_custoCombustivel' %}" class="sub-nav-link {% if request.resolver_match.url_name == 'list_custoCombustivel' %}active{% endif %}"><i class="bi bi-fuel-pump me-2 text-warning"></i> Combustível</a></li>
