@@ -18,15 +18,15 @@
             <span>Custos Fixos</span>
         </a>
     </li>
-    <li class="nav-item mb-2">
-        <a class="nav-link submenu-toggle d-flex align-items-center justify-content-between py-2 px-3 {% if 'custosvariaveis' in request.path or 'custosvariaveis' in request.resolver_match.url_name %}active{% endif %}" data-bs-toggle="collapse" data-bs-target="#custosVariaveisSubmenu" href="#custosVariaveisSubmenu" role="button" aria-expanded="{% if 'custosvariaveis' in request.path or 'custosvariaveis' in request.resolver_match.url_name %}true{% else %}false{% endif %}" aria-controls="custosVariaveisSubmenu">
+    <li class="nav-item w-100 mb-2">
+        <a class="nav-link submenu-toggle d-flex align-items-center justify-content-between py-2 px-3 {% if 'custosvariaveis' in request.path or 'custosvariaveis' in request.resolver_match.url_name %}active{% endif %}" data-bs-target="#custosVariaveisSubmenu" href="#custosVariaveisSubmenu" role="button" aria-expanded="{% if 'custosvariaveis' in request.path or 'custosvariaveis' in request.resolver_match.url_name %}true{% else %}false{% endif %}" aria-controls="custosVariaveisSubmenu">
             <div class="d-flex align-items-center">
                 <i class="bi bi-cash-stack fs-5 me-3 text-success"></i>
                 <span>Custos Variáveis</span>
             </div>
             <i class="bi bi-chevron-down small"></i>
         </a>
-        <div class="collapse {% if 'custosvariaveis' in request.path or 'custosvariaveis' in request.resolver_match.url_name %}show{% endif %} mt-1" id="custosVariaveisSubmenu">
+        <div class="collapse w-100 {% if 'custosvariaveis' in request.path or 'custosvariaveis' in request.resolver_match.url_name %}show{% endif %} mt-1" id="custosVariaveisSubmenu">
             <ul class="nav flex-column ms-3">
                 <li class="nav-item"><a href="{% url 'list_custosVariaveis' %}" class="sub-nav-link {% if request.resolver_match.url_name == 'list_custosVariaveis' or request.resolver_match.url_name == 'add_custoVariavel' or request.resolver_match.url_name == 'edit_custoVariavel' %}active{% endif %}"><i class="bi bi-cash-stack me-2 text-success"></i> Custos Variáveis</a></li>
                 <li class="nav-item"><a href="{% url 'list_categoria' %}" class="sub-nav-link {% if 'categoria' in request.resolver_match.url_name %}active{% endif %}"><i class="bi bi-tags me-2 text-info"></i> Categorias</a></li>
@@ -39,15 +39,15 @@
             <span>Compras</span>
         </a>
     </li>
-    <li class="nav-item mb-2">
-        <a class="nav-link submenu-toggle d-flex align-items-center justify-content-between py-2 px-3 {% if 'veiculos' in request.path or 'combustiveis' in request.path or 'manutencoes' in request.path %}active{% endif %}" data-bs-toggle="collapse" data-bs-target="#veiculosSubmenu" href="#veiculosSubmenu" role="button" aria-expanded="{% if 'veiculos' in request.path or 'combustiveis' in request.path or 'manutencoes' in request.path %}true{% else %}false{% endif %}" aria-controls="veiculosSubmenu">
+    <li class="nav-item w-100 mb-2">
+        <a class="nav-link submenu-toggle d-flex align-items-center justify-content-between py-2 px-3 {% if 'veiculos' in request.path or 'combustiveis' in request.path or 'manutencoes' in request.path %}active{% endif %}" data-bs-target="#veiculosSubmenu" href="#veiculosSubmenu" role="button" aria-expanded="{% if 'veiculos' in request.path or 'combustiveis' in request.path or 'manutencoes' in request.path %}true{% else %}false{% endif %}" aria-controls="veiculosSubmenu">
             <div class="d-flex align-items-center">
                 <i class="bi bi-truck fs-5 me-3 text-danger"></i>
                 <span>Veículos</span>
             </div>
             <i class="bi bi-chevron-down small"></i>
         </a>
-        <div class="collapse {% if 'veiculos' in request.path or 'combustiveis' in request.path or 'manutencoes' in request.path %}show{% endif %} mt-1" id="veiculosSubmenu">
+        <div class="collapse {% if 'veiculos' in request.path or 'combustiveis' in request.path or 'manutencoes' in request.path %}show{% endif %} w-100 mt-1" id="veiculosSubmenu">
             <ul class="nav flex-column ms-3">
                 <li class="nav-item"><a href="{% url 'list_veiculo' %}" class="sub-nav-link {% if request.resolver_match.url_name == 'list_veiculo' %}active{% endif %}"><i class="bi bi-truck me-2 text-danger"></i> Veículos</a></li>
                 <li class="nav-item"><a href="{% url 'list_custoCombustivel' %}" class="sub-nav-link {% if request.resolver_match.url_name == 'list_custoCombustivel' %}active{% endif %}"><i class="bi bi-fuel-pump me-2 text-warning"></i> Combustível</a></li>
