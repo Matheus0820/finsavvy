@@ -39,8 +39,8 @@
             color: var(--bs-body-color);
         }
         .sidebar {
-            width: 260px;
-            max-width: 260px;
+            min-width: 260px;
+            max-width: 320px;
             background-color: var(--bs-tertiary-bg);
             border-right: 1px solid var(--bs-border-color);
             flex-shrink: 0;
@@ -106,6 +106,46 @@
             background-color: rgba(0, 224, 193, 0.1);
             font-weight: 600;
         }
+        /* Estilos para submenus no offcanvas mobile */
+        .offcanvas .nav-link {
+            color: var(--bs-secondary-color);
+            border-radius: 8px;
+            margin-bottom: 4px;
+            transition: all 0.2s ease;
+        }
+        .offcanvas .nav-link:hover, .offcanvas .nav-link.active {
+            color: #121212;
+            background-color: #00e0c1;
+            font-weight: 600;
+        }
+        .offcanvas .nav-link.active i, .offcanvas .nav-link:hover i {
+            color: #121212 !important;
+        }
+        .offcanvas .submenu-toggle .bi-chevron-down {
+            transition: transform 0.2s ease;
+        }
+        .offcanvas .submenu-toggle[aria-expanded="true"] .bi-chevron-down {
+            transform: rotate(180deg);
+        }
+        .offcanvas .sub-nav-link {
+            color: var(--bs-secondary-color);
+            border-radius: 6px;
+            font-size: 0.875rem;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            padding: 6px 12px;
+            margin-bottom: 2px;
+            transition: all 0.2s ease;
+        }
+        .offcanvas .sub-nav-link:hover, .offcanvas .sub-nav-link.active {
+            color: #00e0c1 !important;
+            background-color: rgba(0, 224, 193, 0.1);
+            font-weight: 600;
+        }
+        .offcanvas .collapse {
+            transition: all 0.3s ease;
+        }
     </style>
     {% block extra_head %}{% endblock %}
 </head>
@@ -150,9 +190,7 @@
                 <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
             </div>
             <div class="offcanvas-body d-flex flex-column p-4">
-                <ul class="nav nav-pills flex-column mb-auto overflow-y-auto">
-                    {% include '_sidebar_links.html' %}
-                </ul>
+                {% include '_sidebar_links.html' %}
                 <hr class="text-secondary">
                 <div class="dropdown">
                     <a href="#" class="d-flex align-items-center text-body text-decoration-none dropdown-toggle p-2 rounded" data-bs-toggle="dropdown" aria-expanded="false">
@@ -345,7 +383,7 @@
         });
     </script>
     <script>
-        // Suporte robusto para alternância de submenu
+        // Suporte robusto para alternância de submenu - Desktop e Mobile
         document.addEventListener('DOMContentLoaded', function () {
             var toggles = document.querySelectorAll('.submenu-toggle');
             toggles.forEach(function (toggle) {
@@ -353,15 +391,48 @@
                     var targetId = this.getAttribute('data-bs-target') || this.getAttribute('href');
                     if (targetId && targetId.startsWith('#')) {
                         var targetEl = document.querySelector(targetId);
-                        if (targetEl && !window.bootstrap) {
+                        if (targetEl) {
                             e.preventDefault();
-                            targetEl.classList.toggle('show');
+                            // Toggle show class
                             var isShown = targetEl.classList.contains('show');
-                            this.setAttribute('aria-expanded', isShown);
+                            targetEl.classList.toggle('show', !isShown);
+                            // Update aria-expanded
+                            this.setAttribute('aria-expanded', !isShown);
                         }
                     }
                 });
             });
+
+            // Sincronização de menus Mobile ↔ Desktop
+            function syncMobileMenu() {
+                var mobileNav = document.querySelector('.offcanvas-body .nav-pills');
+                if (!mobileNav) return;
+
+                // Atualizar estados ativos no mobile baseados no desktop
+                var desktopActive = document.querySelector('.sidebar .nav-link.active');
+                if (desktopActive) {
+                    var desktopHref = desktopActive.getAttribute('href');
+                    var mobileLinks = mobileNav.querySelectorAll('.nav-link');
+                    mobileLinks.forEach(function(link) {
+                        if (link.getAttribute('href') === desktopHref) {
+                            // Remover active de todos primeiro
+                            mobileLinks.forEach(function(l) { l.classList.remove('active'); });
+                            link.classList.add('active');
+                        }
+                    });
+                }
+            }
+
+            // Sincronizar ao carregar e ao mudar de aba
+            document.addEventListener('show.bs.offcanvas', function (e) {
+                if (e.target && e.target.target === '#sidebarMobile') {
+                    setTimeout(syncMobileMenu, 100);
+                }
+            });
+
+            // Inicializar ao carregar página
+            syncMobileMenu();
+        });
 
             // Theme Switcher Logic
             const getStoredTheme = () => localStorage.getItem('finsavvy-theme');

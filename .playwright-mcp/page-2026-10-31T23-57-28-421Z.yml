@@ -1,0 +1,31 @@
+- generic [active] [ref=e1]:
+  - navigation [ref=e2]:
+    - link "FinSavvy" [ref=e3] [cursor=pointer]:
+      - /url: /
+    - generic [ref=e4]:
+      - link "Entrar" [ref=e5] [cursor=pointer]:
+        - /url: /accounts/login/
+      - link "Cadastre-se" [ref=e6] [cursor=pointer]:
+        - /url: /accounts/signup/
+  - generic [ref=e8]:
+    - heading "Seu dinheiro, sob controle." [level=1] [ref=e9]
+    - paragraph [ref=e10]: Organize suas contas, acompanhe seu veículo e preveja seus gastos em um só lugar.
+    - link "Criar Conta Grátis" [ref=e12] [cursor=pointer]:
+      - /url: /accounts/signup/
+  - generic [ref=e13]:
+    - heading "Três coisas. Só isso." [level=2] [ref=e15]
+    - generic [ref=e16]:
+      - article [ref=e17]:
+        - heading "Finanças" [level=3] [ref=e18]
+        - paragraph [ref=e19]: Cada conta e cada gasto no mesmo lugar, sem planilha.
+      - article [ref=e20]:
+        - heading "Veículos" [level=3] [ref=e21]
+        - paragraph [ref=e22]: Combustível, manutenção e custo por quilômetro.
+      - article [ref=e23]:
+        - heading "Inteligência" [level=3] [ref=e24]
+        - paragraph [ref=e25]: O gráfico sobe quando o padrão de gasto fica claro.
+  - paragraph [ref=e27]: "Faltam 2 passos para dominar seu dinheiro: 1. Crie sua conta → 2. Adicione sua primeira renda."
+  - contentinfo [ref=e28]:
+    - heading "Pronto para assumir o controle?" [level=2] [ref=e29]
+    - link "Criar Conta Grátis" [ref=e30] [cursor=pointer]:
+      - /url: /accounts/signup/

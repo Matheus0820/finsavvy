@@ -26,8 +26,8 @@
             </div>
             <i class="bi bi-chevron-down small"></i>
         </a>
-        <div class="collapse {% if 'custosvariaveis' in request.path or 'custosvariaveis' in request.resolver_match.url_name %}show{% endif %} ps-3 mt-1" id="custosVariaveisSubmenu">
-            <ul class="nav flex-column border-start border-secondary ms-3 ps-2">
+        <div class="collapse {% if 'custosvariaveis' in request.path or 'custosvariaveis' in request.resolver_match.url_name %}show{% endif %} mt-1" id="custosVariaveisSubmenu">
+            <ul class="nav flex-column ms-3">
                 <li class="nav-item"><a href="{% url 'list_custosVariaveis' %}" class="sub-nav-link {% if request.resolver_match.url_name == 'list_custosVariaveis' or request.resolver_match.url_name == 'add_custoVariavel' or request.resolver_match.url_name == 'edit_custoVariavel' %}active{% endif %}"><i class="bi bi-cash-stack me-2 text-success"></i> Custos Variáveis</a></li>
                 <li class="nav-item"><a href="{% url 'list_categoria' %}" class="sub-nav-link {% if 'categoria' in request.resolver_match.url_name %}active{% endif %}"><i class="bi bi-tags me-2 text-info"></i> Categorias</a></li>
             </ul>
@@ -47,8 +47,8 @@
             </div>
             <i class="bi bi-chevron-down small"></i>
         </a>
-        <div class="collapse {% if 'veiculos' in request.path or 'combustiveis' in request.path or 'manutencoes' in request.path %}show{% endif %} ps-3 mt-1" id="veiculosSubmenu">
-            <ul class="nav flex-column border-start border-secondary ms-3 ps-2">
+        <div class="collapse {% if 'veiculos' in request.path or 'combustiveis' in request.path or 'manutencoes' in request.path %}show{% endif %} mt-1" id="veiculosSubmenu">
+            <ul class="nav flex-column ms-3">
                 <li class="nav-item"><a href="{% url 'list_veiculo' %}" class="sub-nav-link {% if request.resolver_match.url_name == 'list_veiculo' %}active{% endif %}"><i class="bi bi-truck me-2 text-danger"></i> Veículos</a></li>
                 <li class="nav-item"><a href="{% url 'list_custoCombustivel' %}" class="sub-nav-link {% if request.resolver_match.url_name == 'list_custoCombustivel' %}active{% endif %}"><i class="bi bi-fuel-pump me-2 text-warning"></i> Combustível</a></li>
                 <li class="nav-item"><a href="{% url 'list_manutencao' %}" class="sub-nav-link {% if request.resolver_match.url_name == 'list_manutencao' %}active{% endif %}"><i class="bi bi-tools me-2 text-info"></i> Manutenções</a></li>

@@ -17,7 +17,9 @@
       "Bash(rm \"C:/Users/Theus/AppData/Local/Temp/check_console.py\")",
       "Bash(\"C:/Users/Theus/AppData/Local/Temp/test_live.py\")",
       "Bash(rm \"C:/Users/Theus/AppData/Local/Temp/test_live.py\")",
-      "mcp__plugin_playwright_playwright__browser_evaluate"
+      "mcp__plugin_playwright_playwright__browser_evaluate",
+      "Bash(ECC_GATEGUARD=off DJANGO_SETTINGS_MODULE=api.settings PYTHONPATH=\"D:/Documents/Projetos profissionais/Clients/finsavvy\" python manage.py check)",
+      "Bash(ECC_GATEGUARD=off DJANGO_SETTINGS_MODULE=api.settings PYTHONPATH=\"D:/Documents/Projetos profissionais/Clients/finsavvy\" python manage.py test)"
     ]
   }
 }
