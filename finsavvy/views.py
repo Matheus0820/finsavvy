@@ -1,5 +1,8 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.db.models import Sum, ProtectedError
+from django.db.models import F
+from django.db.models.functions import Coalesce
+from django.db.models import FloatField
 from django.db import transaction
 
 from datetime import datetime
@@ -137,15 +140,15 @@ def dashboard(request):
 
     cf_qs = CustoFixo.objects.filter(user=user)
 
-    total_custos_fixos = cf_qs.aggregate(total=Sum('valor'))['total'] or 0
-    total_custos_variaveis = cv_qs.aggregate(total=Sum('valor'))['total'] or 0
-    total_compras = cc_qs.aggregate(total=Sum('valor_total'))['total'] or 0
-    total_combustivel = comb_qs.aggregate(total=Sum('valor_abastecido'))['total'] or 0
-    total_manutencao = manut_qs.aggregate(total=Sum('valor'))['total'] or 0
-    total_troca_oleo = troca_oleo_qs.aggregate(total=Sum('valor'))['total'] or 0
-    total_rendas = renda_qs.aggregate(total=Sum('valor'))['total'] or 0
-    total_renda_fixa = renda_qs.filter(tipo_renda='FIXA').aggregate(total=Sum('valor'))['total'] or 0
-    total_renda_variavel = renda_qs.filter(tipo_renda='VARIAVEL').aggregate(total=Sum('valor'))['total'] or 0
+    total_custos_fixos = cf_qs.aggregate(total=Coalesce(Sum('valor'), 0.0, output_field=FloatField()))['total']
+    total_custos_variaveis = cv_qs.aggregate(total=Coalesce(Sum('valor'), 0.0, output_field=FloatField()))['total']
+    total_compras = cc_qs.aggregate(total=Coalesce(Sum('valor_total'), 0.0, output_field=FloatField()))['total']
+    total_combustivel = comb_qs.aggregate(total=Coalesce(Sum('valor_abastecido'), 0.0, output_field=FloatField()))['total']
+    total_manutencao = manut_qs.aggregate(total=Coalesce(Sum('valor'), 0.0, output_field=FloatField()))['total']
+    total_troca_oleo = troca_oleo_qs.aggregate(total=Coalesce(Sum('valor'), 0.0, output_field=FloatField()))['total']
+    total_rendas = renda_qs.aggregate(total=Coalesce(Sum('valor'), 0.0, output_field=FloatField()))['total']
+    total_renda_fixa = renda_qs.filter(tipo_renda='FIXA').aggregate(total=Coalesce(Sum('valor'), 0.0, output_field=FloatField()))['total']
+    total_renda_variavel = renda_qs.filter(tipo_renda='VARIAVEL').aggregate(total=Coalesce(Sum('valor'), 0.0, output_field=FloatField()))['total']
 
     # Calcula saldo_atual (rendas - custos do mês) para exibição no dashboard
     saldo_atual = total_rendas - (total_custos_fixos + total_custos_variaveis + total_compras + total_combustivel + total_manutencao + total_troca_oleo)
@@ -174,6 +177,7 @@ def dashboard(request):
         'total_rendas': total_rendas,
         'total_renda_fixa': total_renda_fixa,
         'total_renda_variavel': total_renda_variavel,
+        'saldo_atual': saldo_atual,
         'total_geral': total_geral,
         'total_veiculos': total_veiculos,
         'gasto_percentual': gasto_percentual,
