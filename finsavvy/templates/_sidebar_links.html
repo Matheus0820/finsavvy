@@ -19,7 +19,7 @@
         </a>
     </li>
     <li class="nav-item w-100 mb-2">
-        <a class="nav-link submenu-toggle d-flex align-items-center justify-content-between py-2 px-3 {% if 'custosvariaveis' in request.path or 'custosvariaveis' in request.resolver_match.url_name %}active{% endif %}" data-bs-target="#{{ prefix }}custosVariaveisSubmenu" href="#{{ prefix }}custosVariaveisSubmenu" role="button" aria-expanded="{% if 'custosvariaveis' in request.path or 'custosvariaveis' in request.resolver_match.url_name %}true{% else %}false{% endif %}" aria-controls="{{ prefix }}custosVariaveisSubmenu">
+        <a class="nav-link submenu-toggle d-flex align-items-center justify-content-between py-2 px-3 {% if 'custosvariaveis' in request.path or 'custosvariaveis' in request.resolver_match.url_name %}active{% endif %}" data-bs-toggle="collapse" data-bs-target="#{{ prefix }}custosVariaveisSubmenu" href="#{{ prefix }}custosVariaveisSubmenu" role="button" aria-expanded="{% if 'custosvariaveis' in request.path or 'custosvariaveis' in request.resolver_match.url_name %}true{% else %}false{% endif %}" aria-controls="{{ prefix }}custosVariaveisSubmenu">
             <div class="d-flex align-items-center">
                 <i class="bi bi-cash-stack fs-5 me-3 text-success"></i>
                 <span>Custos Variáveis</span>
@@ -40,7 +40,7 @@
         </a>
     </li>
     <li class="nav-item w-100 mb-2">
-        <a class="nav-link submenu-toggle d-flex align-items-center justify-content-between py-2 px-3 {% if 'veiculos' in request.path or 'combustiveis' in request.path or 'manutencoes' in request.path %}active{% endif %}" data-bs-target="#{{ prefix }}veiculosSubmenu" href="#{{ prefix }}veiculosSubmenu" role="button" aria-expanded="{% if 'veiculos' in request.path or 'combustiveis' in request.path or 'manutencoes' in request.path %}true{% else %}false{% endif %}" aria-controls="{{ prefix }}veiculosSubmenu">
+        <a class="nav-link submenu-toggle d-flex align-items-center justify-content-between py-2 px-3 {% if 'veiculos' in request.path or 'combustiveis' in request.path or 'manutencoes' in request.path %}active{% endif %}" data-bs-toggle="collapse" data-bs-target="#{{ prefix }}veiculosSubmenu" href="#{{ prefix }}veiculosSubmenu" role="button" aria-expanded="{% if 'veiculos' in request.path or 'combustiveis' in request.path or 'manutencoes' in request.path %}true{% else %}false{% endif %}" aria-controls="{{ prefix }}veiculosSubmenu">
             <div class="d-flex align-items-center">
                 <i class="bi bi-truck fs-5 me-3 text-danger"></i>
                 <span>Veículos</span>
